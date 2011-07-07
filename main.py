@@ -312,8 +312,7 @@ class AjaxAPIHandler(webapp.RequestHandler):
 application = webapp.WSGIApplication([
 		(requestHome, HomeHandler),
 		(requestAjaxAPI, AjaxAPIHandler),
-		(requestRestApi, RestAPI),
-        (requestDestination, Mashup)		
+		(requestDestination, Mashup)		
     ],debug=True)
 
 if __name__ == '__main__':
