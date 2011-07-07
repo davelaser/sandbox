@@ -259,27 +259,12 @@ class RestAPI(webapp.RequestHandler):
 
 class Mashup(webapp.RequestHandler):
     def get(self, destination):
-		
-		global_mashup['name'] = destination
-		destination = destination.replace(' ', '').lower()
-        
-		"""
-		Manually set the destination YQL Weather and Guardian feed data 
-		"""
-		if destination_display_names.has_key(destination):
-			global_mashup['name'] = destination_display_names[destination]
-		logging.info(global_mashup['name'])
 		""" 
 		NOTE: kapowAPILiveRPCAllData() will return None, because separate callbacks are populating global_mashup[obj]
 		so, we only need to wait for a response, before writing the template out with global_mashup as the data object
 		"""
 		mashup = kapowAPILiveRPCAllData(destination, self.response)
-		
-		"""
-	   	Get weather and info, which will be assigned to global_mashup
-		"""
-		get_information(destination)		                         
-		
+		get_information(destination)
 		path = os.path.join(os.path.dirname(__file__),'templates/mashup.html')
 		self.response.out.write(template.render(path, global_mashup))
 
@@ -304,13 +289,13 @@ class AjaxAPIHandler(webapp.RequestHandler):
 	info_type = info_type.replace(' ', '').lower()
 	
 	"""
-	Manually set the destination YQL weather and Guardian feed data 
+	Manually set the destination nd Guardian feed data 
 	"""
 	if destination_display_names.has_key(destination):
 		global_mashup['name'] = destination_display_names[destination]
     
 	if info_type == "info":
-		global_mashup = get_information(destination)
+		get_information(destination)
 		path = os.path.join(os.path.dirname(__file__),'templates/info.html')
 		self.response.out.write(template.render(path, global_mashup))
 	else:
