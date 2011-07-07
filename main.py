@@ -281,16 +281,15 @@ class HomeHandler(webapp.RequestHandler):
 
 class AjaxAPIHandler(webapp.RequestHandler):
   def get(self):		
-	destination = self.request.get("destination")
-	if destination is not None:
-		logging.info(destination) 
-		result = getDestination(destination,'json')
+	self.response.error = 500
   def post(self):
 	 
 	destination = self.request.POST.get("destination")
 	global_mashup['name'] = destination
-	destination = destination.replace(' ', '').lower()
-	
+	#destination = destination.replace(' ', '').lower()
+	destination = re.sub(r'(<|>|\s)', '', destination)
+	destination = destination.lower()
+	logging.info(destination)
 	info_type = self.request.POST.get("info_type")
 	info_type = info_type.replace(' ', '').lower()
 	
@@ -312,7 +311,7 @@ class AjaxAPIHandler(webapp.RequestHandler):
 application = webapp.WSGIApplication([
 		(requestHome, HomeHandler),
 		(requestAjaxAPI, AjaxAPIHandler),
-		(requestDestination, Mashup)		
+			(requestDestination, Mashup)		
     ],debug=True)
 
 if __name__ == '__main__':
