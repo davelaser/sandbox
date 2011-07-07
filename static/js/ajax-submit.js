@@ -50,10 +50,11 @@ RIA.AjaxSubmit = new Class({
 			method:"POST",
 			url:"/ajax",
 			update:this.information,
+			data:'destination='+destination+'&info_type=info',
 			onRequest: this.requestStart.pass([this.information],this),
 			onSuccess: this.requestSuccessInfo.bind(this),
 			onFailure: this.requestFailure.bind(this)
-		}).send('destination='+destination+'&info_type=info');
+		}).send();
         
 		this.requests.include(this.requestInfo);
 		
@@ -65,7 +66,7 @@ RIA.AjaxSubmit = new Class({
 			onRequest: this.requestStart.pass([this.cityBreak],this),
 			onSuccess: this.requestSuccess.pass([this.cityBreak],this),
 			onFailure: this.requestFailure.bind(this)
-		}).send();
+		});
 		 
 		this.requests.include(this.requestCityBreak);
 		
@@ -77,7 +78,7 @@ RIA.AjaxSubmit = new Class({
 			onRequest: this.requestStart.pass([this.hotels],this),
 			onSuccess: this.requestSuccess.pass([this.hotels],this),
 			onFailure: this.requestFailure.bind(this)
-		}).send();
+		});
 		
 		this.requests.include(this.requestHotels);
 		
@@ -89,10 +90,13 @@ RIA.AjaxSubmit = new Class({
 			onRequest: this.requestStart.pass([this.flights],this),
 			onSuccess: this.requestSuccess.pass([this.flights],this),
 			onFailure: this.requestFailure.bind(this)
-		}).send();
+		});
         
 		this.requests.include(this.requestFlights); 
 		
+	    this.requests.each(function(request) {
+			request.send();
+		});
 	},
 	requestStart: function(element) {
 		if(element) {
@@ -112,7 +116,8 @@ RIA.AjaxSubmit = new Class({
 		var articles = document.getElements('article[data-feed]');
 	    for (var i=0,article; article=articles[i]; i++) {
 			new RIA.Class.Article(article);
-	    }
+	    }                           
+
 	},
 	requestFailure: function(e) {
 		Log.error({method:"requestFailure", error:e});
