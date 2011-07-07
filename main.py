@@ -100,7 +100,10 @@ def create_callback_ajax(rpc, destination, info_type, response):
 
 """ Use with Live Kapow Service - Use a helper function to define the scope of the callback, for Mashup Request Handler """
 def create_callback_mashup(rpc, destination, info_type, response):
-	return lambda: handle_result_mashup(rpc, destination, info_type, response)		
+	try:
+		return lambda: handle_result_mashup(rpc, destination, info_type, response)		
+	except urlfetch.DownloadError:
+		logging.info("DeadlineExceededError")
 
 def get_citybreak(destination):
 	#http://46.137.188.35:8080/kws/jaxrs/execute/DefaultProject/LM-city-breaks.robot?r.object=last_minute_city_breaks_destination&destination=paris&r.url=http%3A%2F%2Flocalhost%3A50080&r.username=roboserver&r.password=345khrglkjhdfv

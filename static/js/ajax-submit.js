@@ -93,11 +93,15 @@ RIA.AjaxSubmit = new Class({
 		
 	},
 	requestStart: function(element) {
-		element.addClass("waiting");
-		element.getChildren().morph({"opacity":0});
+		if(element) {
+			element.addClass("waiting");
+			element.getChildren().morph({"opacity":0});
+		}
 	},
 	requestSuccess: function(element) {
-		element.removeClass("waiting");
+		if(element) {
+			element.removeClass("waiting");
+		}
 		RIA.MapHandler.init(); 
 	},
 	requestSuccessInfo: function() {
