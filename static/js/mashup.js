@@ -14,7 +14,6 @@ RIA = {
 
             this.init = function() {
 				this.feed = this.article.get("data-feed");
-				Log.info(this.feed)
                 if (!this.feed) return;
                 this.id = this.article.id;
                 this.get();
@@ -37,9 +36,14 @@ RIA = {
 })();
 
 function weather(data) {
-    var html = [];
-    html.push('<h3>'+data.query.results.channel.description+'</h3>');
-    html.push('<p>'+data.query.results.channel.item.description+'</p>');
+    var html = [];   
+	if(typeof(data.query.results.channel) == "object") {
+	    html.push('<h3>'+data.query.results.channel[0].description+'</h3>');
+	    html.push('<p>'+data.query.results.channel[0].item.description+'</p>');		
+	} else {
+	    html.push('<h3>'+data.query.results.channel.description+'</h3>');
+	    html.push('<p>'+data.query.results.channel.item.description+'</p>');
+   	}
     RIA.fn.populateContainer('weather',html);
 }
 

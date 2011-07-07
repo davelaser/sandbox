@@ -4,7 +4,7 @@ body{background:#eeeeee;}
 .wrapper {width:960px; margin-left:auto; margin-right:auto; font:normal 12px Arial,Helvetica,sans-serif; }
 .banner {width:975px; height:88px; background:#EC008C; padding-top:20px;-webkit-border-top-left-radius: 8px; -webkit-border-top-right-radius: 8px;}
 .nav {width:925px; height:22px; border-bottom:5px solid #666;background:#000;color:#EC008C; padding:11px 25px 5px 25px;}
-.content {width:938px; min-height:700px; background:#fff; padding:10px 10px 10px 25px;color:#000; border:1px solid #000; overflow:hidden;}
+.content {width:938px; background:#fff; padding:10px 10px 10px 25px;color:#000; border:1px solid #000; overflow:hidden;}
 .footer {width:955px; height:22px;background:#000; padding:11px 10px 5px 10px; color:#fff;-webkit-border-bottom-left-radius: 8px; -webkit-border-bottom-right-radius: 8px;}
 .white {color:#fff;}
 a,
@@ -18,7 +18,7 @@ h3 a {font-size:12px; color:#000; display:block; margin-bottom:-10px;}
 .flights {border:1px solid #000; -webkit-border-radius: 7px;padding:8px;background:#E6E6E6;}
 
 .city-break img {-webkit-border-radius: 3px; margin-bottom:5px; margin-right:7px; }
-.city-break {width:900px;; padding:8px; margin-bottom:15px;}
+.city-break {width:900px; padding:8px; margin-bottom:15px;}
 
 .info{ width:285px; float:left; margin-right:0px;}
 .hotels {width:300px; float:left; margin-right:12px;}
@@ -55,4 +55,10 @@ dl {border:1px solid #EC008C; -webkit-border-radius: 5px; padding:6px 3px 0px 5p
 .map img {
 	height:0px;
 	opacity:0;
+}
+
+.waiting {
+	background-image:url(../img/ajax-loader.gif);
+	background-repeat:no-repeat;
+	background-position:50% 50px;
 }

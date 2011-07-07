@@ -1,0 +1,20 @@
+<h2>Top flight to {{ name }}</h2>
+    <dl>
+        <dt>Name:</dt>
+        <dd>{{ cheapest_flight.outboundAirline}} {{ cheapest_flight.outboundFlightNumber}}</dd>
+        <dt>Departure:</dt>
+        <dd>{{ cheapest_flight.outboundAirport}}</dd>
+        <dt>Arrival:</dt>
+        <dd>{{ cheapest_flight.inboundAirport }}</dd>
+        <dt>Price:</dt>
+        <dd>{{ cheapest_flight.price }}</dd>
+    </dl>
+<h2>Compare</h2>
+    <dl>
+    {% for flight in all_flights %}
+        <dt>Airline:</dt>
+        <dd>{{ flight.outboundAirline }} {{ flight.outboundFlightNumber}}</dd>
+        <dt>Price:</dt>
+        <dd>{{ flight.price}}</dd>
+	{% endfor %}
+	</dl>
