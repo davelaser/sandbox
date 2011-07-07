@@ -45,6 +45,16 @@ RIA.AjaxSubmit = new Class({
 			}
 		}, this);
 		
+		this.requestInfo = new Request.HTML({
+			method:"POST",
+			url:"/ajax",
+			update:this.information,
+			onRequest: this.requestStart.pass([this.information],this),
+			onSuccess: this.requestSuccessInfo.bind(this),
+			onFailure: this.requestFailure.bind(this)
+		}).send('destination='+destination+'&info_type=info');
+        
+		this.requests.include(this.requestInfo);
 		
 		this.requestCityBreak = new Request.HTML({
 			method:"POST",
@@ -79,16 +89,7 @@ RIA.AjaxSubmit = new Class({
         
 		this.requests.include(this.requestFlights); 
 		
-		this.requestInfo = new Request.HTML({
-			method:"POST",
-			url:"/ajax",
-			update:this.information,
-			onRequest: this.requestStart.pass([this.information],this),
-			onSuccess: this.requestSuccessInfo.bind(this),
-			onFailure: this.requestFailure.bind(this)
-		}).send('destination='+destination+'&info_type=info');
-        
-		this.requests.include(this.requestInfo);
+		
 		
 	},
 	requestStart: function(element) {

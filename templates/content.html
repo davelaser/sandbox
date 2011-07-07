@@ -1,7 +1,9 @@
 {% include "intro.html" %}
+{% if city_break.HotelName %}
 <article id="city-break" class="city-break">
 {% include "city-break.html" %}
-</article>
+</article>                   
+{% endif %}
 <article id="flights" class="flights">
 	{% include "flights.html" %}
 </article>
