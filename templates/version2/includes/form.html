@@ -1,0 +1,24 @@
+<form id="start-your-story" method="post" action="/experience">
+	<fieldset>
+		<header>
+			<h2>Travel details</h2>				
+		</header>  					
+		<label for="destination">I want to stay at a hotel in</label>
+		<input id="destination" type="text" value="New York{{ destination }}" />
+		<label for="duration_of_stay">for</label>
+		<input id="duration_of_stay" type="text" value="{{ duration_of_stay }}" />                                                        
+		<span>nights,</span>
+		<label for="arrival_date">arriving</label>
+		<input id="arrival_date" type="date" value="{{ arrival_date }}" />
+		<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />
+		<button id="submit_travel_details" type="submit" class="button">Start my story</button>
+		<fieldset id="room-information">               
+			(<label for="rooms">I need</label>
+			<input id="rooms" type="text" value="" />
+			<label for="adults">room(s) for</label>
+			<input id="adults" type="text" value="" />adults
+			<label for="children">and</label>
+			<input id="children" type="text" value="" />children)
+		</fieldset>				
+	</fieldset>                                                                                      
+</form>

@@ -6,22 +6,25 @@ RIA.AjaxSubmit = new Class({
 	initialize: function(options) {
 		this.setOptions(options);
 		this.content = document.id("content");
-		this.tempContent = document.id("temp-content");
-		this.ajaxForm = document.id("controls");
+		this.ajaxForm = document.id("start-your-story");
 		this.destination = document.id("destination");
-		
 		this.flights = document.id("flights");
 		this.hotels = document.id("hotels");
 		this.cityBreak = document.id("city-break");
         this.information = document.id("info");
+		this.weather = document.id("weather");
+		this.guardian = document.id("guardian");
 		this.requests = [];
-		
-		this.addEventListeners();
+		 
+		this.loading = document.id("loading");
+		this.addEventListeners(); 
+		 
+		this.ajaxForm.fireEvent("submit");
 	},
 	addEventListeners: function() {
 		this.ajaxForm.addEvents({
-			"submit": function(e) {
-				e.preventDefault();
+			"submit": function(e) {  
+				if(e) e.preventDefault();
 				this.updateDestinationName(this.destination.get("value"));
 				if(this.destination.get("value") != "") {
 					this.requestData(this.destination.get("value"));
@@ -49,31 +52,42 @@ RIA.AjaxSubmit = new Class({
 		this.requestInfo = new Request.HTML({
 			method:"POST",
 			url:"/ajax",
-			update:this.information,
-			data:'destination='+destination+'&info_type=info',
-			onRequest: this.requestStart.pass([this.information],this),
-			onSuccess: this.requestSuccessInfo.bind(this),
+			update:this.weather.getElement(".results"),
+			data:'destination='+destination+'&info_type=weather',
+			onRequest: this.requestStart.pass([this.weather],this),
+			onSuccess: this.requestSuccessInfo.pass([this.weather],this),
 			onFailure: this.requestFailure.bind(this)
-		}).send();
-        
+		}).send();        
 		this.requests.include(this.requestInfo);
 		
+	   	this.requestGuardian = new Request.HTML({
+			method:"POST",
+			url:"/ajax",
+			update:this.guardian.getElement(".results"),
+			data:'destination='+destination+'&info_type=guardian',
+			onRequest: this.requestStart.pass([this.guardian],this),
+			onSuccess: this.requestSuccessInfo.pass([this.guardian],this),
+			onFailure: this.requestFailure.bind(this)
+		}).send();        
+		this.requests.include(this.requestGuardian);
+		
+		/*
 		this.requestCityBreak = new Request.HTML({
 			method:"POST",
 			url:"/ajax",
-			update:this.cityBreak,
+			update:this.cityBreak.getElement(".results"),
 			data:'destination='+destination+'&info_type=city-break',
 			onRequest: this.requestStart.pass([this.cityBreak],this),
 			onSuccess: this.requestSuccess.pass([this.cityBreak],this),
 			onFailure: this.requestFailure.bind(this)
-		});
-		 
+		});		 
 		this.requests.include(this.requestCityBreak);
+		*/
 		
 		this.requestHotels = new Request.HTML({
 			method:"POST",
 			url:"/ajax",
-			update:this.hotels,
+			update:this.hotels.getElement(".results"),
 			data:'destination='+destination+'&info_type=hotels',
 			onRequest: this.requestStart.pass([this.hotels],this),
 			onSuccess: this.requestSuccess.pass([this.hotels],this),
@@ -81,18 +95,19 @@ RIA.AjaxSubmit = new Class({
 		});
 		
 		this.requests.include(this.requestHotels);
-		
+			
+		/*
 		this.requestFlights = new Request.HTML({
 			method:"POST",
 			url:"/ajax",
-			update:this.flights,
+			update:this.flights.getElement(".results"),
 			data:'destination='+destination+'&info_type=flights',
 			onRequest: this.requestStart.pass([this.flights],this),
 			onSuccess: this.requestSuccess.pass([this.flights],this),
 			onFailure: this.requestFailure.bind(this)
-		});
-        
+		});        
 		this.requests.include(this.requestFlights); 
+		*/ 
 		
 	    this.requests.each(function(request) {
 			request.send();
@@ -100,22 +115,39 @@ RIA.AjaxSubmit = new Class({
 	},
 	requestStart: function(element) {
 		if(element) {
+			this.loading.setStyle("display", "block");
+			RIA.InitExperience.getHotels();
 			element.addClass("waiting");
-			element.getChildren().morph({"opacity":0});
+			element.getElement(".results").morph({"opacity":0});			
 		}
 	},
 	requestSuccess: function(element) {
 		if(element) {
+			/*
+			* 	Set up the hotels Element Collection
+			*/
+			this.loading.setStyle("display", "none");
+			if(element.get("id") == "hotels") {
+				RIA.InitExperience.gotHotels();				     
+				document.getElements(".photos").each(function(photoContainer) {
+					var text = photoContainer.get("text").clean();
+					text.replace(" ","");
+					var temp = new Element("div").set("html", text);
+					photoContainer.innerHTML = "";
+					temp.inject(photoContainer)
+
+				});
+			}
 			element.removeClass("waiting");
+			element.getElement(".results").morph({"opacity":1});
 		}
-		RIA.MapHandler.init(); 
 	},
-	requestSuccessInfo: function() {
-		this.information.removeClass("waiting");
-		
+	requestSuccessInfo: function(element) {
+		element.removeClass("waiting");
+		element.getElement(".results").morph({"opacity":1});
 		var articles = document.getElements('article[data-feed]');
 	    for (var i=0,article; article=articles[i]; i++) {
-			new RIA.Class.Article(article);
+			if (RIA.Class.Article) new RIA.Class.Article(article);
 	    }                           
 
 	},

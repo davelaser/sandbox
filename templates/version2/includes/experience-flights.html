@@ -1,0 +1,8 @@
+    <dl>
+    {% for flight in all_flights %}
+        <dt>Airline:</dt>
+        <dd>{{ flight.outboundAirline }} {{ flight.outboundFlightNumber}}</dd>
+        <dt>Price:</dt>
+        <dd>{{ flight.price}}</dd>
+	{% endfor %}
+	</dl>

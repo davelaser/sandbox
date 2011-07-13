@@ -1,0 +1,367 @@
+* {-webkit-tap-highlight-color:none;}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}ol,ul,dl{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;}
+
+body {
+	position:relative;
+	font-family:Arial,Verdana,Helvetica;
+	font-size:0.8em;
+	color:#000;
+	text-align:center;
+	width:100%;
+	height:100%;                                                                               
+	background:#fff; 
+}  
+ 
+a {
+	color:inherit;           
+	text-decoration:none;
+}                
+a:hover,
+a:active,
+a:visited {
+	text-decoration:underline;
+} 
+
+nav a {
+	color:#EC008C;
+}
+strong {
+	font-weight:bold;
+}   
+article,
+section,  
+header,
+hgroup,
+footer  {
+	display:block;	
+}
+
+#background {  
+	z-index:-1;
+ 	width:100%;
+	height:100%;
+	position:fixed;   
+}
+#shell {
+	width:975px;
+	height:100%;
+	margin:0 auto;
+	text-align:left; 
+	position:relative; 
+	overflow:hidden;
+}
+ 
+#content {
+	position:relative; 
+	margin-top:150px;
+	height:auto;
+}                    
+
+h1 {     
+	position:fixed;
+	top:-10px;
+	width:975px; 
+	height:65px; 
+	padding-top:10px;
+	background:#EC008C; 
+	color:#fff;
+	font-size:2.5em;
+	margin:10px 0 20px 0; 
+	zoom:1;
+	z-index:2;
+} 
+
+h1 span { 
+	display:block;
+	position:absolute;
+	top:28px;
+	right:20px;
+}     
+
+h2 {
+	font-size:1.6em;
+	margin:0 0 10px 0;
+}                    
+
+form#start-your-story {  
+	zoom:1;  
+	z-index:2;
+	width:935px;
+	position:fixed;
+	top:75px;
+	overflow:hidden;
+    font-size:1.6em; 
+	background:#fff;
+	padding:20px;
+	margin:0 0 20px 0;
+	   
+	border-bottom-left-radius:10px;
+	border-bottom-right-radius:10px;
+	-webkit-border-bottom-left-radius:10px;
+	-webkit-border-bottom-right-radius:10px;
+	-moz-border-bottom-left-radius:10px;
+	-moz-border-bottom-right-radius:10px;
+	-o-border-bottom-left-radius:10px;
+	-o-border-bottom-right-radius:10px;
+	-ms-border-bottom-left-radius:10px;
+	-ms-border-bottom-right-radius:10px;
+	
+	-moz-box-shadow: 0px 8px 8px #fff;
+	-webkit-box-shadow: 0px 8px 8px #fff;
+}
+
+form#start-your-story header {
+	display:none;
+}     
+
+form#start-your-story fieldset {
+	float:left;
+	margin:0 0px 0 0;
+}    
+
+#room-information {
+	float:none;
+	display:block;
+	font-size:0.6em; 
+	margin:0;
+}
+
+input#destination {
+	width:100px;
+}     
+
+#room-information input[type=text] {
+	width:20px;
+}   
+
+form#start-your-story input {
+	border:none;
+	font-size:0.9em; 
+	border-bottom:1px dotted #EC008C;
+}     
+
+form#start-your-story input[type=text] {
+	height:auto;
+	text-align:left; 	
+}                      
+
+form#start-your-story input[type=date] {  
+	width:150px;
+}	  
+
+form#start-your-story input#duration_of_stay {
+	width:30px;
+}
+         
+.button {
+	background:#EC008C;
+	padding:10px;
+	color:#fff;
+	border:none;
+	border-radius:10px;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-o-border-radius:10px; 
+	-ms-border-radius:10px; 
+	
+	-moz-box-shadow: -2px -1px 5px gray inset, 0px 3px 8px white inset;
+	-webkit-box-shadow: -2px -1px 5px gray inset, 0px 3px 8px white inset;
+}
+
+article section {
+	
+	background:#fff;
+	padding:20px;
+	margin:0 0 20px 0;	   
+	border-radius:10px;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-o-border-radius:10px; 
+	-ms-border-radius:10px; 
+}
+
+
+#guardian {
+	float:left;
+	width:200px;  
+	overflow:hidden; 
+	margin-top:260px;
+}
+
+#guardian h3 a {
+	text-decoration:underline;
+	font-weight:bold;
+}                   
+
+#guardian h3,
+#guardian p {
+	margin:0 0 5px 0;
+}   
+
+#guardian.streetview {
+	height:114px;
+	opacity:0.7;   
+}
+#weather {
+	float:left;
+	width:200px;  
+	overflow:hidden;
+	margin:0 10px 0 0;
+} 
+#weather header {
+	overflow:hidden;
+}
+
+#weather.streetview {
+	height:114px;
+	opacity:0.7;   
+}  
+
+#weather.streetview h3 {
+	display:none;
+}
+#travel-partners {
+	position:relative;
+	width:auto;
+	height:auto;
+}  
+
+#hotels { 
+	width:435px;
+	min-height:500px;
+	/*
+	margin-top:190px; 
+	*/
+	min-width:150px; 
+	margin:0 10px 0 0;
+	overflow:hidden;
+	float:left;
+}    
+
+#hotels.streetview {
+	min-height:50px;
+	opacity:0.7;
+}
+#hotels .results {
+	width:100%;
+}                   
+
+#hotels.streetview .hotel .details,
+#hotels.streetview .hotel .photos {
+	display:none;
+}	
+.hotel {
+	width:435px;
+	display:block;
+	float:left; 
+	padding-right:20px;
+}
+
+.hotel nav {
+	margin-top:20px;
+} 
+.hotel nav li {
+	display:inline-block;
+	background:#EC008C;
+	padding:10px;
+	color:#fff;
+	
+	border-top-left-radius:10px;
+	border-top-right-radius:10px;
+	-webkit-border-top-left-radius:10px;
+	-webkit-border-top-right-radius:10px;
+	-moz-border-top-left-radius:10px;
+	-moz-border-top-right-radius:10px;
+	-o-border-top-left-radius:10px;
+	-o-border-top-right-radius:10px;
+	-ms-border-top-left-radius:10px;
+	-ms-border-top-right-radius:10px; 
+	
+	-moz-box-shadow: 0px 3px 8px white inset;
+	-webkit-box-shadow: 0px 3px 8px white inset;
+}   
+.hotel h3.name {
+	display:inline-block;
+	margin-top:20px;
+	font-size:3em;
+} 
+
+#hotels.streetview .hotel h3.name {
+	font-size:1.6em;
+}
+
+.hotel .photos {
+	float:left;
+	margin:0 30px 0 0;
+}
+/*
+* 	Google Maps Canvas
+*/
+#map_canvas {
+	/*
+	visibility:hidden;
+	*/
+	width:200px;
+	height:200px;
+	position:absolute;
+	right:0px;
+	top:0px;
+	z-index:1;      
+
+}                    
+
+#pano {
+	width:100%;
+	height:1000px;
+	position:absolute;
+	left:0px;
+	top:0px;
+}
+
+
+/*
+* 	loading
+*/
+#loading {    
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;       
+	height:1000px;
+  	z-index:50;
+	text-align:center;
+	display:none;
+}
+    
+#loading #mask {
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;       
+	height:1000px;
+	background:#333;
+	opacity:0.6; 
+	z-index:55;
+}
+#loading #loading-message {    
+	position:absolute;
+	left:35%;
+	top:20%;
+	width:400px;
+	height:100px;
+	background:#EC008C;
+	font-size:3em;
+	color:#fff;
+
+	opacity:1;
+	z-index:60;
+	border-radius:10px;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-o-border-radius:10px; 
+	-ms-border-radius:10px;
+} 
+
+#loading #loading-message h3 {
+	padding:30px 0;
+}

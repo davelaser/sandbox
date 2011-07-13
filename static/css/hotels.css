@@ -1,0 +1,11 @@
+
+
+#background.new-york {
+	background:url(../img/backgrounds/new-york.jpg) no-repeat top center;
+	background-attachment:fixed;
+}        
+
+#background.paris {
+	background:url(../img/backgrounds/paris.jpg) no-repeat top center;
+	background-attachment:fixed;
+}

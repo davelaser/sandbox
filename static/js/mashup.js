@@ -3,7 +3,7 @@ document.body.className = 'js';
 RIA = {
     fn : {
         populateContainer : function(container,html) {
-            var container = document.getElementById(container);
+            var container = document.id(container).getElement(".results");
             container.innerHTML = html.join('');
         }
     },
@@ -51,7 +51,9 @@ function news(data) {
     var html = [];
     var items = data.response.results;
     for (var i=0,item; item=items[i]; i++) {
-        html.push('<h3><a href="'+item.webUrl+'" rel="external">'+item.fields.headline+'</a></h3>'+item.fields.trailText);
+		if(i<5) {
+			html.push('<h3><a href="'+item.webUrl+'" rel="external">'+item.fields.headline+'</a></h3>'+item.fields.trailText);
+		}        
     }
-    RIA.fn.populateContainer('news',html);
+    RIA.fn.populateContainer('guardian',html);
 }

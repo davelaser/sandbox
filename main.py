@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from google.appengine.dist import use_library
-use_library('django', '0.96')
+use_library('django', '1.2')
 import re
 import os
 import codecs
@@ -15,7 +15,9 @@ from django.utils import simplejson as json
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
-                  
+from google.appengine.ext import db
+
+requestExperience = "/experience"                  
 requestHome = "/"
 requestRestApi = r"/(.*)/(xml|json)"
 requestDestination = r"/(.*)"
@@ -23,7 +25,7 @@ requestAjaxAPI = "/ajax"
 
 feeds = {
     'bbc'      : 'http://news.bbc.co.uk/weather/forecast/',
-    'guardian' : 'http://content.guardianapis.com/search?format=json&use-date=last-modified&show-fields=headline,trailText&ids=',
+    'guardian' : 'http://content.guardianapis.com/search?format=json&use-date=last-modified&show-fields=headline,trailText&ids=travel/',
     'yahoo'    : 'http://query.yahooapis.com/v1/public/yql?format=json&q='
 }
 
@@ -53,6 +55,27 @@ destination_display_names = {
 	'edinburgh':'Edinburgh'
 }
 
+
+
+class DBCityDestination(db.Model):
+	timestamp = db.DateTimeProperty(auto_now_add=True)
+	name = db.StringProperty(required=True)
+	hotels = db.TextProperty(required=True)
+	
+"""
+Get destination content to the datastore
+"""
+def get_datastore_by_destination(destination):
+	return False
+	
+"""
+Write to datastore by destination
+"""	                             
+def put_datastore_by_destination(destination, data):
+	dbDestination = DBCityDestination(name = destination, hotels = data)
+	dbDestination.put()
+	
+	
 def kapowAPI(request):
 	return codecs.open(os.path.join(os.path.dirname(__file__), request))
 
@@ -67,14 +90,17 @@ def handle_result_ajax(rpc, destination, info_type, response):
 			global_mashup['cheapest_flight'] = f[-1]
 			global_mashup['all_flights'] = f[0:-2]
 		elif info_type =="hotels":
+			# Put the response body content stringXML into the data store
+			put_datastore_by_destination(destination, result.content)
 			global_mashup['hotels'] = f
+			logging.info(f)
 		elif info_type == "city-break":
 			global_mashup['city_break'] = f[0]
-		path = os.path.join(os.path.dirname(__file__),'templates/'+info_type+'.html')
+		path = os.path.join(os.path.dirname(__file__),'templates/includes/experience-'+info_type+'.html')
 		response.out.write(template.render(path, global_mashup))
 	elif result.status_code == 400:
 		logging.info("RPC response ERROR code: 400")
-		path = os.path.join(os.path.dirname(__file__),'templates/no-results.html')
+		path = os.path.join(os.path.dirname(__file__),'templates/includes/no-results.html')
 		response.out.write(template.render(path, global_mashup))
 
 def handle_result_mashup(rpc, destination, info_type, response):
@@ -131,10 +157,10 @@ def get_flights(destination):
 	return flightURL
 
 def get_hotels(destination):
-	hotelsURL = "http://46.137.188.35:8080/kws/jaxrs/execute/DefaultProject/LM-hotels.robot?"
+	hotelsURL = "http://46.137.188.35:8080/kws/jaxrs/execute/DefaultProject/LM-hotels-full.robot?"
 	hotelsArgs = dict()
-	hotelsArgs['r.object'] = 'last_minute_hotel_city_desination'
-	hotelsArgs['city'] = destination
+	hotelsArgs['r.object'] = 'hotel_input_data'
+	hotelsArgs['destCity'] = destination
 	hotelsArgs['r.url'] = 'http://localhost:50080'
 	hotelsArgs['r.username'] = 'roboserver'
 	hotelsArgs['r.password'] = '345khrglkjhdfv'
@@ -142,11 +168,14 @@ def get_hotels(destination):
 	hotelsURL += hotelsArgsEncoded
 	return hotelsURL
 
-def get_information(destination):
-	global_mashup['news'] = feeds['guardian']+'travel/'+destination
+def get_weather(destination):
 	global_mashup['weather'] = feeds['yahoo']+'select%20*%20from%20weather.forecast%20where%20location%20in%20(select%20id%20from%20weather.search%20where%20query%3D%22'+global_mashup['name']+'%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
 	return global_mashup
-	   
+
+def get_guardian(destination):
+	global_mashup['news'] = feeds['guardian']+destination
+	return global_mashup
+	
 """ Use with Live Kapow Service - Asynchronous mutliple RPC Requests """
 def kapowAPILiveRPC(destination, info_type, response):
 	url = None
@@ -156,7 +185,7 @@ def kapowAPILiveRPC(destination, info_type, response):
 	    url = get_hotels(destination)
 	if info_type == "city-break":
 	    url = get_citybreak(destination)
-	rpc = urlfetch.create_rpc(60)
+	rpc = urlfetch.create_rpc(1000)
 	rpc.callback = create_callback_ajax(rpc, destination, info_type, response)
 	urlfetch.make_fetch_call(rpc, url, "GET")
 	rpc.wait()
@@ -188,7 +217,7 @@ def kapowAPILiveRPCAllData(destination, response):
 
 	urls = [cityBreak, hotels, flights]
 	for url in urls:
-	    rpc = urlfetch.create_rpc(60)
+	    rpc = urlfetch.create_rpc(600)
 	    rpc.callback = create_callback_mashup(rpc, url['destination'], url['info_type'], url['response'])
 	    urlfetch.make_fetch_call(rpc, url['data'])
 	    rpcs.append(rpc)
@@ -270,7 +299,8 @@ class Mashup(webapp.RequestHandler):
 		if destination_display_names.has_key(destination):
 			global_mashup['name'] = destination_display_names[destination]
 		mashup = kapowAPILiveRPCAllData(destination, self.response)
-		get_information(destination)
+		get_weather(destination)
+		get_guardian(destination)
 		path = os.path.join(os.path.dirname(__file__),'templates/mashup.html')
 		self.response.out.write(template.render(path, global_mashup))
 
@@ -279,39 +309,64 @@ class HomeHandler(webapp.RequestHandler):
 		path = os.path.join(os.path.dirname(__file__),'templates/mashup.html')
 		self.response.out.write(template.render(path, {}))		
 
+class ExperienceHandler(webapp.RequestHandler):
+	def get(self):
+		destination = self.request.get("destination") 
+		                                                  
+		args = dict(destination=destination)
+		path = os.path.join(os.path.dirname(__file__),'templates/version2/experience.html')
+		self.response.out.write(template.render(path, args))
+		
+	def post(self):
+		destination = self.request.POST.get("destination")
+		
+	
 class AjaxAPIHandler(webapp.RequestHandler):
   def get(self):		
 	self.response.error = 500
+	return True
   def post(self):
-	 
 	destination = self.request.POST.get("destination")
 	global_mashup['name'] = destination
-	#destination = destination.replace(' ', '').lower()
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()
 	logging.info(destination)
 	info_type = self.request.POST.get("info_type")
 	info_type = info_type.replace(' ', '').lower()
-	
+    
 	"""
-	Manually set the destination Weather and Guardian feed data 
+	If the Destination provided matches a nice display name we have stored locally, then use this.
+	WARNING: Otherwise the Destination will be set to whatever the User provided!
 	"""
 	if destination_display_names.has_key(destination):
 		global_mashup['name'] = destination_display_names[destination]
     
-	if info_type == "info":
-		get_information(destination)
-		path = os.path.join(os.path.dirname(__file__),'templates/info.html')
+	if info_type == "weather":
+		get_weather(destination)
+		path = os.path.join(os.path.dirname(__file__),'version2/templates/includes/experience-weather.html')
 		self.response.out.write(template.render(path, global_mashup))
+	elif info_type == "guardian":
+		get_guardian(destination)
+		path = os.path.join(os.path.dirname(__file__),'version2/templates/includes/experience-guardian.html')
+		self.response.out.write(template.render(path, global_mashup))		   	
 	else:
 		mashup = kapowAPILiveRPC(destination, info_type, self.response)
+		"""
+		q = DBCityDestination.all()
+		q.filter("destination =", destination)
+		#dbLookup = db.GqlQuery("SELECT * FROM DBCityDestination ORDER BY timestamp ASC")
+		#logging.info(dbLookup)                                                                                              
+		results = q.get()  
+		logging.info(results)
+		"""
 	return True
 
 
 application = webapp.WSGIApplication([
+		(requestExperience, ExperienceHandler),
 		(requestHome, HomeHandler),
 		(requestAjaxAPI, AjaxAPIHandler),
-			(requestDestination, Mashup)		
+		(requestDestination, ExperienceHandler)		
     ],debug=True)
 
 if __name__ == '__main__':

@@ -1,0 +1,21 @@
+{% for hotel in hotels %}
+<div class="hotel">						
+	<header>
+		<h3 class="name">#{{ forloop.counter }}: {{hotel.Name|safe}}</h3>
+    </header>
+
+	<div class="photos">
+		{{ hotel.thumbnail|safe }}
+	</div>	
+	<div class="details">	
+		<dl>
+			<dt>Address:<dt>
+			<dd class="address">{{hotel.Address}}<dd>
+			<dt>Phone:<dt>
+			<dd>{{hotel.phone}}<dd>
+			<dt>Price:<dt>
+			<dd>{{hotel.price|safe}}<dd>
+		</dl>
+	</div>
+</div> 
+{% endfor %}
