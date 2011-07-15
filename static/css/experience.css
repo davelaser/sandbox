@@ -252,6 +252,7 @@ article section {
 	width:100%;
 }                   
 
+#hotels.streetview .hotel .rating,
 #hotels.streetview .hotel .details,
 #hotels.streetview .hotel .photos {
 	display:none;
