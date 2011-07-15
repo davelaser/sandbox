@@ -11,18 +11,22 @@ import urllib
 import urllib2 
 from google.appengine.api import urlfetch
 from django.utils import simplejson as json
-
+from ConfigParser import ConfigParser
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 requestExperience = "/experience"                  
 requestHome = "/"
 requestRestApi = r"/(.*)/(xml|json)"
 requestDestination = r"/(.*)"
 requestAjaxAPI = "/ajax"
+requestGooglePlaces = "/places"
 
+# TODO: remove the memcache flush
+memcache.flush_all()
 feeds = {
     'bbc'      : 'http://news.bbc.co.uk/weather/forecast/',
     'guardian' : 'http://content.guardianapis.com/search?format=json&use-date=last-modified&show-fields=headline,trailText&ids=travel/',
@@ -56,6 +60,23 @@ destination_display_names = {
 }
 
 
+def loadConfigProperties():
+	configProperties = memcache.get("config.properties")
+	if configProperties is not None:
+		logging.info("Got configProperties from memcache")
+		return configProperties
+	else:
+		logging.info("NOT Got configProperties from memcache")
+		configPropertyLocation = "properties/config.properties"
+		configProperties = ConfigParser()
+		configProperties.read(configPropertyLocation)
+		memcache.add("config.properties", configProperties)
+		return configProperties	   
+"""
+Get the config properties
+"""
+config_properties = loadConfigProperties()
+
 
 class DBCityDestination(db.Model):
 	timestamp = db.DateTimeProperty(auto_now_add=True)
@@ -85,7 +106,7 @@ def handle_result_ajax(rpc, destination, info_type, response):
 	result = rpc.get_result()
 	if result.status_code == 200:
 		logging.info("RPC response SUCCESS code: 200")
-		f = parseXMLLive(result.content)
+		f = parseXMLLive(result.content.replace('|', ''))
 		if info_type == "flights":
 			global_mashup['cheapest_flight'] = f[-1]
 			global_mashup['all_flights'] = f[0:-2]
@@ -96,12 +117,37 @@ def handle_result_ajax(rpc, destination, info_type, response):
 			logging.info(f)
 		elif info_type == "city-break":
 			global_mashup['city_break'] = f[0]
-		path = os.path.join(os.path.dirname(__file__),'templates/includes/experience-'+info_type+'.html')
+		path = os.path.join(os.path.dirname(__file__),'templates/version2/includes/experience-'+info_type+'.html')
 		response.out.write(template.render(path, global_mashup))
 	elif result.status_code == 400:
 		logging.info("RPC response ERROR code: 400")
-		path = os.path.join(os.path.dirname(__file__),'templates/includes/no-results.html')
+		path = os.path.join(os.path.dirname(__file__),'templates/version2/includes/no-results.html')
+		response.out.write(template.render(path, global_mashup)) 
+		
+""" Use with Live Kapow Service - Handle an RPC result instance, for Flights """
+def handle_result_ajax_v3(rpc, destination, info_type, response):
+	result = rpc.get_result()
+	if result.status_code == 200:
+		logging.info("RPC response SUCCESS code: 200")
+		f = parseXMLLive(result.content.replace('|', ''))
+		if info_type == "flights":
+			global_mashup['cheapest_flight'] = f[-1]
+			global_mashup['all_flights'] = f[0:-2]
+		elif info_type =="hotels":
+			# Put the response body content stringXML into the data store
+			put_datastore_by_destination(destination, result.content)
+			memcache.add("hotels",f)
+			global_mashup['hotels'] = f
+			logging.info(f)
+		elif info_type == "city-break":
+			global_mashup['city_break'] = f[0]
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
+		logging.info("Writing template fragment")
 		response.out.write(template.render(path, global_mashup))
+	elif result.status_code == 400:
+		logging.info("RPC response ERROR code: 400")
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+		response.out.write(template.render(path, global_mashup))		
 
 def handle_result_mashup(rpc, destination, info_type, response):
 	result = rpc.get_result()
@@ -124,6 +170,11 @@ def handle_result_mashup(rpc, destination, info_type, response):
 def create_callback_ajax(rpc, destination, info_type, response):
 	return lambda: handle_result_ajax(rpc, destination, info_type, response)		
 
+""" Use with Live Kapow Service - Use a helper function to define the scope of the callback, for Ajax Request Handler """
+def create_callback_ajax_v3(rpc, destination, info_type, response):
+	return lambda: handle_result_ajax_v3(rpc, destination, info_type, response)		
+
+
 """ Use with Live Kapow Service - Use a helper function to define the scope of the callback, for Mashup Request Handler """
 def create_callback_mashup(rpc, destination, info_type, response):
 	try:
@@ -135,11 +186,11 @@ def get_citybreak(destination):
 	#http://46.137.188.35:8080/kws/jaxrs/execute/DefaultProject/LM-city-breaks.robot?r.object=last_minute_city_breaks_destination&destination=paris&r.url=http%3A%2F%2Flocalhost%3A50080&r.username=roboserver&r.password=345khrglkjhdfv
 	cityBreakURL = "http://46.137.188.35:8080/kws/jaxrs/execute/DefaultProject/LM-city-breaks.robot?"	
 	cityBreakArgs = dict()
-	cityBreakArgs['r.object'] = 'last_minute_city_breaks_destination'
+	cityBreakArgs['r.object'] = config_properties.get('Flights', 'city_break_service_v2_r_object')
 	cityBreakArgs['destination'] = destination
-	cityBreakArgs['r.url'] = 'http://localhost:50080'
-	cityBreakArgs['r.username'] = 'roboserver'
-	cityBreakArgs['r.password'] = '345khrglkjhdfv'
+	cityBreakArgs['r.url'] = config_properties.get('Kapow', 'kapow_r_url')
+	cityBreakArgs['r.username'] = config_properties.get('Kapow', 'kapow_r_username')
+	cityBreakArgs['r.password'] = config_properties.get('Kapow', 'kapow_r_password')
 	cityBreakArgsEncoded = urllib.urlencode(cityBreakArgs)
 	cityBreakURL += cityBreakArgsEncoded
 	return cityBreakURL 
@@ -147,23 +198,23 @@ def get_citybreak(destination):
 def get_flights(destination):
 	flightURL = "http://46.137.188.35:8080/kws/jaxrs/execute/DefaultProject/LM-flights.robot?"
 	flightArgs = dict()
-	flightArgs['r.object'] = 'lm_flight_destination'
+	flightArgs['r.object'] = config_properties.get('Flights', 'flights_service_v2_r_object')
 	flightArgs['flightDestination'] = destination
-	flightArgs['r.url'] = 'http://localhost:50080'
-	flightArgs['r.username'] = 'roboserver'
-	flightArgs['r.password'] = '345khrglkjhdfv'
+	flightArgs['r.url'] = config_properties.get('Kapow', 'kapow_r_url')
+	flightArgs['r.username'] = config_properties.get('Kapow', 'kapow_r_username')
+	flightArgs['r.password'] = config_properties.get('Kapow', 'kapow_r_password')
 	flightArgsEncoded = urllib.urlencode(flightArgs)
 	flightURL += flightArgsEncoded
 	return flightURL
 
 def get_hotels(destination):
-	hotelsURL = "http://46.137.188.35:8080/kws/jaxrs/execute/DefaultProject/LM-hotels-full.robot?"
+	hotelsURL = config_properties.get('Hotels', 'hotels_service_v1_url')
 	hotelsArgs = dict()
-	hotelsArgs['r.object'] = 'hotel_input_data'
-	hotelsArgs['destCity'] = destination
-	hotelsArgs['r.url'] = 'http://localhost:50080'
-	hotelsArgs['r.username'] = 'roboserver'
-	hotelsArgs['r.password'] = '345khrglkjhdfv'
+	hotelsArgs['r.object'] = config_properties.get('Hotels', 'hotels_service_v1_r_object')
+	hotelsArgs[config_properties.get('Hotels', 'hotels_service_v1_data')] = destination
+	hotelsArgs['r.url'] = config_properties.get('Kapow', 'kapow_r_url')
+	hotelsArgs['r.username'] = config_properties.get('Kapow', 'kapow_r_username')
+	hotelsArgs['r.password'] = config_properties.get('Kapow', 'kapow_r_password')
 	hotelsArgsEncoded = urllib.urlencode(hotelsArgs)
 	hotelsURL += hotelsArgsEncoded
 	return hotelsURL
@@ -190,6 +241,19 @@ def kapowAPILiveRPC(destination, info_type, response):
 	urlfetch.make_fetch_call(rpc, url, "GET")
 	rpc.wait()
 
+""" Use with Live Kapow Service - Asynchronous mutliple RPC Requests """
+def kapowAPILiveRPC_v3(destination, info_type, response):
+	url = None
+	if info_type == "flights":
+		url = get_flights(destination)
+	if info_type == "hotels":
+	    url = get_hotels(destination)
+	if info_type == "city-break":
+	    url = get_citybreak(destination)
+	rpc = urlfetch.create_rpc(1000)
+	rpc.callback = create_callback_ajax_v3(rpc, destination, info_type, response)
+	urlfetch.make_fetch_call(rpc, url, "GET")
+	rpc.wait()
 
 """ Use with Live Kapow Service - Asynchronous mutliple RPC Requests """
 def kapowAPILiveRPCAllData(destination, response):
@@ -314,19 +378,20 @@ class ExperienceHandler(webapp.RequestHandler):
 		destination = self.request.get("destination") 
 		                                                  
 		args = dict(destination=destination)
-		path = os.path.join(os.path.dirname(__file__),'templates/version2/experience.html')
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')
 		self.response.out.write(template.render(path, args))
 		
 	def post(self):
 		destination = self.request.POST.get("destination")
 		
 	
-class AjaxAPIHandler(webapp.RequestHandler):
+class AjaxAPIHandler_v2(webapp.RequestHandler):
   def get(self):		
 	self.response.error = 500
 	return True
   def post(self):
 	destination = self.request.POST.get("destination")
+	
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()
@@ -343,11 +408,11 @@ class AjaxAPIHandler(webapp.RequestHandler):
     
 	if info_type == "weather":
 		get_weather(destination)
-		path = os.path.join(os.path.dirname(__file__),'version2/templates/includes/experience-weather.html')
+		path = os.path.join(os.path.dirname(__file__),'templates/version2/includes/experience-weather.html')
 		self.response.out.write(template.render(path, global_mashup))
 	elif info_type == "guardian":
 		get_guardian(destination)
-		path = os.path.join(os.path.dirname(__file__),'version2/templates/includes/experience-guardian.html')
+		path = os.path.join(os.path.dirname(__file__),'templates/version2/includes/experience-guardian.html')
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:
 		mashup = kapowAPILiveRPC(destination, info_type, self.response)
@@ -362,10 +427,78 @@ class AjaxAPIHandler(webapp.RequestHandler):
 	return True
 
 
+class AjaxAPIHandler_v3(webapp.RequestHandler):
+  def get(self):		
+	self.response.error = 500
+	return True
+  def post(self):
+	destination = self.request.POST.get("destination")
+
+	global_mashup['name'] = destination
+	destination = re.sub(r'(<|>|\s)', '', destination)
+	destination = destination.lower()
+	logging.info(destination)
+	info_type = self.request.POST.get("info_type")
+	info_type = info_type.replace(' ', '').lower()
+
+	"""
+	If the Destination provided matches a nice display name we have stored locally, then use this.
+	WARNING: Otherwise the Destination will be set to whatever the User provided!
+	"""
+	if destination_display_names.has_key(destination):
+		global_mashup['name'] = destination_display_names[destination]
+
+	if info_type == "weather":
+		get_weather(destination)
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/weather.html')
+		self.response.out.write(template.render(path, global_mashup))
+	elif info_type == "guardian":
+		get_guardian(destination)
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
+		self.response.out.write(template.render(path, global_mashup))		   	
+	else:		
+		hotels = memcache.get("hotels")
+		if hotels is not None: 
+			logging.info("Got hotels from memcache") 
+			logging.info(hotels)
+			global_mashup['hotels'] = hotels
+			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
+			self.response.out.write(template.render(path, global_mashup))
+		else:
+			logging.info("NOT Got hotels from memcache")
+			mashup = kapowAPILiveRPC_v3(destination, info_type, self.response)
+		
+	return True
+
+class GooglePlacesHandler(webapp.RequestHandler):
+	def get(self):
+		
+		placesURL = "https://maps.googleapis.com/maps/api/place/search/json?%s"
+		
+		urlArgs = dict()
+		urlArgs['location'] = self.request.get('location')
+		urlArgs['radius'] = self.request.get('radius')
+		urlArgs['types'] = self.request.get('types')
+		urlArgs['name'] = self.request.get('name')
+		urlArgs['key'] = config_properties.get('Google', 'places_api_key')
+		urlArgs['sensor'] = config_properties.get('Google', 'places_sensor')
+		
+		urlAgrsEncoded = urllib.urlencode(urlArgs)
+		logging.info(urlAgrsEncoded)
+		try:
+			result = urllib.urlopen(placesURL % urlAgrsEncoded)
+			jsonResponse = result.read()
+			logging.info(jsonResponse)
+			self.response.out.write(jsonResponse)
+		except urllib2.URLError, e:
+			logging.info("GooglePlacesHandler : urllib2 error")
+		
+
 application = webapp.WSGIApplication([
 		(requestExperience, ExperienceHandler),
 		(requestHome, HomeHandler),
-		(requestAjaxAPI, AjaxAPIHandler),
+		(requestAjaxAPI, AjaxAPIHandler_v3),
+		(requestGooglePlaces, GooglePlacesHandler),
 		(requestDestination, ExperienceHandler)		
     ],debug=True)
 

@@ -7,19 +7,19 @@
 	<link rel="stylesheet" href="/static/css/experience.css"/>
 	<link rel="stylesheet" href="/static/css/experience-states.css"/>
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
+	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" /> 
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 </head>
 <body class="state-default">
 	<div id="background" class="new-york"></div>
-	
 	<div id="pano"></div>
+	<div id="map_canvas"></div>
 	<article id="shell">
 		<header>                     
    			<h1><img src="/static/img/site_master_top_logo.gif" alt="last minute" /><span>STORIES START HERE...</span></h1> 
 			<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button> 				   		
 		</header>
 		{% include "includes/form.html" %}
-		
 		<div id="content">
 			<section id="hotels" class="">
 				<header>
@@ -29,15 +29,13 @@
 					 <a href="#" class="streetview">less...</a>
 				</nav>	
 				<div class="results">
+					
 				</div>
 			</section>
 		    
 			<section id="weather">
 				<header>
 					<h2>Weather</h2> 
-					<nav>
-						 <a href="#" class="streetview">less...</a>
-					</nav>
 				</header>
 				<div class="results">					    
 				</div>
@@ -46,17 +44,10 @@
 			<section id="guardian">
 				<header>
 					<h2>The Guardian</h2> 
-					<nav>
-						 <a href="#" class="streetview">less...</a>
-					</nav>
 				</header>
 				<div class="results">					    
 				</div>
 			</section>
-			{% comment %}
-			<fb:live-stream event_app_id="APP_ID" width="400" height="500" xid="" always_post_to_friends="false"></fb:live-stream>
-			{% endcomment %}
-			<section id="map_canvas"></section>   
          </div>
 		 
 	</article>
@@ -71,7 +62,8 @@
 	<script src="/static/js/namespace.js"></script>
 	<script src="/static/js/log.js"></script>
 	<script src="/static/js/mashup.js"></script>
-	<script src="/static/js/map.streetview.js"></script>
+	<script src="/static/js/google.places.js"></script>
+	<script src="/static/js/google.map.streetview.js"></script>
 	<script src="/static/js/experience.js"></script>
 	<script src="/static/js/ajax-submit.js"></script>
 	
@@ -79,11 +71,9 @@
 	//<![CDATA[  
 	    RIA.map = null;
 		RIA.geocoder = null;
-	
+	    RIA.sv = null;
 	   	RIA.InitExperience = new RIA.Experience();
-	    RIA.InitAjaxSubmit = new RIA.AjaxSubmit(); 
-		RIA.InitMapStreetView = new RIA.MapStreetView(); 
-
+	    
 		(function() {
 			var e = document.createElement('script');
 			e.type = 'text/javascript';
@@ -102,67 +92,15 @@
  			
 		};	
         
-		function initialize() { 
-			var myLatlng = new google.maps.LatLng(-34.397, 150.644);
-			var myOptions = {
-				scrollwheel: false,
-				keyboardShortcuts:false,
-				zoom: 14,
-				center: myLatlng, 
-				mapTypeId: google.maps.MapTypeId.ROADMAP
-			}
-			RIA.map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-
-			var address = "Empire State Building, New York City";
-			RIA.geocoder = new google.maps.Geocoder();
-			RIA.geocoder.geocode( { 'address': address}, function(results, status) {
-				Log.info("Google Map status: "+status);
-				if (status == google.maps.GeocoderStatus.OK) {
-					myLatlng = results[0].geometry.location;
-					
-					RIA.map.setCenter(results[0].geometry.location);
-			        /*
-					var marker = new google.maps.Marker({
-			            map: RIA.map, 
-			            position: results[0].geometry.location
-			        }); 
-			        */
-			
-					var panoramaOptions = {
-						scrollwheel: false,
-						position: myLatlng,
-						pov: {
-							heading: 34,
-					        pitch: 0,
-					        zoom: 0
-						}
-					};
-					RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"),panoramaOptions);
-					RIA.map.setStreetView(RIA.panorama);
-					/*RIA.panorama.setPosition(myLatlng);
-					RIA.panorama.setPov({
-					    heading: 265,
-					    zoom:0,
-					    pitch:0}
-					);*/
-				} else {
-			        alert("Geocode was not successful for the following reason: status: " + status);
-				}
-			});
-			
-		}
-
 		function loadScript() {
 		  var script = document.createElement("script");
 		  script.type = "text/javascript";
-		  script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=initialize";
+		  script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=RIA.InitExperience.init";
 		  document.body.appendChild(script);
 		}
         window.addEvent("domready", function() {
 			loadScript();
 		});
-		
-		
 	//]]>
 	</script>
 </body>

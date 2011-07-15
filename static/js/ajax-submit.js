@@ -71,22 +71,10 @@ RIA.AjaxSubmit = new Class({
 		}).send();        
 		this.requests.include(this.requestGuardian);
 		
-		/*
-		this.requestCityBreak = new Request.HTML({
-			method:"POST",
-			url:"/ajax",
-			update:this.cityBreak.getElement(".results"),
-			data:'destination='+destination+'&info_type=city-break',
-			onRequest: this.requestStart.pass([this.cityBreak],this),
-			onSuccess: this.requestSuccess.pass([this.cityBreak],this),
-			onFailure: this.requestFailure.bind(this)
-		});		 
-		this.requests.include(this.requestCityBreak);
-		*/
-		
 		this.requestHotels = new Request.HTML({
 			method:"POST",
 			url:"/ajax",
+			evalScripts:true,
 			update:this.hotels.getElement(".results"),
 			data:'destination='+destination+'&info_type=hotels',
 			onRequest: this.requestStart.pass([this.hotels],this),
@@ -108,6 +96,18 @@ RIA.AjaxSubmit = new Class({
 		});        
 		this.requests.include(this.requestFlights); 
 		*/ 
+		/*
+		this.requestCityBreak = new Request.HTML({
+			method:"POST",
+			url:"/ajax",
+			update:this.cityBreak.getElement(".results"),
+			data:'destination='+destination+'&info_type=city-break',
+			onRequest: this.requestStart.pass([this.cityBreak],this),
+			onSuccess: this.requestSuccess.pass([this.cityBreak],this),
+			onFailure: this.requestFailure.bind(this)
+		});		 
+		this.requests.include(this.requestCityBreak);
+		*/
 		
 	    this.requests.each(function(request) {
 			request.send();
@@ -118,7 +118,8 @@ RIA.AjaxSubmit = new Class({
 			this.loading.setStyle("display", "block");
 			RIA.InitExperience.getHotels();
 			element.addClass("waiting");
-			element.getElement(".results").morph({"opacity":0});			
+			//element.getElement(".results").morph({"opacity":0});			
+			element.getElement(".results").set("morph", {"opacity":0});			
 		}
 	},
 	requestSuccess: function(element) {
@@ -129,17 +130,7 @@ RIA.AjaxSubmit = new Class({
 			this.loading.setStyle("display", "none");
 			if(element.get("id") == "hotels") {
 				RIA.InitExperience.gotHotels();				     
-				document.getElements(".photos").each(function(photoContainer) {
-					var text = photoContainer.get("text").clean();
-					text.replace(" ","");
-					var temp = new Element("div").set("html", text);
-					photoContainer.innerHTML = "";
-					temp.inject(photoContainer)
-
-				});
 			}
-			element.removeClass("waiting");
-			element.getElement(".results").morph({"opacity":1});
 		}
 	},
 	requestSuccessInfo: function(element) {

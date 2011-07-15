@@ -49,11 +49,19 @@ footer  {
 	text-align:left; 
 	position:relative; 
 	overflow:hidden;
+	padding:0 10px; 
+	z-index:5;
+	background-color:rgba(0,0,0,0.2);   
+	border-radius:0 0 20px 20px;
+	-webkit-border-radius:0 0 20px 20px;
+	-moz-border-radius:0 0 20px 20px;
+	-o-border-radius:0 0 20px 20px;   
+	-ms-border-radius:0 0 20px 20px;
 }
  
 #content {
 	position:relative; 
-	margin-top:150px;
+	margin-top:140px;
 	height:auto;
 }                    
 
@@ -67,7 +75,6 @@ h1 {
 	color:#fff;
 	font-size:2.5em;
 	margin:10px 0 20px 0; 
-	zoom:1;
 	z-index:2;
 } 
 
@@ -93,7 +100,7 @@ form#start-your-story {
     font-size:1.6em; 
 	background:#fff;
 	padding:20px;
-	margin:0 0 20px 0;
+	margin:0 0 10px 0;
 	   
 	border-bottom-left-radius:10px;
 	border-bottom-right-radius:10px;
@@ -105,9 +112,10 @@ form#start-your-story {
 	-o-border-bottom-right-radius:10px;
 	-ms-border-bottom-left-radius:10px;
 	-ms-border-bottom-right-radius:10px;
-	
+	/*
 	-moz-box-shadow: 0px 8px 8px #fff;
 	-webkit-box-shadow: 0px 8px 8px #fff;
+	*/
 }
 
 form#start-your-story header {
@@ -154,6 +162,7 @@ form#start-your-story input#duration_of_stay {
 }
          
 .button {
+	cursor:pointer;
 	background:#EC008C;
 	padding:10px;
 	color:#fff;
@@ -185,7 +194,7 @@ article section {
 	float:left;
 	width:200px;  
 	overflow:hidden; 
-	margin-top:260px;
+	margin-top:0px;
 }
 
 #guardian h3 a {
@@ -229,18 +238,15 @@ article section {
 #hotels { 
 	width:435px;
 	min-height:500px;
-	/*
-	margin-top:190px; 
-	*/
-	min-width:150px; 
-	margin:0 10px 0 0;
+	margin:0 10px 10px 0;
 	overflow:hidden;
 	float:left;
 }    
 
 #hotels.streetview {
 	min-height:50px;
-	opacity:0.7;
+	height:100px;
+	opacity:1;
 }
 #hotels .results {
 	width:100%;
@@ -316,6 +322,7 @@ article section {
 	position:absolute;
 	left:0px;
 	top:0px;
+	z-index:0;
 }
 
 

@@ -1,10 +1,12 @@
 RIA.Experience = new Class({
-	Implements:[Options, RIA.MapStreetView],
+	Implements:[Options, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
 		
 	},
 	initialize: function(options) {
 		this.setOptions(options);
+		
+		
 		
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
@@ -13,7 +15,8 @@ RIA.Experience = new Class({
 		this.durationOfStay.store("styles:width:orig", this.durationOfStay.getStyle("width").toInt());
 		this.arrivalDate = document.id("arrival_date");
 		this.arrivalDate.store("styles:width:orig", this.arrivalDate.getStyle("width").toInt());
-		
+		this.weather = document.id("weather");
+		this.guardian = document.id("guardian");
 		this.fbDialogSendButton = document.id("fb-dialog-send");
 		 
 		this.travelPartners = document.id("travel-partners");
@@ -22,26 +25,20 @@ RIA.Experience = new Class({
 			duration:400,
 			link:"ignore"
 		});
-		
-		this.storeDefaultStyles();
-		
-		this.hotelIndex = 0;
-		                         
-		
+		                         		
 		this.mapCanvas = document.id("map_canvas");
+		this.mapCanvas.store("styles:orig", this.mapCanvas.getCoordinates()); 
+		
 		this.mapControl = document.id("toggle-map");
 		this.mapStreetview = document.id("pano");
-		
+		this.onWindowResize();
 		this.addEventListeners();
 	},                            
-	storeDefaultStyles: function() {
-		this.sections.each(function(section) {
-			section.store("styles:default", section.getStyles('width', 'height', 'padding', 'border', 'overflow', 'opacity'))
-		},this);
-		
-	},
 	addEventListeners: function() {
 		
+		window.addEvents({
+			"resize": this.onWindowResize.bind(this)
+		});
 		
 		this.destination.addEvents({
 			"keydown": this.adjustInputStyles.bind(this)
@@ -59,22 +56,14 @@ RIA.Experience = new Class({
 			});
 		}  
 		
-		
-		document.getElements(".streetview").each(function(link) {
-			link.addEvents({
-				"click":function(e) {   
-					e.preventDefault();
-					
-					if(link.getParent("section").hasClass("streetview")) {
-						link.getParent("section").removeClass("streetview");
-						link.set("text", "less...");
-					} else {
-						link.getParent("section").addClass("streetview");
-						link.set("text", "more...");
-					}
-				}.bind(this)
-			})
-		},this);
+		document.addEvents({
+			"keyup":this.toggleMapFullScreen.bind(this)
+		});
+		                                              
+		document.getElements(".streetview").addEvents({
+			"click":this.toggleInformation.bind(this) 
+		})
+
 		
 		if(this.mapControl) {
 			this.mapControl.addEvents({
@@ -87,11 +76,24 @@ RIA.Experience = new Class({
 		document.addEvents({
 			"keyup":this.hotelNavigationBind 
 		});
+		
+		this.dropPinBind = this.dropPin.bind(this);
+		document.getElements(".drop-pin").each(function(dropPinButton) {
+			dropPinButton.addEvents({
+				"click":this.dropPinBind
+			});
+		},this)
 	},
 	removeHotelNavEventListeners: function() {
 		document.removeEvents({
 			"keyup":this.hotelNavigationBind 
 		});
+		
+		document.getElements(".drop-pin").each(function(dropPinButton) {
+			dropPinButton.removeEvents({
+				"click":this.dropPinBind
+			});
+		},this)
 	},     
 	adjustInputStyles: function(e) {
 		e.target.removeClass("unentered");
@@ -126,35 +128,36 @@ RIA.Experience = new Class({
 	},
 	hotelNavigation: function(e) {
 		if(e.key == "left" || e.key == "right") {
-			
 			e.preventDefault();                                       
 			var hotelWidth, resultMarginLeft, ready = true;
+			
 			if(this.hotels.getElements(".hotel").length > 0) {                        
 			
-				hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width; 
-				resultMarginLeft = this.hotels.getElement(".results").getStyle("marginLeft").toInt();
+				resultMarginLeft = this.hotels.getElement(".results").getStyle("marginLeft");
+				
 				if(e.key == "left") {
-					this.hotelIndex--;
-					resultMarginLeft = resultMarginLeft+hotelWidth; 
-					if(resultMarginLeft > 0) {
+					if(resultMarginLeft.toInt() >= 0) {
 						resultMarginLeft = 0;
-						ready = false;
-						this.hotelIndex++;
-					}
+						ready = false;						
+					} else {
+						this.hotelIndex--;
+						resultMarginLeft = resultMarginLeft.toInt()+this.hotelWidth;
+					} 
+					
 				} else if (e.key == "right") {
-					this.hotelIndex++;
-					resultMarginLeft = resultMarginLeft-hotelWidth;                                                           
-					var totalMarginLeft = -1*(this.hotelCollection.length*this.hotelCollection[0].getStyle("width").toInt())+this.hotelCollection[0].getStyle("width").toInt();
-					if(resultMarginLeft < totalMarginLeft) {
+					var totalMarginLeft = -1*(this.totalLength-this.hotelWidth);
+					if(resultMarginLeft.toInt() <= totalMarginLeft) {
 						resultMarginLeft = totalMarginLeft;
 						ready = false;
-						this.hotelIndex--;
+					} else {
+						this.hotelIndex++;
+						resultMarginLeft = resultMarginLeft.toInt()-hotelWidth;                                                           						
 					}
 					              
 				}
-				                                                                           
+				
 				if(ready) {
-					this.hotels.getElement(".results").morph({"marginLeft":resultMarginLeft+"px"});					
+					this.animateToHotel(this.hotelCollection[this.hotelIndex]);
 					(function() {
 						this.setStreetview(this.hotelCollection[this.hotelIndex]);
 					}.bind(this)).delay(400);
@@ -163,6 +166,18 @@ RIA.Experience = new Class({
 			}
 		}
 	},
+	animateToHotel: function(hotel) {  
+		var hotelIndex = hotel.get("data-counter"), 
+		resultMarginLeft = -1*(hotelIndex*this.hotelWidth)+this.hotelWidth;
+		this.hotels.getElement(".results").morph({"marginLeft":resultMarginLeft+"px"});
+		this.hotelIndex = hotelIndex-1;
+	},
+	jumpToHotel: function(hotel) {
+		var hotelIndex = hotel.get("data-counter"), 
+		resultMarginLeft = -1*(hotelIndex*this.hotelWidth)+this.hotelWidth;
+		this.hotels.getElement(".results").setStyles({"marginLeft":resultMarginLeft+"px"});
+		this.hotelIndex = hotelIndex-1;
+	},
 	getHotels: function() {
 		this.removeHotelNavEventListeners();
 	},
@@ -170,15 +185,56 @@ RIA.Experience = new Class({
 		/*
 		* 	Callback from AjaxSubmit successful get of hotel data
 		*/
+		
 		// reset the hotel index, so we are in first hotel position
 		this.hotelIndex = 0;
-		this.hotelCollection = this.hotels.getElements(".hotel"); 
-		Log.info(this.hotelCollection)
-		var totalLength = (this.hotelCollection.length*this.hotelCollection[0].getSize().x);       
-		// Reset the results width and the left margin, so we are in first hotel position
-		this.hotels.getElement(".results").setStyles({"width":totalLength+"px", "marginLeft":"0px"});
+		this.hotelCollection = this.hotels.getElements(".hotel");
+		
+		this.hotels.removeClass("waiting");
+		this.hotels.getElement(".results").morph({"opacity":1});
+		
+		if(this.hotelCollection.length > 0) {
+			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
+			
+			this.hotels.getElements(".photos").each(function(photoContainer) {
+				var text = photoContainer.get("text").clean();
+				text.replace(" ","");
+				var temp = new Element("div").set("html", text);
+				photoContainer.innerHTML = "";
+				temp.inject(photoContainer)
+			});
+			
+			this.totalLength = (this.hotelCollection.length*this.hotelWidth);
+			
+			// Reset the results width and the left margin, so we are in first hotel position
+			this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
 
-		this.addHotelNavEventListeners();
-		this.setStreetview(this.hotelCollection[0]);
+			this.addHotelNavEventListeners();
+			this.setStreetview(this.hotelCollection[0]);			
+		} else {
+			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
+		}   
+		
+	},
+	onWindowResize: function(e) {
+    	this.viewport = window.getSize(); 
+		//this.mapStreetview.setStyles({"width":this.viewport.x+"px", "height":this.viewport.y+"px"});
+		//if(RIA.map) google.maps.event.trigger(RIA.map, "resize");
+	},
+	toggleInformation: function(e) {
+		
+		e.preventDefault();
+		if(this.hotels.hasClass("streetview")) {
+			e.target.set("text", "less...");
+			this.weather.setStyle("display", "block");
+			this.guardian.setStyle("display", "block");
+			this.hotels.removeClass("streetview");
+		}
+		else {   
+			e.target.set("text", "more...");
+			this.weather.setStyle("display", "none");
+			this.guardian.setStyle("display", "none");
+			this.hotels.addClass("streetview");				
+		}
 	}
 });

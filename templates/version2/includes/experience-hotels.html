@@ -1,5 +1,5 @@
 {% for hotel in hotels %}
-<div class="hotel">						
+<div class="hotel" data-geocoder="{{hotel.Address}}">						
 	<header>
 		<h3 class="name">#{{ forloop.counter }}: {{hotel.Name|safe}}</h3>
     </header>
