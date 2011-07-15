@@ -136,7 +136,7 @@ def handle_result_ajax_v3(rpc, destination, info_type, response):
 		elif info_type =="hotels":
 			# Put the response body content stringXML into the data store
 			put_datastore_by_destination(destination, result.content)
-			memcache.add("hotels",f)
+			memcache.add(destination,f)
 			global_mashup['hotels'] = f
 			logging.info(f)
 		elif info_type == "city-break":
@@ -457,7 +457,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:		
-		hotels = memcache.get("hotels")
+		hotels = memcache.get(destination)
 		if hotels is not None: 
 			logging.info("Got hotels from memcache") 
 			logging.info(hotels)
