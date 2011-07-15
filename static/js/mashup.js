@@ -52,7 +52,7 @@ function news(data) {
     var items = data.response.results;
     for (var i=0,item; item=items[i]; i++) {
 		if(i<5) {
-			html.push('<h3><a href="'+item.webUrl+'" rel="external">'+item.fields.headline+'</a></h3>'+item.fields.trailText);
+			html.push('<h3><a href="'+item.webUrl+'" rel="external" target="_blank">'+item.fields.headline+'</a></h3>'+item.fields.trailText);
 		}        
     }
     RIA.fn.populateContainer('guardian',html);
