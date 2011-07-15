@@ -458,6 +458,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:		
 		hotels = memcache.get(destination)
+		logging.info(hotels)
 		if hotels is not None: 
 			logging.info("Got hotels from memcache") 
 			logging.info(hotels)
@@ -484,11 +485,11 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		urlArgs['sensor'] = config_properties.get('Google', 'places_sensor')
 		
 		urlAgrsEncoded = urllib.urlencode(urlArgs)
-		logging.info(urlAgrsEncoded)
+		
 		try:
 			result = urllib.urlopen(placesURL % urlAgrsEncoded)
 			jsonResponse = result.read()
-			logging.info(jsonResponse)
+			#logging.info(jsonResponse)
 			self.response.out.write(jsonResponse)
 		except urllib2.URLError, e:
 			logging.info("GooglePlacesHandler : urllib2 error")
