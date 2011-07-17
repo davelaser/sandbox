@@ -19,7 +19,7 @@ RIA.AjaxSubmit = new Class({
 		this.loading = document.id("loading");
 		this.addEventListeners(); 
 		 
-		this.ajaxForm.fireEvent("submit");
+		//this.ajaxForm.fireEvent("submit");
 	},
 	addEventListeners: function() {
 		this.ajaxForm.addEvents({

@@ -17,6 +17,7 @@ RIA.Experience = new Class({
 		this.arrivalDate.store("styles:width:orig", this.arrivalDate.getStyle("width").toInt());
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
+		this.twitterNews = document.id("twitter-news");
 		this.fbDialogSendButton = document.id("fb-dialog-send");
 		 
 		this.travelPartners = document.id("travel-partners");
@@ -227,13 +228,15 @@ RIA.Experience = new Class({
 		if(this.hotels.hasClass("streetview")) {
 			e.target.set("text", "less...");
 			this.weather.setStyle("display", "block");
-			this.guardian.setStyle("display", "block");
+			if(this.guardian) this.guardian.setStyle("display", "block");
+			this.twitterNews.setStyle("display", "block");
 			this.hotels.removeClass("streetview");
 		}
 		else {   
 			e.target.set("text", "more...");
 			this.weather.setStyle("display", "none");
-			this.guardian.setStyle("display", "none");
+			if(this.guardian) this.guardian.setStyle("display", "none");
+			this.twitterNews.setStyle("display", "none");
 			this.hotels.addClass("streetview");				
 		}
 	}

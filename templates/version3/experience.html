@@ -40,13 +40,52 @@
 				<div class="results">					    
 				</div>
 			</section>
-			
+			{% comment %}
 			<section id="guardian">
 				<header>
 					<h2>The Guardian</h2> 
 				</header>
 				<div class="results">					    
 				</div>
+			</section>
+			{% endcomment %}
+			<section id="twitter-news">
+				<script src="http://widgets.twimg.com/j/2/widget.js"></script>
+				<script>
+				new TWTR.Widget({
+				  version: 2,
+				  type: 'search',
+				  search: 'new york since:2011-07-16 :)',
+				  interval: 6000,
+				  title: 'www.lastminute.com',
+				  subject: 'What are people saying about New York?',
+				  width: 240,
+				  height: 300,
+				  theme: {
+				    shell: {
+				      background: '#EC008C',
+				      color: '#ffffff'
+				    },
+				    tweets: {
+				      background: '#ffffff',
+				      color: '#444444',
+				      links: '#1985b5'
+				    }
+				  },
+				  features: {
+				    scrollbar: true,
+				    loop: true,
+				    live: true,
+				    hashtags: true,
+				    timestamp: true,
+				    avatars: false,
+				    toptweets: true,
+				    behavior: 'default'
+				  }
+				}).render().start();
+				</script>
+				
+				
 			</section>
          </div>
 		 
