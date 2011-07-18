@@ -33,11 +33,9 @@
 		<div id="content">
 			 
 			<section id="hotels" class="">
-				
-				<nav class="controls">
-					
-					<a href="#" class="less">less...</a>
-				</nav>	
+				<header>
+					<h2>Hotels</h2>
+				</header>	
 				<div class="results">
 					
 				</div>
@@ -133,8 +131,9 @@
 
 	    RIA.map = null;
 		RIA.geocoder = null;
-	    RIA.sv = null;
-	   	RIA.InitExperience = new RIA.Experience();
+	    RIA.sv = null;                                                       
+		// Go to Times Square
+	   	RIA.InitExperience = new RIA.Experience({lat:40.757920208794026, lng:-73.98588180541992});
 	    
 		(function() {
 			var e = document.createElement('script');

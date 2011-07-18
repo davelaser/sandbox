@@ -9,8 +9,7 @@ RIA.MapStreetView = new Class({
 		
 		RIA.geocoder = new google.maps.Geocoder();
 		RIA.sv = new google.maps.StreetViewService();         
-		// Go to Times Square
-		RIA.currentLocation = new google.maps.LatLng(40.757920208794026, -73.98588180541992);
+		RIA.currentLocation = new google.maps.LatLng(this.options.lat, this.options.lng);
 		
 		var mapOptions = {
 			scrollwheel: false,
@@ -49,19 +48,19 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	toggleMapFullScreen: function(e){    
-		e.preventDefault();
+		if(e) e.preventDefault();
 		var mapWidth = this.mapCanvas.getCoordinates().width;
 		if(mapWidth < this.viewport.x) {
 			this.mapCanvas.setStyles({"width":"100%", "height":"1000px"});
 			this.mapCanvas.getElement("div").setStyles({"width":"100%", "height":"1000px"});
 			// [ST] Resetting zoom causes a pan to occur in from the top left, which is annoying when toggling between streetview and map 
 			//RIA.map.setZoom(15);
-			e.target.set("text", "Streetview");
+			document.id("map-streetview").set("text", "Streetview");
 		}   
 		else {
 			this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
 			//RIA.map.setZoom(13);
-			e.target.set("text", "Map");
+			document.id("map-streetview").set("text", "Map");
 		}
 		
 		google.maps.event.trigger(RIA.map, "resize"); 
@@ -84,7 +83,8 @@ RIA.MapStreetView = new Class({
 					hotel.store("geolocation", RIA.currentLocation);
 					this.gotGeolocation(hotel);
 				} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
-			        this.mapStreetview.setStyle("display", "none");                                    
+			        this.mapStreetview.setStyle("display", "none"); 
+					
 					Log.info("No Geocode results found, switching off StreetView Panorama");
 				} else {
 					Log.info("Geocode was not successful for the following reason: status: " + status);
