@@ -35,6 +35,7 @@ RIA.Experience = new Class({
 		this.mapStreetview = document.id("pano");
 		this.onWindowResize();
 		this.addEventListeners();
+
 	},                            
 	addEventListeners: function() {
 		
@@ -95,7 +96,14 @@ RIA.Experience = new Class({
 			dropPinButton.addEvents({
 				"click":this.dropPinBind
 			});
-		},this)
+		},this);
+		
+		document.getElements(".previous, .next").each(function(link) {
+			link.addEvents({
+				"click":this.hotelNavigationBind 
+			});
+		},this);
+
 	},
 	removeHotelNavEventListeners: function() {
 		document.removeEvents({
@@ -140,43 +148,42 @@ RIA.Experience = new Class({
 		});
 	},
 	hotelNavigation: function(e) {
-		if(e.key == "left" || e.key == "right") {
+		if((e.type == "keyup" && (e.key == "left" || e.key == "right")) || e.type == "click") {
 			e.preventDefault();                                       
 			var hotelWidth, resultMarginLeft, ready = true;
+		
+			resultMarginLeft = this.hotels.getElement(".results").getStyle("marginLeft");
 			
-			if(this.hotels.getElements(".hotel").length > 0) {                        
-			
-				resultMarginLeft = this.hotels.getElement(".results").getStyle("marginLeft");
+			if(e.key == "left" || e.type == "click") {
+				if(resultMarginLeft.toInt() >= 0) {
+					resultMarginLeft = 0;
+					ready = false;						
+				} else {
+					this.hotelIndex--;
+					resultMarginLeft = resultMarginLeft.toInt()+this.hotelWidth;
+				} 
 				
-				if(e.key == "left") {
-					if(resultMarginLeft.toInt() >= 0) {
-						resultMarginLeft = 0;
-						ready = false;						
-					} else {
-						this.hotelIndex--;
-						resultMarginLeft = resultMarginLeft.toInt()+this.hotelWidth;
-					} 
-					
-				} else if (e.key == "right") {
-					var totalMarginLeft = -1*(this.totalLength-this.hotelWidth);
-					if(resultMarginLeft.toInt() <= totalMarginLeft) {
-						resultMarginLeft = totalMarginLeft;
-						ready = false;
-					} else {
-						this.hotelIndex++;
-						resultMarginLeft = resultMarginLeft.toInt()-hotelWidth;                                                           						
-					}
-					              
+			} 
+			else if (e.key == "right" || e.type == "click") {
+				var totalMarginLeft = -1*(this.totalLength-this.hotelWidth);
+				if(resultMarginLeft.toInt() <= totalMarginLeft) {
+					resultMarginLeft = totalMarginLeft;
+					ready = false;
+				} else {
+					this.hotelIndex++;
+					resultMarginLeft = resultMarginLeft.toInt()-hotelWidth;                                                           						
 				}
-				
-				if(ready) {
-					this.animateToHotel(this.hotelCollection[this.hotelIndex]);
-					(function() {
-						this.setStreetview(this.hotelCollection[this.hotelIndex]);
-					}.bind(this)).delay(400);
-				}
-
+				              
 			}
+			
+			if(ready) {
+				this.animateToHotel(this.hotelCollection[this.hotelIndex]);
+				(function() {
+					this.setStreetview(this.hotelCollection[this.hotelIndex]);
+				}.bind(this)).delay(400);
+			}
+
+
 		}
 	},
 	setCurrentHotel: function(hotel) {

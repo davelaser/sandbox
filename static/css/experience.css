@@ -248,8 +248,11 @@ article section {
 }  
 
 #hotels { 
+	position:relative;
 	width:435px;
+	/*
 	min-height:200px;
+	*/
 	padding-bottom:50px;
 	margin:0 10px 10px 0;
 	overflow:hidden;
@@ -452,4 +455,59 @@ article section {
 	left:0px;
 	top:0px;
 	z-index:0;
+}
+
+
+/*
+*	Minimized
+*/
+#hotels.minimized {
+	height:50px;
+	padding:0;
+}
+
+#hotels.minimized header {
+	display:none;
+}
+
+
+#horizontal {
+	display:none;
+	width:98px;
+	height:49px;
+	position:absolute;
+	left:445px;
+	top:0px;
+	border-radius:0 0 20px 20px;
+	-webkit-border-radius:0 0 20px 20px;
+	-moz-border-radius:0 0 20px 20px;
+	-o-border-radius:0 0 20px 20px;   
+	-ms-border-radius:0 0 20px 20px;
+}
+
+.previous {
+	position:absolute;
+	top:0px;
+	left:0px;
+	display:block;
+	float:left;
+	background:url(../img/arrows.png) no-repeat 0 0;
+	width:49px;
+	height:49px;
+}
+
+.next {
+	position:absolute;
+	top:0px;
+	right:0px;
+	float:left;
+	background:url(../img/arrows.png) no-repeat -49px 0;
+	width:49px;
+	height:49px;
+}
+
+.previous span,
+.next span {
+	display:block;
+	text-indent:-10000em;
 }
