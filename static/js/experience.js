@@ -5,9 +5,6 @@ RIA.Experience = new Class({
 	},
 	initialize: function(options) {
 		this.setOptions(options);
-		
-		
-		
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
 		this.destination.store("styles:width:orig", this.destination.getStyle("width").toInt());
@@ -23,6 +20,7 @@ RIA.Experience = new Class({
 		this.travelPartners = document.id("travel-partners");
 		this.hotels = document.id("hotels"); 
 		this.hotelsNav = document.id("hotel-list");
+		
         this.hotels.getElement(".results").set("morph", {
 			duration:400,
 			link:"ignore"
@@ -81,7 +79,7 @@ RIA.Experience = new Class({
 		RIA.InitAjaxSubmit.loading.setStyle("display", "block");
 		RIA.InitAjaxSubmit.loading.addEvent("click", function() {
 			RIA.InitAjaxSubmit.loading.setStyle("display", "none");
-		})
+		});
 		document.id("loading-message").setStyle("display", "none");
 		this.fbDialogSend();
 	},
@@ -241,8 +239,8 @@ RIA.Experience = new Class({
 			this.addHotelNavEventListeners();
 			this.setStreetview(this.hotelCollection[0]);
 			/*
-            *	Exceedes quota limit
-			this.setHotelMarkers(this.hotelCollection);
+            *	Exceeds quota limit
+			* 	this.setHotelMarkers(this.hotelCollection);
 			*/
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
@@ -269,7 +267,6 @@ RIA.Experience = new Class({
 	},
 	onWindowResize: function(e) {
     	this.viewport = window.getSize(); 
-		//this.mapStreetview.setStyles({"width":this.viewport.x+"px", "height":this.viewport.y+"px"});
 		if(RIA.map) google.maps.event.trigger(RIA.map, "resize");
 	},
 	toggleInformation: function(e) {
