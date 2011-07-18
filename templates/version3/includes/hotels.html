@@ -1,29 +1,21 @@
 {% for hotel in hotels %}
 <div class="hotel" data-counter="{{ forloop.counter }}" data-address="{{hotel.Address}}" data-name="{{hotel.Name}}" data-price="&#163;{{hotel.Price|safe}}">						
 	<header>
+		{% if hotel.thumbnail %}
+			{{ hotel.thumbnail|safe }}
+		{% endif %}
 		<h3 class="name">#{{ forloop.counter }}: {{hotel.Name|safe}}</h3>
-		<button id="hotel-drop-pin-{{ forloop.counter }}" type="submit" value="" class="drop-pin button">Pin to Map</button>
+		<button id="hotel-drop-pin-{{ forloop.counter }}" type="submit" value="" class="drop-pin button">Bookmark</button>
     </header>
     <div class="rating">
 		{{ hotel.rating }}
-		<div id="TA_excellent830" class="TA_excellent">
-		<ul id="puZR8LuBy4" class="TA_links DGH99y6TES8">
-		            <li id="FcgAUWnBy5Q" class="yZwlHX"><a target="_blank" href=http://www.tripadvisor.co.uk/Hotel_Review-g60763-d93569-Reviews-The_Belvedere-New_York_City_New_York.html>The Belvedere</a> rated "excellent" by 975 travellers</li>
-		      </ul>
-		  </div>
-		<script src="http://www.jscache.com/wejs?wtype=excellent&amp;uniq=830&amp;locationId=93569&amp;lang=en_UK" type="text/javascript"></script>
 		
-		<div id="TA_selfserveprop942" class="TA_selfserveprop">
-		<ul id="ygFk4SaNyqp" class="TA_links VDnJFGI58Ntv">
-		            <li id="kJyviSw6Ej" class="2zkqgjv">2356 reviews of <a target="_blank" href="http://www.tripadvisor.com/Hotel_Review-g60763-d93569-Reviews-The_Belvedere-New_York_City_New_York.html">The Belvedere</a> in New York City</li>
-		      </ul>
-		  </div>
-		<script src="http://www.jscache.com/wejs?wtype=selfserveprop&amp;uniq=942&amp;locationId=93569&amp;lang=en_US&amp;rating=true&amp;nreviews=5&amp;writereviewlink=true&amp;popIdx=true&amp;iswide=false&amp;linkt=0"></script>
 	</div>
 	<div class="photos">
-		{% if hotel.thumbnail %}
-			{{ hotel.thumbnail|safe }}
-		{% endif %}	
+		<img src="http://m.travelocity.com/images/new_york/hotel/0/008667/Exterior_E_1.jpg" width="200" height="200" alt="" />
+		
+		
+		
 		{% if hotel.photo1 %}
 			{{ hotel.photo1|safe }}
 		{% endif %}          
@@ -36,8 +28,26 @@
 	</div>
 	<div class="nearby">	
 		
-		
 	</div>	
+	<div class="room-and-rates">
+		<form name="roomselection" method="get" action="http://globaltrips.lastminute.com/trips/productDetails/addToCart">
+			<input type="hidden" name="pTxId" value="{{ hotel.pTxId }}" />
+			<input type="hidden" name="checkInDate" value="{{ hotel.checkInDate }}" />
+			<input type="hidden" name="checkOutDate" value="{{ hotel.checkOutDate }}" />
+			<input type="hidden" name="guestCounts" value="{{ hotel.guestCounts }}" />
+			<input type="hidden" name="guestCodes" value="{{ hotel.guestCodes }}" />
+			<input type="hidden" name="guestCounts" value="{{ hotel.guestCounts }}" />
+			<input type="hidden" name="city" value="{{ hotel.city }}" />
+			<input type="hidden" name="configId" value="{{ hotel.configId }}" />
+            <input type="hidden" name="numRooms" value="{{ hotel.numRooms }}" />
+            <input type="hidden" name="dest" value="{{ hotel.dest }}" />
+            <input type="hidden" name="path" value="{{ hotel.path }}" />
+            <input type="hidden" name="hotelRequestId" value="{{ hotel.hotelRequestId }}" />
+            <input type="hidden" name="mappingName" value="{{ hotel.mappingName }}" />
+            <input type="hidden" name="pageId" value="{{ hotel.pageId }}" />
+            <input type="hidden" name="action" value="{{ hotel.action }}" />
+		</form>
+	</div>
 	<div class="details">
 		<p class="description">
 			{{ hotel.description }}

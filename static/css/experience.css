@@ -47,7 +47,6 @@ footer  {
 	height:100%;
 	margin:0 auto;
 	text-align:left; 
-	position:relative; 
 	overflow:hidden;
 	padding:0 10px; 
 	z-index:5;
@@ -64,17 +63,19 @@ footer  {
 	margin-top:180px;
 	height:auto;
 }                    
-
-h1 {     
+  
+header#main {
 	position:fixed;
-	top:-10px;
+	
+}
+h1 {     
+	
 	width:975px; 
 	height:65px; 
-	padding-top:10px;
 	background:#EC008C; 
 	color:#fff;
 	font-size:2.5em;
-	margin:10px 0 20px 0; 
+	margin:0 0 20px 0; 
 	z-index:2;
 } 
 
@@ -95,7 +96,7 @@ form#start-your-story {
 	z-index:2;
 	width:935px;
 	position:fixed;
-	top:75px;
+	top:65px;
 	overflow:hidden;
     font-size:1.6em; 
 	background:#fff;
@@ -178,7 +179,7 @@ form#start-your-story input#duration_of_stay {
 }
 
 article section {
-	
+	position:relative;
 	background:#fff;
 	padding:20px;
 	margin:0 0 20px 0;	   
@@ -189,7 +190,18 @@ article section {
 	-ms-border-radius:10px; 
 }
 
-
+ 
+#controls {
+	position:absolute;
+	right:20px;
+	top:0px; 
+	z-index:2;
+	padding:5px;  
+	-webkit-border-radius:0 0 10px 10px;
+	-moz-border-radius:0 0 10px 10px;
+	-o-border-radius:0 0 10px 10px;
+	-ms-border-radius:0 0 10px 10px;
+}
 #guardian {
 	float:left;
 	width:200px;  
@@ -237,7 +249,8 @@ article section {
 
 #hotels { 
 	width:435px;
-	min-height:500px;
+	min-height:200px;
+	padding-bottom:50px;
 	margin:0 10px 10px 0;
 	overflow:hidden;
 	float:left;
@@ -245,13 +258,40 @@ article section {
 
 #hotels.streetview {
 	min-height:50px;
-	height:100px;
-	opacity:1;
+	height:120px;
+	opacity:1; 
 }
 #hotels .results {
 	width:100%;
 }                   
 
+#hotels nav.controls {
+	position:absolute;
+	top:10px;
+	right:10px;
+}    
+
+#hotels nav#hotel-list {
+	position:absolute;
+	bottom:10px;
+	left:20px;
+	
+}
+#hotels nav#hotel-list a {
+	display:block;
+	float:left;
+	padding:5px 2px;
+	margin:0 2px 0 0;
+}
+
+#hotels nav#hotel-list a.active {
+	background:#EC008C;
+	color:#fff;
+}      
+
+#hotels .details {
+	margin:20px 0 0 0;
+}
 #hotels.streetview .hotel .rating,
 #hotels.streetview .hotel .details,
 #hotels.streetview .hotel .photos {
@@ -288,7 +328,6 @@ article section {
 	-webkit-box-shadow: 0px 3px 8px white inset;
 }   
 .hotel h3.name {
-	display:inline-block;
 	margin-top:20px;
 	font-size:3em;
 } 
@@ -299,7 +338,7 @@ article section {
 
 .hotel .photos {
 	float:left;
-	margin:0 30px 0 0;
+	margin:20px 20px 0 0;
 }
 /*
 * 	Google Maps Canvas
@@ -387,4 +426,30 @@ article section {
 	-moz-border-radius:10px;
 	-o-border-radius:10px; 
 	-ms-border-radius:10px;
+}
+
+
+#map-visualization {
+	width:100%;
+	height:100%;
+	position:fixed;
+	z-index:-1;
+}
+#map_canvas {
+	width:200px;
+	height:200px;
+	position:absolute;
+	right:0px;
+	top:0px;
+	z-index:1;      
+
+}                    
+
+#pano {
+	width:100%;
+	height:1000px;
+	position:absolute;
+	left:0px;
+	top:0px;
+	z-index:0;
 }

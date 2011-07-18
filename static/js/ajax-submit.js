@@ -19,7 +19,7 @@ RIA.AjaxSubmit = new Class({
 		this.loading = document.id("loading");
 		this.addEventListeners(); 
 		 
-		//this.ajaxForm.fireEvent("submit");
+		this.ajaxForm.fireEvent("submit");
 	},
 	addEventListeners: function() {
 		this.ajaxForm.addEvents({
@@ -36,8 +36,14 @@ RIA.AjaxSubmit = new Class({
 		/*
 		* 	@description:
 		*		Request INDIVIDUAL updates to content buckets
-		*/ 
-		     
+		*/                            
+		if(typeof(twitterSearch) != "undefined") {
+			twitterSearch.stop();         
+			twitterSearch.search = destination+" hotels OR restaurants since:2011-07-16 :)";
+			twitterSearch.subject = destination;
+			twitterSearch.render().start();
+		}
+		
 		/*
 		* 	Cancel any running requests
 		*/  
@@ -49,28 +55,31 @@ RIA.AjaxSubmit = new Class({
 		}, this);
 		this.requests.length = 0;
 		
-		this.requestInfo = new Request.HTML({
-			method:"POST",
-			url:"/ajax",
-			update:this.weather.getElement(".results"),
-			data:'destination='+destination+'&info_type=weather',
-			onRequest: this.requestStart.pass([this.weather],this),
-			onSuccess: this.requestSuccessInfo.pass([this.weather],this),
-			onFailure: this.requestFailure.bind(this)
-		}).send();        
-		this.requests.include(this.requestInfo);
+		if(this.weather) {
+			this.requestInfo = new Request.HTML({
+				method:"POST",
+				url:"/ajax",
+				update:this.weather.getElement(".results"),
+				data:'destination='+destination+'&info_type=weather',
+				onRequest: this.requestStart.pass([this.weather],this),
+				onSuccess: this.requestSuccessInfo.pass([this.weather],this),
+				onFailure: this.requestFailure.bind(this)
+			}).send();        
+			this.requests.include(this.requestInfo);     
+		}
 		
-	   	this.requestGuardian = new Request.HTML({
-			method:"POST",
-			url:"/ajax",
-			update:this.guardian.getElement(".results"),
-			data:'destination='+destination+'&info_type=guardian',
-			onRequest: this.requestStart.pass([this.guardian],this),
-			onSuccess: this.requestSuccessInfo.pass([this.guardian],this),
-			onFailure: this.requestFailure.bind(this)
-		}).send();        
-		this.requests.include(this.requestGuardian);
-		
+		if(this.guardian) {
+		   	this.requestGuardian = new Request.HTML({
+				method:"POST",
+				url:"/ajax",
+				update:this.guardian.getElement(".results"),
+				data:'destination='+destination+'&info_type=guardian',
+				onRequest: this.requestStart.pass([this.guardian],this),
+				onSuccess: this.requestSuccessInfo.pass([this.guardian],this),
+				onFailure: this.requestFailure.bind(this)
+			}).send();        
+			this.requests.include(this.requestGuardian);  
+		}
 		this.requestHotels = new Request.HTML({
 			method:"POST",
 			url:"/ajax",

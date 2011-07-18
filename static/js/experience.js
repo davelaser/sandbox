@@ -21,7 +21,8 @@ RIA.Experience = new Class({
 		this.fbDialogSendButton = document.id("fb-dialog-send");
 		 
 		this.travelPartners = document.id("travel-partners");
-		this.hotels = document.id("hotels");
+		this.hotels = document.id("hotels"); 
+		this.hotelsNav = document.id("hotel-list");
         this.hotels.getElement(".results").set("morph", {
 			duration:400,
 			link:"ignore"
@@ -53,24 +54,35 @@ RIA.Experience = new Class({
 		
 		if(this.fbDialogSendButton) {
 			this.fbDialogSendButton.addEvents({
-				"click":this.fbDialogSend.bind(this)
+				"click":this.fbSendDialog.bind(this)
 			});
 		}  
 		
-		document.addEvents({
-			"keyup":this.toggleMapFullScreen.bind(this)
+		document.id("map-streetview").addEvents({
+			"click":this.toggleMapFullScreen.bind(this)
 		});
-		                                              
-		document.getElements(".streetview").addEvents({
+                                            
+		document.getElements(".less").addEvents({
 			"click":this.toggleInformation.bind(this) 
-		})
-
+		});
+           
+		document.id("less-more").addEvents({
+			"click":this.toggleInformation.bind(this) 
+		});
 		
 		if(this.mapControl) {
 			this.mapControl.addEvents({
 				"click":this.toggleMap.bind(this)
 			});
 		}	
+	},
+	fbSendDialog: function() {
+		RIA.InitAjaxSubmit.loading.setStyle("display", "block");
+		RIA.InitAjaxSubmit.loading.addEvent("click", function() {
+			RIA.InitAjaxSubmit.loading.setStyle("display", "none");
+		})
+		document.id("loading-message").setStyle("display", "none");
+		this.fbDialogSend();
 	},
 	addHotelNavEventListeners: function() {
 		this.hotelNavigationBind = this.hotelNavigation.bind(this)
@@ -106,7 +118,7 @@ RIA.Experience = new Class({
 	},	
 	fbDialogSend: function() {
 		FB.ui({
-			access_token:"107619156000640|2.AQAZAAZfqnGOj7eI.3600.1310576400.0-100002195041453|D58HS5Nk3qKuLRFF03KENe0Fvf8",
+			access_token:"107619156000640|2.AQDYiMAIDC1ZFl35.3600.1311001200.0-100002195041453|1KzV-kC3q6-FnyWdsVjdgZg8uCE",
 			method: 'send',
 			display:'iframe',
           	name: 'Checkout this Hotel, on Lastminute.com',
@@ -167,17 +179,23 @@ RIA.Experience = new Class({
 			}
 		}
 	},
-	animateToHotel: function(hotel) {  
-		var hotelIndex = hotel.get("data-counter"), 
-		resultMarginLeft = -1*(hotelIndex*this.hotelWidth)+this.hotelWidth;
-		this.hotels.getElement(".results").morph({"marginLeft":resultMarginLeft+"px"});
-		this.hotelIndex = hotelIndex-1;
+	setCurrentHotel: function(hotel) {
+		var hotelCounter = hotel.get("data-counter"),
+		hotelIndex = hotelCounter-1, 
+		resultMarginLeft = -1*(hotelCounter*this.hotelWidth)+this.hotelWidth;
+		
+		this.hotelsNav.getElements("a").removeClass("active");
+		this.hotelsNav.getElements("a")[hotelIndex].addClass("active");
+		this.hotelIndex = hotelIndex; 
+		return {index:this.hotelIndex, marginLeft:resultMarginLeft};
+	},
+	animateToHotel: function(hotel) {
+		var hotelResults = this.setCurrentHotel(hotel);
+		this.hotels.getElement(".results").morph({"marginLeft":hotelResults.marginLeft+"px"});		
 	},
 	jumpToHotel: function(hotel) {
-		var hotelIndex = hotel.get("data-counter"), 
-		resultMarginLeft = -1*(hotelIndex*this.hotelWidth)+this.hotelWidth;
-		this.hotels.getElement(".results").setStyles({"marginLeft":resultMarginLeft+"px"});
-		this.hotelIndex = hotelIndex-1;
+		var hotelResults = this.setCurrentHotel(hotel);
+		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
 		this.removeHotelNavEventListeners();
@@ -195,8 +213,11 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").morph({"opacity":1});
 		
 		if(this.hotelCollection.length > 0) {
+			this.createHotelNav();
+			
 			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
 			
+			/*
 			this.hotels.getElements(".photos").each(function(photoContainer) {
 				var text = photoContainer.get("text").clean();
 				text.replace(" ","");
@@ -204,39 +225,61 @@ RIA.Experience = new Class({
 				photoContainer.innerHTML = "";
 				temp.inject(photoContainer)
 			});
-			
+			*/
 			this.totalLength = (this.hotelCollection.length*this.hotelWidth);
 			
 			// Reset the results width and the left margin, so we are in first hotel position
 			this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
 
 			this.addHotelNavEventListeners();
-			this.setStreetview(this.hotelCollection[0]);			
+			this.setStreetview(this.hotelCollection[0]);
+			/*
+            *	Exceedes quota limit
+			this.setHotelMarkers(this.hotelCollection);
+			*/
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
 		}   
 		
+	}, 
+	createHotelNav: function() {
+		
+		this.hotelsNav.empty();
+		this.hotelCollection.each(function(hotel, index) {
+			this.hotelsNav.adopt(new Element("a", {
+				"href":"#",
+				"text":(index+1),
+				"class":(index == 0 ? "active" : ""),
+				"events":{
+					"click": function(e) {
+						e.preventDefault();
+						this.jumpToHotel(hotel);
+						this.setStreetview(this.hotelCollection[this.hotelIndex]);
+					}.bind(this)
+				}
+			}))
+		},this)
 	},
 	onWindowResize: function(e) {
     	this.viewport = window.getSize(); 
 		//this.mapStreetview.setStyles({"width":this.viewport.x+"px", "height":this.viewport.y+"px"});
-		//if(RIA.map) google.maps.event.trigger(RIA.map, "resize");
+		if(RIA.map) google.maps.event.trigger(RIA.map, "resize");
 	},
 	toggleInformation: function(e) {
 		
 		e.preventDefault();
 		if(this.hotels.hasClass("streetview")) {
 			e.target.set("text", "less...");
-			this.weather.setStyle("display", "block");
+			if(this.weather) this.weather.setStyle("display", "block");
 			if(this.guardian) this.guardian.setStyle("display", "block");
-			this.twitterNews.setStyle("display", "block");
+			if(this.twitterNews) this.twitterNews.setStyle("display", "block");
 			this.hotels.removeClass("streetview");
 		}
 		else {   
 			e.target.set("text", "more...");
-			this.weather.setStyle("display", "none");
+			if(this.weather) this.weather.setStyle("display", "none");
 			if(this.guardian) this.guardian.setStyle("display", "none");
-			this.twitterNews.setStyle("display", "none");
+			if(this.twitterNews) this.twitterNews.setStyle("display", "none");
 			this.hotels.addClass("streetview");				
 		}
 	}

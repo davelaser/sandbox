@@ -1,6 +1,7 @@
 RIA.MapStreetView = new Class({
 	init: function() {
-		RIA.MarkerIcons = {
+		RIA.MarkerIcons = { 
+			blank:new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00'),
 			star:new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00'),
 			bankDollar:new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FF0000')
 		}
@@ -48,22 +49,23 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	toggleMapFullScreen: function(e){    
-		if(e.key == "m" && e.alt == true) {
-			e.preventDefault();
-			var mapWidth = this.mapCanvas.getCoordinates().width;
-			if(mapWidth < this.viewport.x) {
-				this.mapCanvas.setStyles({"width":"100%", "height":"1000px"});
-				this.mapCanvas.getElement("div").setStyles({"width":"100%", "height":"1000px"}); 
-				RIA.map.setZoom(15);
-			}   
-			else {
-				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
-				RIA.map.setZoom(13);
-			}
-			
-			google.maps.event.trigger(RIA.map, "resize"); 
-			this.setMapPositionCenter(RIA.currentLocation);
+		e.preventDefault();
+		var mapWidth = this.mapCanvas.getCoordinates().width;
+		if(mapWidth < this.viewport.x) {
+			this.mapCanvas.setStyles({"width":"100%", "height":"1000px"});
+			this.mapCanvas.getElement("div").setStyles({"width":"100%", "height":"1000px"});
+			// [ST] Resetting zoom causes a pan to occur in from the top left, which is annoying when toggling between streetview and map 
+			//RIA.map.setZoom(15);
+			e.target.set("text", "Streetview");
+		}   
+		else {
+			this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
+			//RIA.map.setZoom(13);
+			e.target.set("text", "Map");
 		}
+		
+		google.maps.event.trigger(RIA.map, "resize"); 
+		this.setMapPositionCenter(RIA.currentLocation);
 	},
 	setStreetview: function(hotel) {       
 		var address = hotel.get("data-address");
@@ -94,7 +96,7 @@ RIA.MapStreetView = new Class({
 		this.mapStreetview.setStyle("display", "");          		
 		this.setMapPositionPan(RIA.currentLocation);
 		this.setPanoramaPosition(RIA.currentLocation);
-		this.requestPlaces(hotel, RIA.currentLocation, 1500, 'food|restaurants|attractions|hotels');
+		//this.requestPlaces(hotel, RIA.currentLocation, 1500, 'food|restaurants|attractions|hotels');
 	},
 	setMapPositionPan: function(latLng) {
 		RIA.map.panTo(latLng);
@@ -133,8 +135,7 @@ RIA.MapStreetView = new Class({
 		});
 	},
 	dropPin: function(e) {  
-		Log.info(e)
-		var button = e.target, hotel = button.getParent(".hotel"), title = hotel.get("data-name"), price = hotel.get("data-price"), marker, infowindow;
+		var button = e.target, hotel = button.getParent(".hotel"), title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow;
 		button.setStyle("display", "none");
 			
 		marker = new google.maps.Marker({
@@ -144,11 +145,12 @@ RIA.MapStreetView = new Class({
 			title:title,
 			animation:google.maps.Animation.BOUNCE,
 			cursor:'pointer',
-			clickable:true
+			clickable:true,
+			zIndex:10
         });
 
 		infowindow = new google.maps.InfoWindow({
-		    content: "<h4>"+title+"</h4><p>"+price+"</p>",
+		    content: "<h4>#"+counter+": "+title+"</h4><p>"+price+"</p>",
 			maxWidth:50
 		});  
 		google.maps.event.addListener(marker, 'click', function(event) {  
@@ -158,6 +160,30 @@ RIA.MapStreetView = new Class({
 		
 		
 		marker.timeout = this.animateMarker.delay(2100, this, [marker, null]);
+	},
+	setHotelMarkers: function(hotels) { 
+		
+		hotels.each(function(hotel) {
+			RIA.geocoder.geocode( { 'address': hotel.get("data-address")}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {                 
+					var marker = new google.maps.Marker({
+			            map: RIA.map, 
+			            position: results[0].geometry.location,
+						draggable:false,
+						title:hotel.get("data-name"),
+						animation:google.maps.Animation.DROP,
+						cursor:'pointer',
+						clickable:true,
+						zIndex:10
+			        });
+				} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+			        Log.info("No Geocode results found, switching off StreetView Panorama");
+				} else {
+					Log.info("Geocode was not successful for the following reason: status: " + status);
+				}
+			}.bind(this));
+		},this);
+		
 	},
 	animateMarker: function(marker, animation) {
 		if(marker) {

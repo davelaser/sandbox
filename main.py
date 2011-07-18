@@ -26,7 +26,10 @@ requestAjaxAPI = "/ajax"
 requestGooglePlaces = "/places"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
+
+logging.info(memcache.get_stats())
+
 feeds = {
     'bbc'      : 'http://news.bbc.co.uk/weather/forecast/',
     'guardian' : 'http://content.guardianapis.com/search?format=json&use-date=last-modified&show-fields=headline,trailText&ids=travel/',
@@ -136,7 +139,9 @@ def handle_result_ajax_v3(rpc, destination, info_type, response):
 		elif info_type =="hotels":
 			# Put the response body content stringXML into the data store
 			put_datastore_by_destination(destination, result.content)
-			memcache.add(destination,f)
+			replaced = memcache.replace(destination,f)
+			if replaced is False:
+				memcache.add(destination,f)
 			global_mashup['hotels'] = f
 			logging.info(f)
 		elif info_type == "city-break":
