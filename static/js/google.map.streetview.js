@@ -39,7 +39,6 @@ RIA.MapStreetView = new Class({
 	},
 	toggleMap: function(e) {
 		var mapDisplayed = this.mapCanvas.getStyle("visibility") == "hidden";
-		Log.info(mapDisplayed)
 		if(mapDisplayed) {
 			this.mapCanvas.setStyle("visibility", "visible");
 		}   
@@ -51,11 +50,12 @@ RIA.MapStreetView = new Class({
 		if(e) e.preventDefault();
 		var mapWidth = this.mapCanvas.getCoordinates().width;
 		if(mapWidth < this.viewport.x) {
-			this.mapCanvas.setStyles({"width":"100%", "height":"1000px"});
-			this.mapCanvas.getElement("div").setStyles({"width":"100%", "height":"1000px"});
+			this.mapCanvas.setStyles({"width":"100%", "height":"100%"});
 			// [ST] Resetting zoom causes a pan to occur in from the top left, which is annoying when toggling between streetview and map 
-			//RIA.map.setZoom(15);
+			// RIA.map.setZoom(15);
+			
 			document.id("map-streetview").set("text", "Streetview");
+			
 		}   
 		else {
 			this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
