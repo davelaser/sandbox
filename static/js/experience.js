@@ -5,6 +5,8 @@ RIA.Experience = new Class({
 	},
 	initialize: function(options) {
 		this.setOptions(options);
+		
+		
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
 		this.destination.store("styles:width:orig", this.destination.getStyle("width").toInt());
@@ -27,9 +29,10 @@ RIA.Experience = new Class({
 		});
 		                         		
 		this.mapCanvas = document.id("map_canvas");
-		this.mapCanvas.store("styles:orig", this.mapCanvas.getCoordinates()); 
+		this.mapCanvas.store("styles:orig", this.mapCanvas.getCoordinates());
+		this.mapCanvas.store("styles:maximized", {width:"100%", height:"100%"});
+		this.mapCanvas.store("view:state", "minimized");
 		
-		this.mapControl = document.id("toggle-map");
 		this.mapStreetview = document.id("pano");
 		this.onWindowResize();
 		this.addEventListeners();
@@ -68,12 +71,11 @@ RIA.Experience = new Class({
 		document.id("less-more").addEvents({
 			"click":this.toggleInformation.bind(this) 
 		});
+		     
 		
-		if(this.mapControl) {
-			this.mapControl.addEvents({
-				"click":this.toggleMap.bind(this)
-			});
-		}	
+		document.id("my-bookmarks").addEvents({
+			"click":this.showMyBookmarks.bind(this)
+		});
 	},
 	fbSendDialog: function() {
 		RIA.InitAjaxSubmit.loading.setStyle("display", "block");
@@ -92,7 +94,7 @@ RIA.Experience = new Class({
 		this.dropBookmarkPinBind = this.dropBookmarkPin.bind(this);
 		document.getElements(".drop-pin").each(function(dropPinButton) {
 			dropPinButton.addEvents({
-				"click":this.dropBookmarkPinBind
+				"click":this.dropBookmarkPinBind.pass([dropPinButton.getParent(".hotel")], this)
 			});
 		},this);
 		
@@ -238,10 +240,14 @@ RIA.Experience = new Class({
 
 			this.addHotelNavEventListeners();
 			this.setStreetview(this.hotelCollection[0]);
-			/*
-            *	Exceeds quota limit
-			* 	this.setHotelMarkers(this.hotelCollection);
-			*/
+			    
+			this.setHotelMarkers(this.hotelCollection);
+			                                                                  
+			
+			if(this.options.bookmarks != null && this.options.bookmarks.length) {
+				this.setBookmarkMarkers(this.hotelCollection);
+			}
+            
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
 		}   

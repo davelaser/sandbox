@@ -381,11 +381,11 @@ class HomeHandler(webapp.RequestHandler):
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		destination = self.request.get("destination") 
-		                                                  
-		args = dict(destination=destination)
-		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')
+		bookmarks = self.request.get("bookmarks").split(',')
+		viewtype = self.request.get("viewtype") 
+		args = dict(destination=destination, bookmarks=bookmarks, viewtype=viewtype)
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
-		
 	def post(self):
 		destination = self.request.POST.get("destination")
 		
@@ -438,11 +438,14 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	return True
   def post(self):
 	destination = self.request.POST.get("destination")
-
+    
+	
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()
 	logging.info(destination)
+	
+	global_mashup['destination'] = destination
 	info_type = self.request.POST.get("info_type")
 	info_type = info_type.replace(' ', '').lower()
 
@@ -498,7 +501,9 @@ class GooglePlacesHandler(webapp.RequestHandler):
 			self.response.out.write(jsonResponse)
 		except urllib2.URLError, e:
 			logging.info("GooglePlacesHandler : urllib2 error")
-		
+
+# Tiny URL API
+#http://tinyurl.com/api-create.php?url=http://scripting.com/ 		
 
 application = webapp.WSGIApplication([
 		(requestExperience, ExperienceHandler),

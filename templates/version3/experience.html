@@ -21,6 +21,7 @@
 			{% comment %}<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button>{% endcomment %} 
 			
 			<section id="controls">                                    
+				{% comment %}<button id="my-bookmarks" class="button">My Bookmarks</button>{% endcomment %}
 				<button id="less-more" class="button">Less</button>
 				<button id="map-streetview" class="button">Map</button>
 				<button id="fb-dialog-send" class="button">Share</button>			
@@ -43,6 +44,7 @@
 
 				</nav>
 			</section>
+			
 			<nav id="horizontal">
 				<a href="#" class="previous"><span>Previous</span></a>
 				<a href="#" class="next"><span>Next</span></a>
@@ -132,8 +134,12 @@
 		RIA.geocoder = null;
 	    RIA.sv = null;                                                       
 		// Go to Times Square
-	   	RIA.InitExperience = new RIA.Experience({lat:40.757920208794026, lng:-73.98588180541992});
-	    
+	   	RIA.InitExperience = new RIA.Experience({
+			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
+			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
+			viewtype:"{{ viewtype|default:'streetview' }}"
+		});
+	    RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
 		(function() {
 			var e = document.createElement('script');
 			e.type = 'text/javascript';
@@ -155,7 +161,7 @@
 		function loadScript() {
 		  var script = document.createElement("script");
 		  script.type = "text/javascript";
-		  script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=RIA.InitExperience.init";
+		  script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=RIA.InitExperience.mapInitialize";
 		  document.body.appendChild(script);
 		}
         window.addEvent("domready", function() {

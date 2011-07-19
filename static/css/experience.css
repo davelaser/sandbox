@@ -274,20 +274,14 @@ article section {
 	right:10px;
 }    
 
-#hotels nav#hotel-list {
-	position:absolute;
-	bottom:10px;
-	left:20px;
-	
-}
-#hotels nav#hotel-list a {
+nav#hotel-list a {
 	display:block;
 	float:left;
 	padding:5px 2px;
 	margin:0 2px 0 0;
 }
 
-#hotels nav#hotel-list a.active {
+nav#hotel-list a.active {
 	background:#EC008C;
 	color:#fff;
 }      
@@ -472,7 +466,8 @@ article section {
 #hotels.minimized .nearby
 #hotels.minimized .room-and-rates,
 #hotels.minimized .details,
-#hotels.minimized #hotel-list {
+#hotels.minimized nav#hotel-list,
+#hotels.minimized h3.name span {
 	display:none;
 }
 
@@ -486,6 +481,8 @@ article section {
 	float:right;
 	margin:8px 0 0 0;
 }
+  
+
 
 /*
 * 	Horizontal Hotels Navigation

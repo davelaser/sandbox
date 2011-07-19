@@ -1,7 +1,8 @@
 RIA.MapStreetView = new Class({
-	init: function() {
+	mapInitialize: function() {
 		
-		RIA.bookmarks = new Array();
+		RIA.bookmarks = new Object();
+		RIA.hotelMarkers = new Object();
 		
 		RIA.MarkerIcons = { 
 			blank:new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00'),
@@ -12,9 +13,10 @@ RIA.MapStreetView = new Class({
 		
 		RIA.geocoder = new google.maps.Geocoder();
 		RIA.sv = new google.maps.StreetViewService();         
-		RIA.currentLocation = new google.maps.LatLng(this.options.lat, this.options.lng);
 		
-		var mapOptions = {
+		this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat, this.options.geolocation.lng));
+		
+		this.mapOptions = {
 			scrollwheel: false,
 			keyboardShortcuts:false,
 			zoom: 13,
@@ -22,7 +24,7 @@ RIA.MapStreetView = new Class({
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		}
 		
-		var panoramaOptions = {
+		this.panoramaOptions = {
 			scrollwheel: false,
 			position: RIA.currentLocation,
 			pov: {
@@ -31,135 +33,211 @@ RIA.MapStreetView = new Class({
 		        zoom: 0
 			}
 		};
-		RIA.map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
-        
+
+		RIA.map = new google.maps.Map(document.getElementById("map_canvas"), this.mapOptions);
         RIA.map.setCenter(RIA.currentLocation);
-		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"),panoramaOptions);
+
+		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
 		RIA.map.setStreetView(RIA.panorama);
-		
-		RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
+		    
+		if(this.options.viewtype == "map") {
+			this.toggleMapFullScreen(null);
+		}
+		// Now we have initialized the Map, start the Destination request 
+		RIA.InitAjaxSubmit._submit();
 
 	},
-	toggleMap: function(e) {
-		var mapDisplayed = this.mapCanvas.getStyle("visibility") == "hidden";
-		if(mapDisplayed) {
-			this.mapCanvas.setStyle("visibility", "visible");
-		}   
-		else {
-			this.mapCanvas.setStyle("visibility", "hidden");			
-		}
-	},
-	toggleMapFullScreen: function(e){    
-		if(e) e.preventDefault();
-		var mapWidth = this.mapCanvas.getCoordinates().width;
-		if(mapWidth < this.viewport.x) {
-			this.mapCanvas.setStyles({"width":"100%", "height":"100%"});
-			// [ST] Resetting zoom causes a pan to occur in from the top left, which is annoying when toggling between streetview and map 
-			// RIA.map.setZoom(15);
-			
+	toggleMapFullScreen: function(e){
+		/*
+		*	@description:
+		*		Toggle the Map (ROADMAP) view from full screen to minimized
+		*	@arguments:
+		*		Event[Object] (optional)
+		*/ 
+		
+		// If we have an Event object argument, prevent any default action   
+		if(e && e.preventDefault) {
+			e.preventDefault();
+		}                                                                 
+		
+		// Check the Map's current view state. If state == 'minimized', then maximize it
+		if(this.mapCanvas.retrieve("view:state") == "minimized") {
+			this.mapCanvas.store("view:state", "maximized");
+			this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
 			document.id("map-streetview").set("text", "Streetview");
-			
-		}   
+		}
+		// Else minimize it   
 		else {
+			this.mapCanvas.store("view:state", "minimized");
 			this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
-			//RIA.map.setZoom(13);
 			document.id("map-streetview").set("text", "Map");
 		}
 		
-		google.maps.event.trigger(RIA.map, "resize"); 
+		// Trigger the resize event on the Map so that it requests any required tiles
+		google.maps.event.trigger(RIA.map, "resize");                                
+		
+		// Center the Map on the current location
 		this.setMapPositionCenter(RIA.currentLocation);
 	},
-	setStreetview: function(hotel) {       
-		var address = hotel.get("data-address");
+	setStreetview: function(hotel) { 
+		/*
+		* 	@description:
+		*		Update the existing Streetview Panorama to center on the current location
+		*	@arguments:
+		*		Hotel[Element]
+		*/ 
+		// Get the Hotel address     
+		var address = hotel.get("data-address"), latLng;
 		if(!address || address == "None") {
-			address = ""
-		}
+			address = "No address found";			
+			return this.notGotGeolocation(hotel);
+		}                       
+		
+		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
 		if(hotel.retrieve("geolocation")) {
-			RIA.currentLocation = hotel.retrieve("geolocation");
-			this.gotGeolocation(hotel);
-			Log.info("Retrieved geolocation for hotel : "+RIA.currentLocation);
-		} else {
-			RIA.geocoder.geocode( { 'address': address}, function(results, status) {
-				Log.info("Getting address geocode data for address: "+address);
-				if (status == google.maps.GeocoderStatus.OK) {                 
-					RIA.currentLocation = results[0].geometry.location;
-					hotel.store("geolocation", RIA.currentLocation);
-					this.gotGeolocation(hotel);
-				} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
-			        this.mapStreetview.setStyle("display", "none"); 
-					
-					Log.info("No Geocode results found, switching off StreetView Panorama");
-				} else {
-					Log.info("Geocode was not successful for the following reason: status: " + status);
-				}
-			}.bind(this));	
+			this.gotGeolocation(hotel, hotel.retrieve("geolocation"));
+			//Log.info("Retrieved geolocation for hotel");
+		} 
+		// Else request the LatLng data from Google, using the Hotel's address
+		else { 
+			this.getGeocodeByAddress(hotel, this.gotGeolocation.bind(this));
 		}   	
 	},
-	gotGeolocation: function(hotel) {
-		this.mapStreetview.setStyle("display", "");          		
-		this.setMapPositionPan(RIA.currentLocation);
+	gotGeolocation: function(hotel, latLng) {
+		/*
+		* 	@description:
+		*		Called from a successful google.geocode(address) lookup
+		*	@arguments:
+		*		Hotel[Element]
+		*		LatLng[Object(LatLng)]
+		*/
+		// Set the global namespace current location
+       	this.setCurrentLocation(latLng);               
+		                                           
+		// Switch the Map on, in case it was hidden due to no results previously
+		this.mapStreetview.setStyle("display", "");          		            
+		// Set the Map position and Pan to this position
+		this.setMapPositionPan(RIA.currentLocation);    
+		// Set the Streetviw Panorama position
 		this.setPanoramaPosition(RIA.currentLocation);
+		
+		// [ST]TODO: Request local restaurants, hotels, attractions using Google Places?
 		//this.requestPlaces(hotel, RIA.currentLocation, 1500, 'food|restaurants|attractions|hotels');
 	},
+	notGotGeolocation: function(hotel) {
+		/*
+		* 	@description:
+		*		Called from an UNsuccessful google.geocode(address) lookup
+		*	@arguments:
+		*		Hotel[Element]
+		*/
+		//this.mapStreetview.setStyle("display", "none"); 
+		//Log.info("Sorry, we couldn't find this address on the Map:\n"+hotel.get("data-address"));
+	},
 	setMapPositionPan: function(latLng) {
+		/*
+		* 	@description:
+		*		Set the Map to a position and Pan to it using the Google Maps built-in effect
+		*	@arguments:
+		*		latLng[Object(LatLng)]
+		*/
 		RIA.map.panTo(latLng);
 	},
 	setMapPositionCenter: function(latLng) {
+		/*
+		* 	@description:
+		*		Set the Map to a position and center the Map to this position
+		*	@arguments:
+		*		latLng[Object(LatLng)]
+		*/
 		RIA.map.setCenter(latLng);
 	},
 	setPanoramaPosition: function(latLng) {
+		/*
+		* 	@description:             
+		*		Set the position of the Streetview Panorama
+		*	@arguments:
+		*		latLng[Object(LatLng)]
+		*/ 
+		// Check whether Streetview Panorama data exists for this LatLng, within a 150 metre radius (argument #2 below)
 		RIA.sv.getPanoramaByLocation(latLng, 150, function(svData, svStatus) {  
-
+            // If Streetview Panorama data exists...
 			if (svStatus == google.maps.StreetViewStatus.OK) {
-				/*
-			    var hotelMarker = new google.maps.Marker({
-     				position: svData.location.latLng,
-     				map: RIA.map,
-     				icon: RIA.MarkerIcons.star,
-     				title: 'Hotel'
- 				});
-                */
-
-				RIA.panorama.setPosition(svData.location.latLng);
+				// Set the Streetview Panorama to the position, using the returned data (rather than RIA.currentLocation, as this may be innaccurate)
+				RIA.panorama.setPosition(svData.location.latLng);                                                                              
+				// Set the Point Of View of the Panorama to match the 'current heading' data returned. Set pitch and zoom to zero, so that we are horizontal and zoomed out
 				RIA.panorama.setPov({
 					heading: svData.tiles.centerHeading,
 					pitch:0,
 					zoom:0
-				});
-				
+				});				
 			}
-			else if(svStatus == google.maps.StreetViewStatus.ZERO_RESULTS) {
-				
-				Log.info("No Panorama results found");
-				
-			} else {
-				Log.info("Panorama error status: "+svStatus);
+			// Else if no data exists...
+			else if(svStatus == google.maps.StreetViewStatus.ZERO_RESULTS) {				
+				// [ST]TODO: No Streetview data was found for this LatLng, what do we do here?
+				//Log.info("No Panorama results found");				
+			} 
+			// Else there was an error...
+			else {
+				// [ST]TODO: Handle OVER_QUOTA or other errors
+				//Log.info("Panorama error status: "+svStatus);
 			}
 		});
 	},
-	dropBookmarkPin: function(e) {
-		var button = e.target, hotel = button.getParent(".hotel"), title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow;
-		button.setStyle("display", "none");
+	dropBookmarkPin: function(hotel) {
+		/*
+		* 	@description:
+		*		Call from a Bookmark request against a Hotel
+		*	@arguments:
+		*		Hotel[Element]
+		*/ 
+		// Set local variables 
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid");
+		
+		// Hide the Bookmark button
+		hotel.getElement("button.drop-pin").setStyle("display", "none");
 		
 		
-		RIA.bookmarks.include(hotel);
+		// If we have a Hotel Marker...
+		if(RIA.hotelMarkers[LMLocationId] != undefined) {
+			// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
+			if(RIA.hotelMarkers[LMLocationId].hotelMarker != null) {    
+				this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarker);
+			}
+		}  
 		
-		marker = new google.maps.Marker({
+		                                           
+		// Create a new Marker
+		hotel.bookmark = new google.maps.Marker({
             map: RIA.map, 
-            position: RIA.currentLocation,
+            icon:RIA.MarkerIcons.star,
+			position: hotel.retrieve("geolocation"),
 			draggable:false,
 			title:title,
 			animation:google.maps.Animation.BOUNCE,
 			cursor:'pointer',
 			clickable:true,
-			zIndex:10
+			zIndex:20
         });
-
+        
+		// Add this hotel to the global namespaced Array of Bookmarks
+		RIA.bookmarks[LMLocationId] = hotel;
+		   
+		this.createInfoWindow(hotel, hotel.bookmark);
+		
+		// Add a timeout to stop animating the Marker by removing {animation:google.maps.Animation.BOUNCE}
+		hotel.bookmark.timeout = this.animateMarker.delay(2100, this, [hotel.bookmark, null]);  
+		
+	},
+	createInfoWindow: function(hotel, marker) {
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow;
+		// Create a new InfoWindow, for the Marker
 		infowindow = new google.maps.InfoWindow({
 		    content: "<h4>#"+counter+": "+title+"</h4><p>"+price+"</p>",
 			maxWidth:50
 		});
-
+       
+		// Add mouse event listeners for the Marker
 		var mouseoutEvent = null;
 		var mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
 		    this.openInfoWindow(marker, event.latLng, hotel, infowindow);  
@@ -168,55 +246,176 @@ RIA.MapStreetView = new Class({
 				google.maps.event.removeListener(mouseoutEvent); 
 			}.bind(this));
 		}.bind(this)); 
-		
-		  
-		var clickEvent = google.maps.event.addListener(marker, 'click', function(event) { 
+		var clickEvent = google.maps.event.addListener(marker, 'click', function(event) {
+			this.setCurrentLocation(event.latLng);
+			//Log.info("Reset current location to :"+RIA.currentLocation) ;
 			google.maps.event.removeListener(mouseoutEvent);
 			this.setPanoramaPosition(event.latLng);
 			this.jumpToHotel(hotel);  
 			this.openInfoWindow(marker, event.latLng, hotel, infowindow);
-		}.bind(this));   
-		
-		
-		marker.timeout = this.animateMarker.delay(2100, this, [marker, null]);
+		}.bind(this));
 	},
 	setHotelMarkers: function(hotels) { 
-		
-		hotels.each(function(hotel) {
-			RIA.geocoder.geocode( { 'address': hotel.get("data-address")}, function(results, status) {
-				if (status == google.maps.GeocoderStatus.OK) {                 
-					var marker = new google.maps.Marker({
-			            map: RIA.map, 
-			            position: results[0].geometry.location,
-						draggable:false,
-						title:hotel.get("data-name"),
-						animation:google.maps.Animation.DROP,
-						cursor:'pointer',
-						clickable:true,
-						zIndex:10
-			        });
-				} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
-			        Log.info("No Geocode results found, switching off StreetView Panorama");
-				} else {
-					Log.info("Geocode was not successful for the following reason: status: " + status);
+		/*
+		* 	@description:
+		*		Add a Marker for each hotel
+		*		WARNING: This exceeds the .geocode() method QUOTA
+		*	@arguments:
+		*		Hotels[ElementCollection]
+		*/
+		var counter = 500, delay, geo;
+		hotels.each(function(hotel, index) {
+			geo = hotel.retrieve("geolocation");
+			if(geo == null) {
+				Log.info("Setting hotelMarker for Hotel "+hotel.get("data-name"));
+				delay = counter+=500;              
+				//Log.info(hotel.get("data-name")+" : "+delay);
+				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);				
+			} else {
+				Log.info("setHotelMarker() : retrieved gelocation for Hotel : "+hotel.get("data-name"));
+				// If the hotel does not already have a bookmark
+				if(hotel.bookmark == null) {
+					this.addHotelMarker(hotel, geo);
 				}
-			}.bind(this));
+			}
+			
 		},this);
 		
 	},
+	addHotelMarker: function(hotel, latLng) {
+		/*
+		*	@description:
+		*		Sets a Marker for a Hotel. Not solicited by the User
+		*	@arguments:
+		*		hotel[Element]
+		*		latLng[Object(LatLng)]
+		*/       
+		
+		RIA.hotelMarkers[hotel.get("data-locationid")] = hotel;
+		
+		// If the Hotel does not already have a bookmarker Marker
+		if(hotel.bookmark == null) {
+			hotel.hotelMarker = new google.maps.Marker({
+	            map: RIA.map,
+				position: latLng,
+				draggable:false,
+				title:hotel.get("data-name"),
+				animation:google.maps.Animation.DROP,
+				cursor:'pointer',
+				clickable:true,
+				zIndex:1
+	        });
+      
+			this.createInfoWindow(hotel, hotel.hotelMarker);
+		}	
+	},
+	removeHotelMarkers: function() {
+		Object.each(RIA.hotelMarkers, function(value, key) {
+			this.removeMarker(value.hotelMarker);
+		},this);
+	},
+	removeMarker: function(marker) {
+		if(marker) {
+			marker.setMap(null);
+		}
+	}, 
+	setBookmarkMarkers: function(hotels) {
+		var counter = 500, delay, geo;
+		hotels.each(function(hotel, index) {
+			
+			if(this.options.bookmarks.contains(hotel.get("data-locationid"))) {
+				geo = hotel.retrieve("geolocation");
+				if(geo == null) {  
+					delay = counter+=500;              
+					//Log.info(hotel.get("data-name")+" : "+delay);
+					this.getGeocodeByAddress.delay(delay, this, [hotel, this.addBookmarkMarker.bind(this)]);				
+				} else { 
+					Log.info("setHotelMarker() : retrieved gelocation for Hotel");
+					this.dropBookmarkPin(hotel);
+				}
+				
+				if(RIA.hotelMarkers[hotel.get("data-locationid")] != undefined) {
+					// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
+					if(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarker != null) {    
+						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarker);
+					}
+				}  				
+			}
+		},this);
+	},  
+	removeBookmarkMarkers: function() {
+		Object.each(RIA.bookmarks, function(value, key) {
+			this.removeMarker(value.bookmark);
+		},this);
+	},
+	addBookmarkMarker: function(hotel, latLng) {
+		// Create a new Marker     
+		this.dropBookmarkPin(hotel);
+	},
+	getGeocodeByAddress: function(hotel, callback) {
+		/*
+		* 	@description:
+		*		Make a Geocode Request sending an address.
+		*		Return the response
+		*	@arguments:
+		*		Address[String]
+		*/  
+		
+		//Log.info("getGeocodeByAddress")
+        var address = hotel.get("data-address");
+		//Log.info("Requesting Geocode for address "+address);
+		RIA.geocoder.geocode({ 'address': address}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {             
+				var latLng = results[0].geometry.location; 
+				
+				// Store the LatLng against the Hotel Element
+				hotel.store("geolocation", latLng);
+				if(callback) {
+					callback(hotel, latLng);
+				}					
+			} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+		        Log.info("No Geocode results found for "+address);
+				this.notGotGeolocation(hotel);
+			} else {
+				Log.info("Geocode was not successful for the following reason: status: " + status);
+				this.notGotGeolocation(hotel);
+			}                      
+			
+			// null local variables
+			address = null;
+		}.bind(this));
+		
+	},
 	animateMarker: function(marker, animation) {
+		/*
+		* 	@description:
+		*		Animate a Map Marker instance		
+		*/
 		if(marker) {
 			marker.setAnimation(animation);
 		}
 	},
 	openInfoWindow: function(marker, latLng, hotel, infowindow) {
-		var mapWidth = this.mapCanvas.getCoordinates().width;
-		// Only open the info window in full screen map mode
-		if(mapWidth < this.viewport.x) { 
-			
-		} else {
+		/*
+		* 	@description:
+		*		Open an InfoWindow instance
+		*/                                                    
+		// Only show the InfoWindow if we are maximized state
+		if(this.mapCanvas.retrieve("view:state") == "maximized") {
 			infowindow.open(RIA.map,marker);
 		}
-		mapWidth = null;
+	},
+	setCurrentLocation: function(latLng) {
+		RIA.currentLocation = latLng;
+	},
+	showMyBookmarks: function() {
+		/*
+		* 	@description:
+		*		Remove all Hotel Markers and just show Bookmark Markers
+		*	@arguments:
+		*		
+		*/
+		this.removeHotelMarkers();
+		this.addBookmarkMarkers();
 	}
 });
