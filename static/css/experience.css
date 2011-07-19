@@ -304,8 +304,9 @@ article section {
 	width:435px;
 	display:block;
 	float:left; 
-	padding-right:20px;
+	padding-right:20px; 
 }
+
 
 .hotel nav {
 	margin-top:20px;
@@ -465,10 +466,30 @@ article section {
 	padding:0 20px;
 }
 
-#hotels.minimized header {
+#hotels.minimized h2,
+#hotels.minimized .rating,
+#hotels.minimized .photos,
+#hotels.minimized .nearby
+#hotels.minimized .room-and-rates,
+#hotels.minimized .details,
+#hotels.minimized #hotel-list {
 	display:none;
 }
 
+#hotels.minimized h3 {
+	margin:10px 0 0 0;
+	font-size:2em;
+	float:left; 
+}                 
+
+#hotels.minimized button {
+	float:right;
+	margin:8px 0 0 0;
+}
+
+/*
+* 	Horizontal Hotels Navigation
+*/
 #horizontal {
 	width:98px;
 	height:49px;
@@ -503,6 +524,5 @@ article section {
 
 .previous span,
 .next span {
-	display:block;
-	text-indent:-10000em;
+	display:none;
 }

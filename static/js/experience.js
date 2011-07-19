@@ -89,10 +89,10 @@ RIA.Experience = new Class({
 			"keyup":this.hotelNavigationBind 
 		});
 		
-		this.dropPinBind = this.dropPin.bind(this);
+		this.dropBookmarkPinBind = this.dropBookmarkPin.bind(this);
 		document.getElements(".drop-pin").each(function(dropPinButton) {
 			dropPinButton.addEvents({
-				"click":this.dropPinBind
+				"click":this.dropBookmarkPinBind
 			});
 		},this);
 		
@@ -110,7 +110,7 @@ RIA.Experience = new Class({
 		
 		document.getElements(".drop-pin").each(function(dropPinButton) {
 			dropPinButton.removeEvents({
-				"click":this.dropPinBind
+				"click":this.dropBookmarkPinBind
 			});
 		},this)
 	},     
@@ -152,7 +152,7 @@ RIA.Experience = new Class({
 		
 			resultMarginLeft = this.hotels.getElement(".results").getStyle("marginLeft");
 			
-			if(e.key == "left" || e.type == "click") {
+			if(e.key == "left" || (e.type == "click" && e.target.hasClass("previous"))) {
 				if(resultMarginLeft.toInt() >= 0) {
 					resultMarginLeft = 0;
 					ready = false;						
@@ -162,7 +162,7 @@ RIA.Experience = new Class({
 				} 
 				
 			} 
-			else if (e.key == "right" || e.type == "click") {
+			else if (e.key == "right" || (e.type == "click" && e.target.hasClass("next"))) {
 				var totalMarginLeft = -1*(this.totalLength-this.hotelWidth);
 				if(resultMarginLeft.toInt() <= totalMarginLeft) {
 					resultMarginLeft = totalMarginLeft;
@@ -272,19 +272,19 @@ RIA.Experience = new Class({
 	toggleInformation: function(e) {
 		
 		e.preventDefault();
-		if(this.hotels.hasClass("streetview")) {
+		if(this.hotels.hasClass("minimized")) {
 			e.target.set("text", "less...");
 			if(this.weather) this.weather.setStyle("display", "block");
 			if(this.guardian) this.guardian.setStyle("display", "block");
 			if(this.twitterNews) this.twitterNews.setStyle("display", "block");
-			this.hotels.removeClass("streetview");
+			this.hotels.removeClass("minimized");
 		}
 		else {   
 			e.target.set("text", "more...");
 			if(this.weather) this.weather.setStyle("display", "none");
 			if(this.guardian) this.guardian.setStyle("display", "none");
 			if(this.twitterNews) this.twitterNews.setStyle("display", "none");
-			this.hotels.addClass("streetview");				
+			this.hotels.addClass("minimized");				
 		}
 	}
 });

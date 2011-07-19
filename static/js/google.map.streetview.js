@@ -1,5 +1,8 @@
 RIA.MapStreetView = new Class({
 	init: function() {
+		
+		RIA.bookmarks = new Array();
+		
 		RIA.MarkerIcons = { 
 			blank:new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00'),
 			star:new google.maps.MarkerImage('http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00'),
@@ -134,10 +137,13 @@ RIA.MapStreetView = new Class({
 			}
 		});
 	},
-	dropPin: function(e) {  
+	dropBookmarkPin: function(e) {
 		var button = e.target, hotel = button.getParent(".hotel"), title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow;
 		button.setStyle("display", "none");
-			
+		
+		
+		RIA.bookmarks.include(hotel);
+		
 		marker = new google.maps.Marker({
             map: RIA.map, 
             position: RIA.currentLocation,
@@ -152,11 +158,24 @@ RIA.MapStreetView = new Class({
 		infowindow = new google.maps.InfoWindow({
 		    content: "<h4>#"+counter+": "+title+"</h4><p>"+price+"</p>",
 			maxWidth:50
-		});  
-		google.maps.event.addListener(marker, 'click', function(event) {  
-			this.markerClick(marker, event.latLng, hotel, infowindow);
-		}.bind(this));   
+		});
+
+		var mouseoutEvent = null;
+		var mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
+		    this.openInfoWindow(marker, event.latLng, hotel, infowindow);  
+			mouseoutEvent = google.maps.event.addListener(marker, 'mouseout', function(event) {
+			    infowindow.close(); 
+				google.maps.event.removeListener(mouseoutEvent); 
+			}.bind(this));
+		}.bind(this)); 
 		
+		  
+		var clickEvent = google.maps.event.addListener(marker, 'click', function(event) { 
+			google.maps.event.removeListener(mouseoutEvent);
+			this.setPanoramaPosition(event.latLng);
+			this.jumpToHotel(hotel);  
+			this.openInfoWindow(marker, event.latLng, hotel, infowindow);
+		}.bind(this));   
 		
 		
 		marker.timeout = this.animateMarker.delay(2100, this, [marker, null]);
@@ -190,10 +209,7 @@ RIA.MapStreetView = new Class({
 			marker.setAnimation(animation);
 		}
 	},
-	markerClick: function(marker, latLng, hotel, infowindow) {
-		//this.setMapPositionPan(latLng);
-		this.setPanoramaPosition(latLng);
-		this.jumpToHotel(hotel);
+	openInfoWindow: function(marker, latLng, hotel, infowindow) {
 		var mapWidth = this.mapCanvas.getCoordinates().width;
 		// Only open the info window in full screen map mode
 		if(mapWidth < this.viewport.x) { 
@@ -201,5 +217,6 @@ RIA.MapStreetView = new Class({
 		} else {
 			infowindow.open(RIA.map,marker);
 		}
+		mapWidth = null;
 	}
 });
