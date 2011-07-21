@@ -113,11 +113,16 @@ RIA.Experience = new Class({
 	},
 	removeHotelNavEventListeners: function() {
 		Log.info("removeHotelNavEventListeners")
-		Log.info(this.hotelNavigationBind);
 		
 		document.removeEvents({
 			"keyup":this.hotelNavigationBind 
 		});
+		
+		document.getElements(".previous, .next").each(function(link) {
+			link.removeEvents({
+				"click":this.hotelNavigationBind 
+			});
+		},this);
 		
 		document.getElements(".drop-pin").each(function(dropPinButton) {
 			dropPinButton.removeEvents({
