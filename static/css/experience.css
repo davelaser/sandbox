@@ -467,8 +467,7 @@ nav#hotel-list a.active {
 #hotels.minimized .nearby
 #hotels.minimized .room-and-rates,
 #hotels.minimized .details,
-#hotels.minimized nav#hotel-list,
-#hotels.minimized h3.name span {
+#hotels.minimized nav#hotel-list {
 	display:none;
 }
 

@@ -128,7 +128,9 @@ RIA.AjaxSubmit = new Class({
 	requestStart: function(element) {
 		if(element) {
 			this.loading.setStyle("display", "block");
-			RIA.InitExperience.getHotels();
+			if(element.get("id") == "hotels") {
+				RIA.InitExperience.getHotels();
+			}
 			element.addClass("waiting");
 			//element.getElement(".results").morph({"opacity":0});			
 			element.getElement(".results").set("morph", {"opacity":0});			

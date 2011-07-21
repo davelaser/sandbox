@@ -112,6 +112,9 @@ RIA.Experience = new Class({
 
 	},
 	removeHotelNavEventListeners: function() {
+		Log.info("removeHotelNavEventListeners")
+		Log.info(this.hotelNavigationBind);
+		
 		document.removeEvents({
 			"keyup":this.hotelNavigationBind 
 		});
@@ -183,6 +186,7 @@ RIA.Experience = new Class({
 			}
 			
 			if(ready) {
+				Log.info("Navigating : this.hotelIndex : "+this.hotelIndex);
 				this.animateToHotel(this.hotelCollection[this.hotelIndex]);
 				(function() {
 					this.setStreetview(this.hotelCollection[this.hotelIndex]);
@@ -225,7 +229,8 @@ RIA.Experience = new Class({
 		this.hotels.removeClass("waiting");
 		this.hotels.getElement(".results").morph({"opacity":1});
 		
-		if(this.hotelCollection.length > 0) {
+		if(this.hotelCollection.length > 0) { 
+			this.addHotelNavEventListeners();
 			this.createHotelNav();
 			
 			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
@@ -244,7 +249,7 @@ RIA.Experience = new Class({
 			// Reset the results width and the left margin, so we are in first hotel position
 			this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
 
-			this.addHotelNavEventListeners();
+			
 			this.setStreetview(this.hotelCollection[0]);
 			    
 			if(this.options.bookmarks != null && this.options.bookmarks.length) {
@@ -252,7 +257,9 @@ RIA.Experience = new Class({
 			}
             
 			this.setHotelMarkers(this.hotelCollection);
-
+            
+			Log.info("this.hotelIndex: "+this.hotelIndex);
+			
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
 		}   
