@@ -18,7 +18,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.api import memcache
 
-requestExperience = "/experience"                  
+requestExperience = "/hotels"                  
 requestHome = "/"
 requestRestApi = r"/(.*)/(xml|json)"
 requestDestination = r"/(.*)"

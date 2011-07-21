@@ -112,8 +112,6 @@ RIA.Experience = new Class({
 
 	},
 	removeHotelNavEventListeners: function() {
-		Log.info("removeHotelNavEventListeners")
-		
 		document.removeEvents({
 			"keyup":this.hotelNavigationBind 
 		});
@@ -262,8 +260,6 @@ RIA.Experience = new Class({
 			}
             
 			this.setHotelMarkers(this.hotelCollection);
-            
-			Log.info("this.hotelIndex: "+this.hotelIndex);
 			
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});

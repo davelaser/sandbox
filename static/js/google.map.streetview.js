@@ -102,6 +102,8 @@ RIA.MapStreetView = new Class({
 			return this.notGotGeolocation(hotel);
 		}                       
 		
+		RIA.map.setZoom(13);
+		
 		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
 		if(hotel.retrieve("geolocation")) {
 			this.gotGeolocation(hotel, hotel.retrieve("geolocation"));
@@ -119,7 +121,8 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		Hotel[Element]
 		*		LatLng[Object(LatLng)]
-		*/
+		*/         
+		
 		// Set the global namespace current location
        	this.setCurrentLocation(latLng);               
 		                                           
@@ -209,13 +212,11 @@ RIA.MapStreetView = new Class({
 		*		Hotel[Element]
 		*/ 
 		// Set local variables
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
 		
-		if(hotel.bookmark == null) {
-			var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
-		
+		if(hotel.bookmark == null && RIA.bookmarks[LMLocationId] == undefined) {
 			// Hide the Bookmark button
-			hotel.getElement("button.drop-pin").setStyle("display", "none");
-		
+			hotel.getElement(".drop-pin").setStyle("display", "none");
 		
 			// If we have a Hotel Marker...
 			if(RIA.hotelMarkers[LMLocationId] != undefined) {
@@ -226,7 +227,7 @@ RIA.MapStreetView = new Class({
 				}
 			}  
 		
-			Log.info("Setting Bookmark for Hotel "+title);   
+			//Log.info("Setting Bookmark for Hotel "+title);   
 		    
 			//icon = RIA.MarkerIcons.poc.replace("@LETTER@",hotel.get("data-counter"));
 			icon = RIA.MarkerIcons.bookmark.replace("@LETTER@",hotel.get("data-counter"));
@@ -334,12 +335,14 @@ RIA.MapStreetView = new Class({
 		*		hotel[Element]
 		*		latLng[Object(LatLng)]
 		*/       
-		var icon;
-		RIA.hotelMarkers[hotel.get("data-locationid")] = hotel;
+		var icon, LMLocationId = hotel.get("data-locationid");
+		
 		
 		// If the Hotel does not already have a bookmarker Marker or a hotel marker
-		if(hotel.bookmark == null && hotel.hotelMarker == null) {
-			Log.info("Setting hotelMarker for Hotel "+hotel.get("data-name"));
+		if(hotel.bookmark == null && hotel.hotelMarker == null && RIA.hotelMarkers[LMLocationId] == undefined) {
+			//Log.info("Setting hotelMarker for Hotel "+hotel.get("data-name"));
+			
+			RIA.hotelMarkers[LMLocationId] = hotel;
 			
 			icon = RIA.MarkerIcons.hotel.replace("@LETTER@",hotel.get("data-counter"));
 			
@@ -366,6 +369,8 @@ RIA.MapStreetView = new Class({
 				clickable:false,
 				zIndex:1
 	        });
+            
+			
 
 			this.createInfoWindow(hotel, hotel.hotelMarker);
 			this.createInfoWindow(hotel, hotel.hotelMarkerSV);
