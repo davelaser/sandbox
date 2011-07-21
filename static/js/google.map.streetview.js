@@ -384,7 +384,6 @@ RIA.MapStreetView = new Class({
 	setBookmarkMarkers: function(hotels) {
 		var counter = 500, delay, geo;
 		hotels.each(function(hotel, index) {
-			
 			if(this.options.bookmarks.contains(hotel.get("data-locationid"))) {
 				geo = hotel.retrieve("geolocation");
 				if(geo == null) {  
@@ -399,9 +398,12 @@ RIA.MapStreetView = new Class({
 				if(RIA.hotelMarkers[hotel.get("data-locationid")] != undefined) {
 					// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
 					if(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarker != null) {    
-						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarker);
-						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV);
+						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarker);						
 					}
+					// If the Hotel Marker instance has a hotelMarkerSV MapMarker Object, then remove it                                                                                     
+					if(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV != null) {
+						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV);
+					}						
 				}  				
 			}
 		},this);

@@ -66,7 +66,7 @@ footer  {
   
 header#main {
 	position:fixed;
-	
+    z-index:100;  
 }
 h1 {     
 	
@@ -76,7 +76,7 @@ h1 {
 	color:#fff;
 	font-size:2.5em;
 	margin:0 0 20px 0; 
-	z-index:2;
+   
 } 
 
 h1 span { 
@@ -203,10 +203,11 @@ article section {
 	-ms-border-radius:0 0 10px 10px;
 }
 #guardian {
-	float:left;
+	position:absolute;
+	right:0px;
+	top:0px;
 	width:200px;  
 	overflow:hidden; 
-	margin-top:0px;
 }
 
 #guardian h3 a {
