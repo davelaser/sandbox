@@ -143,7 +143,6 @@ def handle_result_ajax_v3(rpc, destination, info_type, response):
 			if replaced is False:
 				memcache.add(destination,f)
 			global_mashup['hotels'] = f
-			logging.info(f)
 		elif info_type == "city-break":
 			global_mashup['city_break'] = f[0]
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
@@ -325,10 +324,14 @@ def parseXMLLive(xmlStringContent):
 	for items in all(tree, 'object'):
 		i = {}
 		for item in all(items, 'attribute'):
-			text = item.text
+			text = item.text      
 			name = item.attrib.get('name')
 			i[name] = text
-		results.append(i)
+		if i.has_key('Address'):
+			if i['Address'] is not None:
+				results.append(i)
+		else:
+			results.append(i)
 	return results
 	
 def split_path(path):
@@ -337,7 +340,9 @@ def split_path(path):
 
 def all(element, nodename):
     path = './/%s' % nodename
-    return element.findall(path)
+    result = element.findall(path)
+    return result
+
 """	
 def getDestination(destination, responseType):
 	feed = None
@@ -467,10 +472,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:		
 		hotels = memcache.get(destination)
-		logging.info(hotels)
 		if hotels is not None: 
 			logging.info("Got hotels from memcache") 
-			logging.info(hotels)
+			#logging.info(hotels)
 			global_mashup['hotels'] = hotels
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			self.response.out.write(template.render(path, global_mashup))

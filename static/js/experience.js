@@ -6,6 +6,9 @@ RIA.Experience = new Class({
 	initialize: function(options) {
 		this.setOptions(options);
 		
+		this._form = document.id("start-your-story");
+		this.bookmarks = document.id("bookmarks");
+		this.bookmarks.store("viewstate", "closed");
 		
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
@@ -79,7 +82,7 @@ RIA.Experience = new Class({
 		                           
 		if(document.id("my-bookmarks")) {
 			document.id("my-bookmarks").addEvents({
-				"click":this.showMyBookmarks.bind(this)
+				"click":this.shareMyBookmarks.bind(this)
 			});			
 		}
 	},
@@ -159,7 +162,8 @@ RIA.Experience = new Class({
 			});	  
 		});
 	},
-	hotelNavigation: function(e) {
+	hotelNavigation: function(e) { 
+
 		if((e.type == "keyup" && (e.key == "left" || e.key == "right")) || e.type == "click") {
 			e.preventDefault();                                       
 			var hotelWidth, resultMarginLeft, ready = true;
@@ -189,7 +193,6 @@ RIA.Experience = new Class({
 			}
 			
 			if(ready) {
-				Log.info("Navigating : this.hotelIndex : "+this.hotelIndex);
 				this.animateToHotel(this.hotelCollection[this.hotelIndex]);
 				(function() {
 					this.setStreetview(this.hotelCollection[this.hotelIndex]);
@@ -305,5 +308,32 @@ RIA.Experience = new Class({
 			if(this.twitterNews) this.twitterNews.setStyle("display", "none");
 			this.hotels.addClass("minimized");				
 		}
+	},
+	shareMyBookmarks: function() {
+		
+		if(this.bookmarks.retrieve("viewstate") == "closed") {
+			this.bookmarks.morph({"height":"55px", "marginTop":"60px"});
+			this._form.morph({"top":"140px", "paddingTop":"20px"});			
+			this.bookmarks.store("viewstate", "open");
+		} else {
+			this.bookmarks.morph({"height":"20px", "marginTop":"-20px"});
+			this._form.morph({"top":"40px", "paddingTop":"30px"});
+			this.bookmarks.store("viewstate", "closed");
+		}
+		
+		var shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination=", index = 0;
+		Object.each(RIA.bookmarks, function(value, key) {                
+			if(index == 0) {
+				shareURL+= key.substring(key.indexOf("-"), -1)+"&bookmarks="+key;
+            } else {
+				shareURL+=","+key;
+			}				
+            index++;
+		},this);    
+		
+		shareURL+="&maptype=map&contenttype=minimized";
+		
+		
+		document.id("bookmarks").getElement("a").set({"href":shareURL, "text":shareURL});
 	}
 });

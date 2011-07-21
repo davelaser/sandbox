@@ -22,7 +22,7 @@ a:visited {
 	text-decoration:underline;
 } 
 
-nav a {
+a {
 	color:#EC008C;
 }
 strong {
@@ -60,7 +60,7 @@ footer  {
  
 #content {
 	position:relative; 
-	margin-top:168px;
+	margin-top:110px;
 	height:auto;
 }                    
   
@@ -96,27 +96,18 @@ form#start-your-story {
 	z-index:2;
 	width:935px;
 	position:fixed;
-	top:65px;
+	top:40px;
 	overflow:hidden;
     font-size:1.6em; 
 	background:#fff;
-	padding:20px;
+	padding:30px 20px 20px;
 	margin:0 0 10px 0;
 	   
-	border-bottom-left-radius:10px;
-	border-bottom-right-radius:10px;
-	-webkit-border-bottom-left-radius:10px;
-	-webkit-border-bottom-right-radius:10px;
-	-moz-border-bottom-left-radius:10px;
-	-moz-border-bottom-right-radius:10px;
-	-o-border-bottom-left-radius:10px;
-	-o-border-bottom-right-radius:10px;
-	-ms-border-bottom-left-radius:10px;
-	-ms-border-bottom-right-radius:10px;
-	/*
-	-moz-box-shadow: 0px 8px 8px #fff;
-	-webkit-box-shadow: 0px 8px 8px #fff;
-	*/
+	border-radius:10px;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-o-border-radius:10px;
+	-ms-border-radius:10px;
 }
 
 form#start-your-story header {
@@ -302,7 +293,10 @@ nav#hotel-list a.active {
 	float:left; 
 	padding-right:20px; 
 }
-
+                        
+.hotel header {
+	position:relative;
+}
 
 .hotel nav {
 	margin-top:20px;
@@ -484,9 +478,10 @@ nav#hotel-list a.active {
 	margin:8px 0 0 0;
 } 
 
-#hotels.minimized header img {
-    float:right;
-	margin:8px 0 0 0;
+#hotels.minimized .drop-pin {
+	position:absolute;
+	top:2px;
+	right:0px;
 }
   
 
@@ -529,4 +524,16 @@ nav#hotel-list a.active {
 .previous span,
 .next span {
 	display:none;
+}
+
+/*
+* 	my-bookmarks
+*/  
+#bookmarks {
+	height:20px;
+	background:#fff;
+	height:0;
+}
+#bookmarks a.url {
+	display:block;
 }
