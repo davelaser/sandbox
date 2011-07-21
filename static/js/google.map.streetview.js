@@ -1,6 +1,8 @@
 RIA.MapStreetView = new Class({
 	mapInitialize: function() {
 		
+		this.requestCounter = 500;
+		
 		RIA.bookmarks = new Object();
 		RIA.hotelMarkers = new Object();
 		
@@ -11,7 +13,8 @@ RIA.MapStreetView = new Class({
 			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|FFFF00|000000',
 			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
 			shadowHotel:'http://chart.apis.google.com/chart?chst=d_map_pin_shadow',
-			shadowBookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_shadow&chld=pin_star'
+			shadowBookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_shadow&chld=pin_star',
+			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@'
 		}
 
 		
@@ -139,7 +142,15 @@ RIA.MapStreetView = new Class({
 		*/
 		//this.mapStreetview.setStyle("display", "none"); 
 		//Log.info("Sorry, we couldn't find this address on the Map:\n"+hotel.get("data-address"));
-	},
+		
+        var counter = this.requestCounter + 500;
+		this.requestCounter += 500
+		if(hotel.retrieve("geolocation:error") != google.maps.GeocoderStatus.ZERO_RESULTS) {
+			this.getGeocodeByAddress.delay(this.requestCounter, this, [hotel, this.addHotelMarker.bind(this)]);
+        } else {
+	    	//alert("Sorry\n\nWe couldn't find the address for this hotel on the Map:\n\n#"+hotel.get("data-counter")+": "+hotel.get("data-name")+"\n"+hotel.get("data-address"));
+		}						
+	},                      
 	setMapPositionPan: function(latLng) {
 		/*
 		* 	@description:
@@ -181,12 +192,12 @@ RIA.MapStreetView = new Class({
 			// Else if no data exists...
 			else if(svStatus == google.maps.StreetViewStatus.ZERO_RESULTS) {				
 				// [ST]TODO: No Streetview data was found for this LatLng, what do we do here?
-				//Log.info("No Panorama results found");				
+				Log.info("No Panorama results found");				
 			} 
 			// Else there was an error...
 			else {
 				// [ST]TODO: Handle OVER_QUOTA or other errors
-				//Log.info("Panorama error status: "+svStatus);
+				Log.info("Panorama error status: "+svStatus);
 			}
 		});
 	},
@@ -197,60 +208,64 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		Hotel[Element]
 		*/ 
-		// Set local variables 
-		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
+		// Set local variables
 		
-		// Hide the Bookmark button
-		hotel.getElement("button.drop-pin").setStyle("display", "none");
+		if(hotel.bookmark == null) {
+			var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
+		
+			// Hide the Bookmark button
+			hotel.getElement("button.drop-pin").setStyle("display", "none");
 		
 		
-		// If we have a Hotel Marker...
-		if(RIA.hotelMarkers[LMLocationId] != undefined) {
-			// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
-			if(RIA.hotelMarkers[LMLocationId].hotelMarker != null) {    
-				this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarker);
-				this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarkerSV); 
-			}
-		}  
+			// If we have a Hotel Marker...
+			if(RIA.hotelMarkers[LMLocationId] != undefined) {
+				// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
+				if(RIA.hotelMarkers[LMLocationId].hotelMarker != null) {    
+					this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarker);
+					this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarkerSV); 
+				}
+			}  
 		
-		Log.info("Setting Bookmark for Hotel "+title);   
-		
-		icon = RIA.MarkerIcons.bookmark.replace("@LETTER@",hotel.get("data-counter"));                                        
-		// Create a new Marker
-		hotel.bookmark = new google.maps.Marker({
-            map: RIA.map, 
-            icon:new google.maps.MarkerImage(icon),
-			position: hotel.retrieve("geolocation"),
-			draggable:false,
-			title:title,
-			animation:google.maps.Animation.BOUNCE,
-			cursor:'pointer',
-			clickable:true,
-			zIndex:20,
-			shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowBookmark, new google.maps.Size(37, 42), new google.maps.Point(0,0), new google.maps.Point(12,42))
-        });
+			Log.info("Setting Bookmark for Hotel "+title);   
+		    
+			//icon = RIA.MarkerIcons.poc.replace("@LETTER@",hotel.get("data-counter"));
+			icon = RIA.MarkerIcons.bookmark.replace("@LETTER@",hotel.get("data-counter"));
+			
+			// Create a new Marker
+			hotel.bookmark = new google.maps.Marker({
+	            map: RIA.map, 
+	            icon:new google.maps.MarkerImage(icon),
+				position: hotel.retrieve("geolocation"),
+				draggable:false,
+				title:title,
+				animation:google.maps.Animation.BOUNCE,
+				cursor:'pointer',
+				clickable:true,
+				zIndex:20,
+				shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowBookmark, new google.maps.Size(37, 42), new google.maps.Point(0,0), new google.maps.Point(12,42))
+	        });
 
-		hotel.bookmarkSV = new google.maps.Marker({
-            map: RIA.panorama, 
-            icon:new google.maps.MarkerImage(icon),
-			position: hotel.retrieve("geolocation"),
-			draggable:false,
-			title:title,
-			animation:google.maps.Animation.BOUNCE,
-			clickable:false,
-			zIndex:20
-        });
+			hotel.bookmarkSV = new google.maps.Marker({
+	            map: RIA.panorama, 
+	            icon:new google.maps.MarkerImage(icon),
+				position: hotel.retrieve("geolocation"),
+				draggable:false,
+				title:title,
+				animation:google.maps.Animation.BOUNCE,
+				clickable:false,
+				zIndex:20
+	        });
         
         
-		// Add this hotel to the global namespaced Array of Bookmarks
-		RIA.bookmarks[LMLocationId] = hotel;
+			// Add this hotel to the global namespaced Array of Bookmarks
+			RIA.bookmarks[LMLocationId] = hotel;
 		   
-		this.createInfoWindow(hotel, hotel.bookmark);
+			this.createInfoWindow(hotel, hotel.bookmark);
 		
-		// Add a timeout to stop animating the Marker by removing {animation:google.maps.Animation.BOUNCE}
-		hotel.bookmark.timeout = this.animateMarker.delay(2100, this, [hotel.bookmark, null]);  
-		hotel.bookmarkSV.timeout = this.animateMarker.delay(2100, this, [hotel.bookmarkSV, null]);  
-		
+			// Add a timeout to stop animating the Marker by removing {animation:google.maps.Animation.BOUNCE}
+			hotel.bookmark.timeout = this.animateMarker.delay(2100, this, [hotel.bookmark, null]);  
+			hotel.bookmarkSV.timeout = this.animateMarker.delay(2100, this, [hotel.bookmarkSV, null]);  
+		}
 	},
 	createInfoWindow: function(hotel, marker) {
 		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow;
@@ -294,10 +309,12 @@ RIA.MapStreetView = new Class({
 		var counter = 500, delay, geo;
 		hotels.each(function(hotel, index) {
 			geo = hotel.retrieve("geolocation");
-			if(geo == null) {
+			error = hotel.retrieve("geolocation:error");
+			
+			// Only attempt to get a gelocation if we haven't already tried and failed
+			if(geo == null && error != "NO_RESULTS") {
 				delay = counter+=500;              
-				//Log.info(hotel.get("data-name")+" : "+delay);
-				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);				
+				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
 			} else {
 				Log.info("setHotelMarker() : retrieved gelocation for Hotel : "+hotel.get("data-name"));
 				// If the hotel does not already have a bookmark
@@ -320,8 +337,8 @@ RIA.MapStreetView = new Class({
 		var icon;
 		RIA.hotelMarkers[hotel.get("data-locationid")] = hotel;
 		
-		// If the Hotel does not already have a bookmarker Marker
-		if(hotel.bookmark == null) {
+		// If the Hotel does not already have a bookmarker Marker or a hotel marker
+		if(hotel.bookmark == null && hotel.hotelMarker == null) {
 			Log.info("Setting hotelMarker for Hotel "+hotel.get("data-name"));
 			
 			icon = RIA.MarkerIcons.hotel.replace("@LETTER@",hotel.get("data-counter"));
@@ -346,7 +363,6 @@ RIA.MapStreetView = new Class({
 				draggable:false,
 				title:hotel.get("data-name"),
 				animation:google.maps.Animation.DROP,
-				cursor:'pointer',
 				clickable:false,
 				zIndex:1
 	        });
@@ -421,10 +437,12 @@ RIA.MapStreetView = new Class({
 					callback(hotel, latLng);
 				}					
 			} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
-		        Log.info("No Geocode results found for "+address);
+		        Log.info("No Geocode results found for "+address); 
+				hotel.store("geolocation:error", status);
 				this.notGotGeolocation(hotel);
 			} else {
-				Log.info("Geocode was not successful for the following reason: status: " + status);
+				Log.info("Geocode was not successful for "+address+", for the following reason: status: " + status); 
+				hotel.store("geolocation:error", status);
 				this.notGotGeolocation(hotel);
 			}                      
 			
