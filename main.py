@@ -382,8 +382,9 @@ class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		destination = self.request.get("destination") 
 		bookmarks = self.request.get("bookmarks").split(',')
-		viewtype = self.request.get("viewtype") 
-		args = dict(destination=destination, bookmarks=bookmarks, viewtype=viewtype)
+		maptype = self.request.get("maptype") 
+		contenttype = self.request.get("contenttype")
+		args = dict(destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):

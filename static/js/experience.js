@@ -35,7 +35,11 @@ RIA.Experience = new Class({
 		
 		this.mapStreetview = document.id("pano");
 		this.onWindowResize();
-		this.addEventListeners();
+		this.addEventListeners();  
+		
+		if(this.options.contenttype && this.options.contenttype == "minimized") {
+			this.toggleInformation(null);
+		}
 
 	},                            
 	addEventListeners: function() {
@@ -72,10 +76,12 @@ RIA.Experience = new Class({
 			"click":this.toggleInformation.bind(this) 
 		});
 		     
-		
-		document.id("my-bookmarks").addEvents({
-			"click":this.showMyBookmarks.bind(this)
-		});
+		                           
+		if(document.id("my-bookmarks")) {
+			document.id("my-bookmarks").addEvents({
+				"click":this.showMyBookmarks.bind(this)
+			});			
+		}
 	},
 	fbSendDialog: function() {
 		RIA.InitAjaxSubmit.loading.setStyle("display", "block");
@@ -241,13 +247,12 @@ RIA.Experience = new Class({
 			this.addHotelNavEventListeners();
 			this.setStreetview(this.hotelCollection[0]);
 			    
-			this.setHotelMarkers(this.hotelCollection);
-			                                                                  
-			
 			if(this.options.bookmarks != null && this.options.bookmarks.length) {
 				this.setBookmarkMarkers(this.hotelCollection);
 			}
             
+			this.setHotelMarkers(this.hotelCollection);
+
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
 		}   
@@ -277,16 +282,16 @@ RIA.Experience = new Class({
 	},
 	toggleInformation: function(e) {
 		
-		e.preventDefault();
+		if(e) e.preventDefault();
 		if(this.hotels.hasClass("minimized")) {
-			e.target.set("text", "less...");
+			document.id("less-more").set("text", "less...");
 			if(this.weather) this.weather.setStyle("display", "block");
 			if(this.guardian) this.guardian.setStyle("display", "block");
 			if(this.twitterNews) this.twitterNews.setStyle("display", "block");
 			this.hotels.removeClass("minimized");
 		}
 		else {   
-			e.target.set("text", "more...");
+			document.id("less-more").set("text", "more...");
 			if(this.weather) this.weather.setStyle("display", "none");
 			if(this.guardian) this.guardian.setStyle("display", "none");
 			if(this.twitterNews) this.twitterNews.setStyle("display", "none");

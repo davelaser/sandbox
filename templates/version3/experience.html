@@ -49,8 +49,7 @@
 				<a href="#" class="previous"><span>Previous</span></a>
 				<a href="#" class="next"><span>Next</span></a>
 			</nav>
-			
-		    
+					    
 			{% comment %}
 			<section id="weather">
 				<header>
@@ -60,7 +59,7 @@
 				</div>
 			</section>
 			{% endcomment %}
-			{% comment %}
+			
 			<section id="guardian">
 				<header>
 					<h2>The Guardian</h2> 
@@ -68,7 +67,7 @@
 				<div class="results">					    
 				</div>
 			</section>
-			{% endcomment %} 
+
 			{% comment %}
 			<section id="twitter-news">
 				<script type="text/javascript">
@@ -137,7 +136,8 @@
 	   	RIA.InitExperience = new RIA.Experience({
 			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
 			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
-			viewtype:"{{ viewtype|default:'streetview' }}"
+			maptype:"{{ maptype|default:'streetview' }}",
+			contenttype:"{{ contenttype|default:'maximized' }}"
 		});
 	    RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
 		(function() {
