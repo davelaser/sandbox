@@ -26,9 +26,9 @@ requestAjaxAPI = "/ajax"
 requestGooglePlaces = "/places"
 
 # TODO: remove the memcache flush
-#memcache.flush_all()
+memcache.flush_all()
 
-logging.info(memcache.get_stats())
+#logging.info(memcache.get_stats())
 
 feeds = {
     'bbc'      : 'http://news.bbc.co.uk/weather/forecast/',
@@ -59,17 +59,24 @@ This data object will be used by the Mashup Handler and Ajax Handler
 destination_display_names = {
 	'newyork':'New York',
 	'paris':'Paris',
-	'edinburgh':'Edinburgh'
+	'edinburgh':'Edinburgh',
+	'amsterdam':'Amsterdam',
+	'madrid':'Madrid',
+	'barcelona':'Barcelona',
+	'miami':'Miami',
+	'london':'London',
+	'nice':'Nice',
+	'tokyo':'Tokyo'
 }
 
 
 def loadConfigProperties():
 	configProperties = memcache.get("config.properties")
 	if configProperties is not None:
-		logging.info("Got configProperties from memcache")
+		#logging.info("Got configProperties from memcache")
 		return configProperties
 	else:
-		logging.info("NOT Got configProperties from memcache")
+		#logging.info("NOT Got configProperties from memcache")
 		configPropertyLocation = "properties/config.properties"
 		configProperties = ConfigParser()
 		configProperties.read(configPropertyLocation)
@@ -90,14 +97,17 @@ class DBCityDestination(db.Model):
 Get destination content to the datastore
 """
 def get_datastore_by_destination(destination):
-	return False
+	resultset = DBCityDestination.gql("WHERE name = '"+destination+"'")
+	return resultset
 	
 """
 Write to datastore by destination
 """	                             
 def put_datastore_by_destination(destination, data):
-	dbDestination = DBCityDestination(name = destination, hotels = data)
-	dbDestination.put()
+	hotelsData = get_datastore_by_destination(destination)
+	if hotelsData.get() is None:
+		dbDestination = DBCityDestination(name = destination, hotels = data)
+		dbDestination.put()
 	
 	
 def kapowAPI(request):
@@ -385,11 +395,14 @@ class HomeHandler(webapp.RequestHandler):
 
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
-		destination = self.request.get("destination") 
+		destination = self.request.get("destination")
+		destinationDisplayName = destination 
 		bookmarks = self.request.get("bookmarks").split(',')
 		maptype = self.request.get("maptype") 
 		contenttype = self.request.get("contenttype")
-		args = dict(destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype)
+		if destination_display_names.has_key(destination):
+			destinationDisplayName = destination_display_names[destination]
+		args = dict(destinationDisplayName=destinationDisplayName, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -444,13 +457,11 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	return True
   def post(self):
 	destination = self.request.POST.get("destination")
-    
+	
 	
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()
-	logging.info(destination)
-	
 	global_mashup['destination'] = destination
 	info_type = self.request.POST.get("info_type")
 	info_type = info_type.replace(' ', '').lower()
@@ -479,8 +490,20 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			self.response.out.write(template.render(path, global_mashup))
 		else:
-			logging.info("NOT Got hotels from memcache")
-			mashup = kapowAPILiveRPC_v3(destination, info_type, self.response)
+			hotelsData = get_datastore_by_destination(destination)
+			if hotelsData.get() is not None:
+				logging.info("Retrieving from datastore")
+				for data in hotelsData:
+					f = parseXMLLive(data.hotels)
+					replaced = memcache.replace(destination,f)
+					if replaced is False:
+						memcache.add(destination,f)
+					global_mashup['hotels'] = f
+					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
+					self.response.out.write(template.render(path, global_mashup))
+			else:
+				logging.info("NOT Got hotels from memcache or datastore")
+				mashup = kapowAPILiveRPC_v3(destination, info_type, self.response)
 		
 	return True
 
