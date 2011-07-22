@@ -82,7 +82,7 @@ RIA.Experience = new Class({
 		                           
 		if(document.id("my-bookmarks")) {
 			document.id("my-bookmarks").addEvents({
-				"click":this.shareMyBookmarks.bind(this)
+				"click":this.shareMyBookmarks.pass([true],this)
 			});			
 		}
 	},
@@ -223,7 +223,7 @@ RIA.Experience = new Class({
 	getHotels: function() {
 		this.removeHotelNavEventListeners();
 	},
-	gotHotels: function() {    
+	gotHotels: function(destination) {    
 		/*
 		* 	Callback from AjaxSubmit successful get of hotel data
 		*/
@@ -234,10 +234,17 @@ RIA.Experience = new Class({
 		
 		this.hotels.removeClass("waiting");
 		this.hotels.getElement(".results").morph({"opacity":1});
-		
+		RIA.currentDestination = encodeURIComponent(destination);
+		Log.info("RIA.currentDestination is now "+RIA.currentDestination);
+		RIA.bookmarks = new Object();                                         
+		Log.info("RIA.bookmarks have been emptied");
+		this.shareMyBookmarks(false);
 		if(this.hotelCollection.length > 0) { 
 			this.addHotelNavEventListeners();
 			this.createHotelNav();
+			                                  
+			Log.info("Object.getLength(RIA.bookmarks) : "+Object.getLength(RIA.bookmarks));
+			
 			
 			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
 			
@@ -309,22 +316,11 @@ RIA.Experience = new Class({
 			this.hotels.addClass("minimized");				
 		}
 	},
-	shareMyBookmarks: function() {
-		
-		if(this.bookmarks.retrieve("viewstate") == "closed") {
-			this.bookmarks.morph({"height":"55px", "marginTop":"60px"});
-			this._form.morph({"top":"140px", "paddingTop":"20px"});			
-			this.bookmarks.store("viewstate", "open");
-		} else {
-			this.bookmarks.morph({"height":"20px", "marginTop":"-20px"});
-			this._form.morph({"top":"40px", "paddingTop":"30px"});
-			this.bookmarks.store("viewstate", "closed");
-		}
-		
-		var shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination=", index = 0;
+	shareMyBookmarks: function(show) {
+		var shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+RIA.currentDestination+"&bookmarks=", index = 0;
 		Object.each(RIA.bookmarks, function(value, key) {                
 			if(index == 0) {
-				shareURL+= key.substring(key.indexOf("-"), -1)+"&bookmarks="+key;
+				shareURL+= key;
             } else {
 				shareURL+=","+key;
 			}				
@@ -334,6 +330,18 @@ RIA.Experience = new Class({
 		shareURL+="&maptype=map&contenttype=minimized";
 		
 		
-		document.id("bookmarks").getElement("a").set({"href":shareURL, "text":shareURL});
+		document.id("bookmarks").getElement("a").set({"href":shareURL, "text":shareURL});  
+		
+		if(show) {
+			if(this.bookmarks.retrieve("viewstate") == "closed") {
+				this.bookmarks.morph({"height":"55px", "marginTop":"60px"});
+				this._form.morph({"top":"140px", "paddingTop":"20px"});			
+				this.bookmarks.store("viewstate", "open");
+			} else {
+				this.bookmarks.morph({"height":"20px", "marginTop":"-20px"});
+				this._form.morph({"top":"40px", "paddingTop":"30px"});
+				this.bookmarks.store("viewstate", "closed");
+			}
+		}
 	}
 });

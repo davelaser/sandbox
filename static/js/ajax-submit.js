@@ -90,7 +90,7 @@ RIA.AjaxSubmit = new Class({
 			update:this.hotels.getElement(".results"),
 			data:'destination='+destination+'&info_type=hotels',
 			onRequest: this.requestStart.pass([this.hotels],this),
-			onSuccess: this.requestSuccess.pass([this.hotels],this),
+			onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 			onFailure: this.requestFailure.bind(this)
 		});
 		
@@ -136,14 +136,14 @@ RIA.AjaxSubmit = new Class({
 			element.getElement(".results").set("morph", {"opacity":0});			
 		}
 	},
-	requestSuccess: function(element) {
+	requestSuccess: function(element, destination) {
 		if(element) {
 			/*
 			* 	Set up the hotels Element Collection
 			*/
 			this.loading.setStyle("display", "none");
 			if(element.get("id") == "hotels") {
-				RIA.InitExperience.gotHotels();				     
+				RIA.InitExperience.gotHotels(destination);				     
 			}
 		}
 	},
