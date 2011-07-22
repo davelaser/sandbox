@@ -26,7 +26,7 @@ requestAjaxAPI = "/ajax"
 requestGooglePlaces = "/places"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 
 #logging.info(memcache.get_stats())
 
