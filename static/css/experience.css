@@ -295,7 +295,9 @@ nav#hotel-list a.active {
 }
                         
 .hotel header {
+	/*
 	position:relative;
+	*/
 }
 
 .hotel nav {
@@ -479,9 +481,7 @@ nav#hotel-list a.active {
 } 
 
 #hotels.minimized .drop-pin {
-	position:absolute;
-	top:2px;
-	right:0px;
+	float:right;
 }
   
 
