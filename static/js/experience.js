@@ -1,10 +1,13 @@
 RIA.Experience = new Class({
 	Implements:[Options, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
-
+		
 	},
 	initialize: function(options) {
 		this.setOptions(options);
+		  
+		
+		RIA.places = new Object();
 		
 		this._form = document.id("start-your-story");
 		this.bookmarks = document.id("bookmarks");
@@ -21,7 +24,14 @@ RIA.Experience = new Class({
 		this.guardian = document.id("guardian");
 		this.twitterNews = document.id("twitter-news");
 		this.fbDialogSendButton = document.id("fb-dialog-send");
-		 
+		
+		this.places = document.id("places");
+		this.addDraggable(this.places, this.places.getElement("header"));
+		   
+		this.placesDistanceRange = document.id("places-distance-range");
+		this.placesDistanceOutput = document.id("places-distance-output");
+		
+		
 		this.travelPartners = document.id("travel-partners");
 		this.hotels = document.id("hotels"); 
 		this.hotelsNav = document.id("hotel-list");
@@ -82,6 +92,41 @@ RIA.Experience = new Class({
 			document.id("my-bookmarks").addEvents({
 				"click":this.shareMyBookmarks.pass([true],this)
 			});			
+		}    
+		
+		if(this.places) {
+			this.places.addEvents({
+				"click": function(e) {
+					var target = e.target, places = target.get("value");
+                    if(places && places != "") {
+						if(target.checked) {
+	                		this.requestPlaces(RIA.currentLocation, this.options.places.searchRadius, places, null);
+						}
+						else {
+							this.removePlacesMarkers(places);
+						}
+					}
+					
+				}.bind(this)
+			});
+			this.places.getElement("h2").addEvents({
+				"click": function(e) {
+					this.places.getElement("form").toggleClass("hide");
+				}.bind(this)
+			});
+		} 
+		
+		if(this.placesDistanceRange) {
+			this.placesDistanceRange.addEvents({
+				"change": function(e) {
+					var newDistance = e.target.get("value");
+					if(this.options.places.searchRadius !== newDistance) {
+						this.options.places.searchRadius = e.target.get("value");
+						this.placesDistanceOutput.set("text", this.options.places.searchRadius);
+						this.resetPlacesMarkers(true);
+					}					
+				}.bind(this)
+			});
 		}
 	},
 	fbSendDialog: function() {
@@ -147,18 +192,20 @@ RIA.Experience = new Class({
 		});
 		this.addDraggable(document.getElements(".fb_dialog.loading"));
 	},
-	addDraggable: function(elements) {
-		elements.each(function(element) {
-			new Drag(element, { 
-			    snap: 0,
-			    onSnap: function(el){
-			        el.addClass('dragging');
-			    },
-			    onComplete: function(el){
-			        el.removeClass('dragging');
-			    }
-			});	  
-		});
+	addDraggable: function(element, handle) {
+  	
+   		new Drag(element, {
+	 		handle:handle,
+		    snap: 0,
+		    onSnap: function(el){
+		        el.addClass('dragging');
+		    },
+		    onComplete: function(el){
+		        el.removeClass('dragging');
+		    }
+		});	  
+
+		
 	},
 	hotelNavigation: function(e) { 
 
@@ -191,7 +238,7 @@ RIA.Experience = new Class({
 			}
 			
 			if(ready) {
-				this.animateToHotel(this.hotelCollection[this.hotelIndex]);
+				this.animateToHotel(this.hotelCollection[this.hotelIndex]);   
 				(function() {
 					this.setStreetview(this.hotelCollection[this.hotelIndex]);
 				}.bind(this)).delay(400);

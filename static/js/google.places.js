@@ -2,6 +2,7 @@ RIA.GooglePlaces = new Class({
 	Implements:[Options],
 	options:{
 		places:{
+			searchRadius:500,
 			serviceURL:"/places",
 			/*
 			accounting
@@ -135,35 +136,52 @@ RIA.GooglePlaces = new Class({
 			transit_station
 			*/
 			//placesTypes:'food|establishment|restaurant|bakery|cafe|point_of_interest|shoe_store|train_station|subway_station|meal_takeaway'
-			placesTypes:'food'
+			placesTypes:'car_rental'
 		}		
 	},
-	requestPlaces: function(locationLatLng, radiusInMeters, types, name) {
-		this.requestCityBreak = new Request.JSON({
-			method:"GET",
-			secure:true,
-			url:this.options.places.serviceURL,
-			onRequest: this.jsonRequestStart.bind(this),
-			onSuccess: function(responseJSON, responseText) {
-				this.jsonRequestSuccess(responseJSON, responseText)
-			}.bind(this),
-			onError: this.jsonRequestFailure.bind(this)
-		}).send("location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
-
+	requestPlaces: function(locationLatLng, radiusInMeters, types, name) { 
+		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {
+			this.requestCityBreak = new Request.JSON({
+				method:"GET",
+				secure:true,
+				url:this.options.places.serviceURL,
+				onRequest: this.jsonRequestStart.bind(this),
+				onSuccess: function(responseJSON, responseText) {
+					this.jsonRequestSuccess(responseJSON, responseText, types)
+				}.bind(this),
+				onError: this.jsonRequestFailure.bind(this)
+			}).send("location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
+        } else {
+	        this.setPlacesMarkers(types);
+		}
 	},
 	jsonRequestStart: function() {
 		//Log.info("JSON request underway");
 	},
-	jsonRequestSuccess: function(responseJSON, responseText) {
+	jsonRequestSuccess: function(responseJSON, responseText, types) {
 		//Log.info("JSON request success");
 		if(responseJSON.status == "OK" && responseJSON.results.length > 0) {
-			RIA.places = responseJSON;
-			Array.each(RIA.places.results, function(place) {
-				this.addPlacesMarker(place);
-			},this);
+			if(typeof(this.hotelCollection[this.hotelIndex].places) == "undefined") {
+				this.hotelCollection[this.hotelIndex].places = new Object();
+			}
+			this.hotelCollection[this.hotelIndex].places[types] = responseJSON;
+			
+			//RIA.places[types] = responseJSON;
+			this.setPlacesMarkers(types);
 		} else {
 			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}})
 		}
+	},
+	setPlacesMarkers: function(types) {
+		/*
+		Object.each(RIA.places[types].results, function(place) {
+			this.addPlacesMarker(place);
+		},this);
+		*/
+		Object.each(this.hotelCollection[this.hotelIndex].places[types].results, function(place) {
+			this.addPlacesMarker(place);
+		},this);
+		
 	},
 	jsonRequestFailure: function(text, error) {
 		Log.info("JSON request failure");
@@ -177,12 +195,23 @@ RIA.GooglePlaces = new Class({
 		*	@arguments:
 		*		place[Object](returned from a Places API request)
 		*		latLng[Object(LatLng)]
-		*/  
-		var icon = new google.maps.MarkerImage(RIA.MarkerIcons.food), latLng = new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng);
+		*/ 
 		
-		var placesMarker = new google.maps.Marker({
+		var mapIcon; 
+
+		if(place.types.length > 0 && RIA.MarkerIcons[place.types[0]]) {
+			mapIcon = new google.maps.MarkerImage(RIA.MarkerIcons[place.types[0]]);
+		} else {
+			mapIcon = new google.maps.MarkerImage(RIA.MarkerIcons.star);
+		}
+        
+		var panoIcon = new google.maps.MarkerImage(place.icon),
+		latLng = new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng);
+		 
+		
+		place.placesMarker = new google.maps.Marker({
             map:RIA.map,
-			icon:icon,
+			icon:mapIcon,
 			position: latLng,
 			draggable:false,
 			title:place.name,
@@ -192,9 +221,9 @@ RIA.GooglePlaces = new Class({
 			zIndex:1
         }); 
         
-		var placesMarkerSV = new google.maps.Marker({
+		place.placesMarkerSV = new google.maps.Marker({
             map:RIA.panorama,
-			icon:icon,
+			icon:panoIcon,
 			position: latLng,
 			draggable:false,
 			title:place.name,
@@ -203,20 +232,42 @@ RIA.GooglePlaces = new Class({
 			zIndex:1
         });
         
-		var clickEvent = google.maps.event.addListener(placesMarker, 'click', function(event) {
+		place.clickEvent = google.maps.event.addListener(place.placesMarker, 'click', function(event) {
 			this.setCurrentLocation(event.latLng);
 			this.setPanoramaPosition(event.latLng);
 		}.bind(this));
 		
-		RIA.placesMarkers[place.name] = placesMarker;
-		
-		this.createPlacesInfoWindow(place, placesMarker);
-		this.createPlacesInfoWindow(place, placesMarkerSV);
+		this.createPlacesInfoWindow(place, place.placesMarker);
+		this.createPlacesInfoWindow(place, place.placesMarkerSV);
 		
 	},
+	removeAllPlacesMarkers: function() {
+
+		Object.each(this.hotelCollection[this.hotelIndex].places, function(type) {
+			Object.each(type.results, function(place) {
+				this.removePlacesMarker(place);
+			},this);			
+		},this);
+		
+	},
+	removePlacesMarkers: function(type) {
+
+		if(type && this.hotelCollection[this.hotelIndex].places[type]) {
+			Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
+				this.removePlacesMarker(place);
+			},this);
+		}
+		
+	}, 
+	removePlacesMarker: function(place) {
+		if(place) { 
+			place.placesMarker.setMap(null);
+			place.placesMarkerSV.setMap(null);
+		}
+	},
 	createPlacesInfoWindow: function(place, marker) {
-		marker.infowindow = new google.maps.InfoWindow({
-		    content: place.name,
+		marker.infowindow = new google.maps.InfoWindow({        
+			content: place.name+"<br/>"+place.vicinity+"<br/>("+place.types[0]+")",
 			maxWidth:50
 		});
        
@@ -235,5 +286,16 @@ RIA.GooglePlaces = new Class({
 			this.setPanoramaPosition(event.latLng);
 			this.openInfoWindow(marker, marker.infowindow);
 		}.bind(this));
+	},
+	resetPlacesMarkers: function(reset) {
+		this.removeAllPlacesMarkers();
+		if(reset) {
+			this.hotelCollection[this.hotelIndex].places = new Object();
+		}
+		document.getElements("#places input[type=checkbox]").each(function(input) {
+			if(input.checked && input.get("value") != "") {
+				this.requestPlaces(RIA.currentLocation, this.options.places.searchRadius, input.get("value"), null);
+			}				
+		},this)
 	}   
 });

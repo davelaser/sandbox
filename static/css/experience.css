@@ -36,6 +36,10 @@ footer  {
 	display:block;	
 }
 
+.hide {
+   display:none;
+}              
+
 #background {  
 	z-index:-1;
  	width:100%;
@@ -546,3 +550,51 @@ nav#hotel-list a.active {
 #bookmarks a.url {
 	display:block;
 }
+
+/*
+* 	Places
+*/
+#places {     
+	background:#fff; 
+	background:rgba(0,0,0,0.3);
+	text-align:left;
+	padding:10px;
+	height:auto;
+	position:fixed;
+	top:200px;
+	z-index:11; 
+	-webkit-border-radius:20px;
+}  
+
+#places header {
+	cursor:move;
+	padding:0 0 10px 0;
+} 
+#places div {
+	padding:10px; 
+	width:170px; 
+	-webkit-border-radius:10px;
+	background:#fff;
+}
+#places h2 {
+	display:inline;
+	cursor:pointer;
+}
+#places fieldset {        
+	padding:10px;
+	margin:0 0 10px 0; 
+	border:1px solid #000;
+	-webkit-border-radius:5px;
+}
+#places h3 { 
+	color:#EC008C;
+	display:block;
+	font-size:1.2em;
+	margin:0 0 5px 0;
+}
+
+#places li {
+	display:block;
+	margin:0 0 3px 0;  
+}
+
