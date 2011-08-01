@@ -3,9 +3,7 @@ RIA.MapStreetView = new Class({
 		geolocation:null, 
 		bookmarks:null,
 		maptype:"map",
-		contenttype:"minimized",
-		//placesTypes:'food|establishment|restaurant|bakery|cafe|point_of_interest|shoe_store|train_station|subway_station|meal_takeaway'
-		placesTypes:'establishment'
+		contenttype:"minimized"
 	},
 	mapInitialize: function() {
 		
@@ -13,14 +11,18 @@ RIA.MapStreetView = new Class({
 		
 		RIA.bookmarks = new Object();
 		RIA.hotelMarkers = new Object();
+		RIA.placesMarkers = new Object();
 		
 		RIA.MarkerIcons = { 
 			blank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
 			star:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
 			bankDollar:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FF0000',
-			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter_withshadow&chld=@LETTER@|FFFF00|000000',
-			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter_withshadow&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
-			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@'
+			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|FFFF00|000000',
+			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
+			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@',
+			shadowHotel:'http://chart.apis.google.com/chart?chst=d_map_pin_shadow',
+			shadowBookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_shadow&chld=pin_star',
+			food:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00'
 		}
 
 		RIA.geocoder = new google.maps.Geocoder();
@@ -52,13 +54,15 @@ RIA.MapStreetView = new Class({
 		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
 		RIA.map.setStreetView(RIA.panorama);
 		
-		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
-		RIA.panoramioLayer.setTag("times square");
-		RIA.panoramioLayer.setMap(RIA.map);
+		//RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
+		//RIA.panoramioLayer.setTag("times square");
+		//RIA.panoramioLayer.setMap(RIA.map);
 		
 		// Now we have initialized the Map, start the Destination request 
 		RIA.InitAjaxSubmit._submit();
-         
+        
+		
+ 
 		this.toggleMapFullScreen(null);	
 	},
 	toggleMapFullScreen: function(e){
@@ -133,7 +137,7 @@ RIA.MapStreetView = new Class({
 		*/         
 		
 		// Set the global namespace current location
-       	this.setCurrentLocation(latLng);               
+       	this.setCurrentLocation(latLng);
 		                                           
 		// Switch the Map on, in case it was hidden due to no results previously
 		this.mapStreetview.setStyle("display", "");          		            
@@ -142,8 +146,8 @@ RIA.MapStreetView = new Class({
 		// Set the Streetviw Panorama position
 		this.setPanoramaPosition(RIA.currentLocation);
 		
-		// [ST]TODO: Request local restaurants, hotels, attractions using Google Places?
-		this.requestPlaces(hotel, RIA.currentLocation, 15000, this.options.placesTypes, null);
+		// Get establishments
+		this.requestPlaces(RIA.currentLocation, 15000, this.options.places.placesTypes, null);
 	},
 	notGotGeolocation: function(hotel) {
 		/*
@@ -254,7 +258,8 @@ RIA.MapStreetView = new Class({
 				animation:google.maps.Animation.BOUNCE,
 				cursor:'pointer',
 				clickable:true,
-				zIndex:20
+				zIndex:20,
+				shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowBookmark, new google.maps.Size(37, 42), new google.maps.Point(0,0), new google.maps.Point(12,42))
 	        });
 
 			hotel.bookmarkSV = new google.maps.Marker({
@@ -295,7 +300,7 @@ RIA.MapStreetView = new Class({
 		// Add mouse event listeners for the Marker
 		var mouseoutEvent = null;
 		var mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
-		    this.openInfoWindow(marker, event.latLng, hotel, infowindow);  
+		    this.openInfoWindow(marker, infowindow);  
 			mouseoutEvent = google.maps.event.addListener(marker, 'mouseout', function(event) {
 			    infowindow.close(); 
 				google.maps.event.removeListener(mouseoutEvent); 
@@ -307,7 +312,7 @@ RIA.MapStreetView = new Class({
 			google.maps.event.removeListener(mouseoutEvent);
 			this.setPanoramaPosition(event.latLng);
 			this.jumpToHotel(hotel);  
-			this.openInfoWindow(marker, event.latLng, hotel, infowindow);
+			this.openInfoWindow(marker, infowindow);
 		}.bind(this));
 	},
 	setHotelMarkers: function(hotels) { 
@@ -366,8 +371,9 @@ RIA.MapStreetView = new Class({
 				animation:google.maps.Animation.DROP,
 				cursor:'pointer',
 				clickable:true,
-				zIndex:1
-	        }); 
+				zIndex:1,
+				shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowHotel, new google.maps.Size(37, 37), new google.maps.Point(0,0), new google.maps.Point(12,37))
+			}); 
 	
 			hotel.hotelMarkerSV = new google.maps.Marker({
 	            map:RIA.panorama,
@@ -477,11 +483,11 @@ RIA.MapStreetView = new Class({
 			marker.setAnimation(animation);
 		}
 	},
-	openInfoWindow: function(marker, latLng, hotel, infowindow) {
+	openInfoWindow: function(marker,infowindow) {
 		/*
 		* 	@description:
 		*		Open an InfoWindow instance
-		*/                                                    
+		*/  
 		// Only show the InfoWindow if we are maximized state
 		if(this.mapCanvas.retrieve("view:state") == "maximized") {
 			infowindow.open(RIA.map,marker);

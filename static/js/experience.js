@@ -233,7 +233,11 @@ RIA.Experience = new Class({
 		this.hotels.removeClass("waiting");
 		this.hotels.getElement(".results").morph({"opacity":1});
 		RIA.currentDestination = encodeURIComponent(destination);
-		Log.info("RIA.currentDestination is now "+RIA.currentDestination);
+		Log.info("RIA.currentDestination is now "+RIA.currentDestination+", "+RIA.currentLocation);
+		
+		
+		
+		
 		RIA.bookmarks = new Object();                                         
 		Log.info("RIA.bookmarks have been emptied");
 		this.shareMyBookmarks(false);
@@ -267,7 +271,9 @@ RIA.Experience = new Class({
 				this.setBookmarkMarkers(this.hotelCollection);
 			}
             
-			this.setHotelMarkers(this.hotelCollection);
+			this.setHotelMarkers(this.hotelCollection);   
+			                                                                               
+			
 			
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
