@@ -23,7 +23,6 @@ RIA.MapStreetView = new Class({
 			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@'
 		}
 
-		
 		RIA.geocoder = new google.maps.Geocoder();
 		RIA.sv = new google.maps.StreetViewService();         
 		
@@ -52,6 +51,11 @@ RIA.MapStreetView = new Class({
 
 		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
 		RIA.map.setStreetView(RIA.panorama);
+		
+		Log.info(RIA.map);
+		
+		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
+		RIA.panoramioLayer.setMap(RIA.map);
 		
 		// Now we have initialized the Map, start the Destination request 
 		RIA.InitAjaxSubmit._submit();
@@ -149,15 +153,12 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		Hotel[Element]
 		*/
-		//this.mapStreetview.setStyle("display", "none"); 
-		//Log.info("Sorry, we couldn't find this address on the Map:\n"+hotel.get("data-address"));
-		
         var counter = this.requestCounter + 500;
 		this.requestCounter += 500
 		if(hotel.retrieve("geolocation:error") != google.maps.GeocoderStatus.ZERO_RESULTS) {
 			this.getGeocodeByAddress.delay(this.requestCounter, this, [hotel, this.addHotelMarker.bind(this)]);
         } else {
-	    	//alert("Sorry\n\nWe couldn't find the address for this hotel on the Map:\n\n#"+hotel.get("data-counter")+": "+hotel.get("data-name")+"\n"+hotel.get("data-address"));
+			RIA.panorama.setVisible(false);
 		}						
 	},                      
 	setMapPositionPan: function(latLng) {
@@ -190,7 +191,7 @@ RIA.MapStreetView = new Class({
 		RIA.sv.getPanoramaByLocation(latLng, 150, function(svData, svStatus) {  
             // If Streetview Panorama data exists...
 			if (svStatus == google.maps.StreetViewStatus.OK) {
-				Log.info(svData.location.latLng)
+				if(!RIA.panorama.getVisible()) RIA.panorama.setVisible(true);
 				// Set the Streetview Panorama to the position, using the returned data (rather than RIA.currentLocation, as this may be innaccurate)
 				RIA.panorama.setPosition(svData.location.latLng);                                                                              
 				// Set the Point Of View of the Panorama to match the 'current heading' data returned. Set pitch and zoom to zero, so that we are horizontal and zoomed out
@@ -208,12 +209,14 @@ RIA.MapStreetView = new Class({
 			// Else if no data exists...
 			else if(svStatus == google.maps.StreetViewStatus.ZERO_RESULTS) {				
 				// [ST]TODO: No Streetview data was found for this LatLng, what do we do here?
-				Log.info("No Panorama results found");				
+				Log.info("No Panorama results found");
+				RIA.panorama.setVisible(false);
 			} 
 			// Else there was an error...
 			else {
 				// [ST]TODO: Handle OVER_QUOTA or other errors
 				Log.info("Panorama error status: "+svStatus);
+				RIA.panorama.setVisible(false);
 			}
 		}.bind(this));
 	},
@@ -239,10 +242,7 @@ RIA.MapStreetView = new Class({
 					this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarkerSV); 
 				}
 			}  
-		
-			//Log.info("Setting Bookmark for Hotel "+title);   
-		    
-			//icon = RIA.MarkerIcons.poc.replace("@LETTER@",hotel.get("data-counter"));
+				    
 			icon = RIA.MarkerIcons.bookmark.replace("@LETTER@",hotel.get("data-counter"));
 			
 			// Create a new Marker

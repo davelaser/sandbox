@@ -293,7 +293,7 @@ RIA.Experience = new Class({
 		},this)
 	},
 	onWindowResize: function(e) {
-    	this.viewport = window.getSize(); 
+		this.viewport = window.getSize(); 
 		if(RIA.map) google.maps.event.trigger(RIA.map, "resize");
 	},
 	toggleInformation: function(e) {

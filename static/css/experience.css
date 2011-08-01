@@ -317,7 +317,19 @@ nav#hotel-list a.active {
 	margin-top:20px;
 	font-size:3em;
 } 
-
+.hotel h3.name span {         
+	display:inline-block;  
+	margin:0 5px 0 0;
+	text-align:center;
+	line-height:40px;
+	background:#EC008C;
+	color:#fff;
+	width:40px;
+	height:40px;
+	font-size:0.75em;
+	border-radius:30px;
+	-webkit-border-radius:30px;
+}
 #hotels.streetview .hotel h3.name {
 	font-size:1.6em;
 }
@@ -474,7 +486,14 @@ nav#hotel-list a.active {
 	float:right;
 }
   
-
+#hotels.minimized h3.name span {
+	line-height:30px;
+	width:30px;
+	height:30px;
+	font-size:0.7em;
+	border-radius:30px;
+	-webkit-border-radius:30px;	
+}
 
 /*
 * 	Horizontal Hotels Navigation
