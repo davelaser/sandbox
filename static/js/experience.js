@@ -102,8 +102,9 @@ RIA.Experience = new Class({
 						if(target.checked) {
 	                		this.requestPlaces(RIA.currentLocation, this.options.places.searchRadius, places, null);
 						}
-						else {
+						else {            
 							this.removePlacesMarkers(places);
+							this.updateLabelCount(places);
 						}
 					}
 					
@@ -280,21 +281,17 @@ RIA.Experience = new Class({
 		this.hotels.removeClass("waiting");
 		this.hotels.getElement(".results").morph({"opacity":1});
 		RIA.currentDestination = encodeURIComponent(destination);
-		Log.info("RIA.currentDestination is now "+RIA.currentDestination+", "+RIA.currentLocation);
-		
-		
+		//Log.info("RIA.currentDestination is now "+RIA.currentDestination+", "+RIA.currentLocation);
 		
 		
 		RIA.bookmarks = new Object();                                         
-		Log.info("RIA.bookmarks have been emptied");
 		this.shareMyBookmarks(false);
+		
+		
 		if(this.hotelCollection.length > 0) { 
 			this.addHotelNavEventListeners();
 			this.createHotelNav();
 			                                  
-			Log.info("Object.getLength(RIA.bookmarks) : "+Object.getLength(RIA.bookmarks));
-			
-			
 			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
 			
 			/*

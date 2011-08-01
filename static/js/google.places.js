@@ -160,24 +160,31 @@ RIA.GooglePlaces = new Class({
 	},
 	jsonRequestSuccess: function(responseJSON, responseText, types) {
 		//Log.info("JSON request success");
+		if(typeof(this.hotelCollection[this.hotelIndex].places) == "undefined") {
+			this.hotelCollection[this.hotelIndex].places = new Object();
+		}
+		
 		if(responseJSON.status == "OK" && responseJSON.results.length > 0) {
-			if(typeof(this.hotelCollection[this.hotelIndex].places) == "undefined") {
-				this.hotelCollection[this.hotelIndex].places = new Object();
-			}
+			
 			this.hotelCollection[this.hotelIndex].places[types] = responseJSON;
 			
-			//RIA.places[types] = responseJSON;
+			Log.info("Got new places so recounting")
+			this.updateLabelCount(types);
+			
 			this.setPlacesMarkers(types);
 		} else {
-			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}})
+			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}});
+			this.updateLabelCount(types);
+		}
+	}, 
+	updateLabelCount: function(types) {  
+		var element = document.getElement("input[data-value="+types+"]"), label, count = this.hotelCollection[this.hotelIndex].places[types] ? this.hotelCollection[this.hotelIndex].places[types].results.length : 0;
+		if(element) {
+			label = element.getNext("label");                                  
+			label.set("text", label.get("data-text")+" ("+count+")");
 		}
 	},
 	setPlacesMarkers: function(types) {
-		/*
-		Object.each(RIA.places[types].results, function(place) {
-			this.addPlacesMarker(place);
-		},this);
-		*/
 		Object.each(this.hotelCollection[this.hotelIndex].places[types].results, function(place) {
 			this.addPlacesMarker(place);
 		},this);
@@ -242,13 +249,13 @@ RIA.GooglePlaces = new Class({
 		
 	},
 	removeAllPlacesMarkers: function() {
-
-		Object.each(this.hotelCollection[this.hotelIndex].places, function(type) {
-			Object.each(type.results, function(place) {
-				this.removePlacesMarker(place);
-			},this);			
+		this.hotelCollection.each(function(hotel) {
+			Object.each(hotel.places, function(type) {
+				Object.each(type.results, function(place) {
+					this.removePlacesMarker(place);
+				},this);			
+			},this);
 		},this);
-		
 	},
 	removePlacesMarkers: function(type) {
 
@@ -289,6 +296,8 @@ RIA.GooglePlaces = new Class({
 	},
 	resetPlacesMarkers: function(reset) {
 		this.removeAllPlacesMarkers();
+		
+		
 		if(reset) {
 			this.hotelCollection[this.hotelIndex].places = new Object();
 		}
@@ -296,6 +305,7 @@ RIA.GooglePlaces = new Class({
 			if(input.checked && input.get("value") != "") {
 				this.requestPlaces(RIA.currentLocation, this.options.places.searchRadius, input.get("value"), null);
 			}				
-		},this)
+		},this);
+		
 	}   
 });

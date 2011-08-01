@@ -1,0 +1,64 @@
+<section id="places" class="rc">
+	<div>
+		<header>
+			<h2>Places</h2>
+		</header>
+		<form>		
+			<fieldset>   
+				<label for="range">Distance from selected Hotel
+				<br/><span id="places-distance-output">500</span> (metres)</label><br/><br/>
+				<input id="places-distance-range" type="range" min="100" max="1100" value="500" step="100" />
+			</fieldset>
+			<fieldset>
+				<h3>Food &amp; Drink</h3>
+				<ul>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=restaurant|FFFFFF" />
+						<input type="checkbox" id="restaurants" value="food|restaurant" data-value="food|restaurant" />
+						<label for="restaurants" data-text="Restaurants">Restaurants</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=bar|FFFFFF" />
+						<input type="checkbox" id="bars" value="cafe|bar" data-value="cafe|bar" />
+						<label for="bars" data-text="Bars &amp; Cafes">Bars &amp; Cafes</label>
+					</li>			
+				</ul>
+			</fieldset>
+			<fieldset>
+				<h3>Shopping</h3>
+				<ul>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=shoppingbag|FFFFFF" />
+						<input type="checkbox" id="shopping" value="book_store|clothing_store|department_store|shoe_store" data-value="book_store|clothing_store|department_store|shoe_store" />
+						<label for="shopping" data-text="Department stores, Clothes, Shoes, Books">Department stores, Clothes, Shoes, Books</label>
+					</li>
+				</ul>
+			</fieldset>
+			<fieldset>
+				<h3>Self Catering</h3>
+				<ul>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=shoppingcart|FFFFFF" />
+						<input type="checkbox" id="supermarkets" value="grocery_or_supermarket" data-value="grocery_or_supermarket" />
+						<label for="supermarkets" data-text="Supermarkets">Supermarkets</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=snack|FFFFFF" />
+						<input type="checkbox" id="takeaway" value="meal_delivery|meal_takeaway" data-value="meal_delivery|meal_takeaway" />
+						<label for="takeaway" data-text="Takeaways">Takeaways</label>
+					</li>				
+				</ul>
+			</fieldset>
+			<fieldset>
+				<h3>Attractions</h3>
+				<ul>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="museums" value="museum|park|zoo" data-value="museum|park|zoo" />
+						<label for="museums" data-text="Museums, Parks, Zoos...">Museums, Parks, Zoos...</label>
+					</li>
+				</ul>
+			</fieldset>
+	    </form>		
+	</div>
+</section>	

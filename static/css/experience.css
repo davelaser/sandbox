@@ -561,6 +561,7 @@ nav#hotel-list a.active {
 	padding:10px;
 	height:auto;
 	position:fixed;
+	left:130px;
 	top:200px;
 	z-index:11; 
 	-webkit-border-radius:20px;
