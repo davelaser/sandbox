@@ -16,7 +16,7 @@ RIA.GooglePlaces = new Class({
 				this.jsonRequestSuccess(responseJSON, responseText, hotel)
 			}.bind(this),
 			onError: this.jsonRequestFailure.bind(this)
-		}).send("location="+locationLatLng.Ja+","+locationLatLng.Ka+"&radius="+radiusInMeters+"&types="+types+"&name="+name);
+		}).send("location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
 
 	},
 	jsonRequestStart: function() {
@@ -24,10 +24,11 @@ RIA.GooglePlaces = new Class({
 	},
 	jsonRequestSuccess: function(responseJSON, responseText, hotel) {
 		//Log.info("JSON request success");
+		Log.info(responseJSON)
 		if(responseJSON.status == "OK" && responseJSON.results.length > 0) {
 			this.places = responseJSON;
 			Array.each(this.places.results, function(place) {
-				//Log.info(place)
+				//Log.info(place);
 			},this);
 		} else {
 			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}})

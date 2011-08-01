@@ -3,7 +3,9 @@ RIA.MapStreetView = new Class({
 		geolocation:null, 
 		bookmarks:null,
 		maptype:"map",
-		contenttype:"minimized"
+		contenttype:"minimized",
+		//placesTypes:'food|establishment|restaurant|bakery|cafe|point_of_interest|shoe_store|train_station|subway_station|meal_takeaway'
+		placesTypes:'establishment'
 	},
 	mapInitialize: function() {
 		
@@ -16,10 +18,8 @@ RIA.MapStreetView = new Class({
 			blank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
 			star:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
 			bankDollar:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FF0000',
-			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|FFFF00|000000',
-			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
-			shadowHotel:'http://chart.apis.google.com/chart?chst=d_map_pin_shadow',
-			shadowBookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_shadow&chld=pin_star',
+			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter_withshadow&chld=@LETTER@|FFFF00|000000',
+			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter_withshadow&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
 			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@'
 		}
 
@@ -52,9 +52,8 @@ RIA.MapStreetView = new Class({
 		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
 		RIA.map.setStreetView(RIA.panorama);
 		
-		Log.info(RIA.map);
-		
 		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
+		RIA.panoramioLayer.setTag("times square");
 		RIA.panoramioLayer.setMap(RIA.map);
 		
 		// Now we have initialized the Map, start the Destination request 
@@ -144,7 +143,7 @@ RIA.MapStreetView = new Class({
 		this.setPanoramaPosition(RIA.currentLocation);
 		
 		// [ST]TODO: Request local restaurants, hotels, attractions using Google Places?
-		//this.requestPlaces(hotel, RIA.currentLocation, 1500, 'food|restaurants|attractions|hotels');
+		this.requestPlaces(hotel, RIA.currentLocation, 15000, this.options.placesTypes, null);
 	},
 	notGotGeolocation: function(hotel) {
 		/*
@@ -158,7 +157,7 @@ RIA.MapStreetView = new Class({
 		if(hotel.retrieve("geolocation:error") != google.maps.GeocoderStatus.ZERO_RESULTS) {
 			this.getGeocodeByAddress.delay(this.requestCounter, this, [hotel, this.addHotelMarker.bind(this)]);
         } else {
-			RIA.panorama.setVisible(false);
+			//RIA.panorama.setVisible(false);
 		}						
 	},                      
 	setMapPositionPan: function(latLng) {
@@ -255,8 +254,7 @@ RIA.MapStreetView = new Class({
 				animation:google.maps.Animation.BOUNCE,
 				cursor:'pointer',
 				clickable:true,
-				zIndex:20,
-				shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowBookmark, new google.maps.Size(37, 42), new google.maps.Point(0,0), new google.maps.Point(12,42))
+				zIndex:20
 	        });
 
 			hotel.bookmarkSV = new google.maps.Marker({
@@ -368,8 +366,7 @@ RIA.MapStreetView = new Class({
 				animation:google.maps.Animation.DROP,
 				cursor:'pointer',
 				clickable:true,
-				zIndex:1,
-				shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowHotel, new google.maps.Size(37, 37), new google.maps.Point(0,0), new google.maps.Point(12,37))
+				zIndex:1
 	        }); 
 	
 			hotel.hotelMarkerSV = new google.maps.Marker({
