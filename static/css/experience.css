@@ -50,12 +50,6 @@ footer  {
 	overflow:hidden;
 	padding:0 10px; 
 	z-index:5;
-	background-color:rgba(0,0,0,0.2);   
-	border-radius:0 0 20px 20px;
-	-webkit-border-radius:0 0 20px 20px;
-	-moz-border-radius:0 0 20px 20px;
-	-o-border-radius:0 0 20px 20px;   
-	-ms-border-radius:0 0 20px 20px;
 }
  
 #content {
@@ -91,6 +85,13 @@ h2 {
 	margin:0 0 10px 0;
 }                    
 
+.rc {
+   	border-radius:5px;
+	-webkit-border-radius:5px;
+	-moz-border-radius:5px;
+	-o-border-radius:5px;
+	-ms-border-radius:5px; 
+}
 form#start-your-story {  
 	zoom:1;  
 	z-index:2;
@@ -102,12 +103,6 @@ form#start-your-story {
 	background:#fff;
 	padding:30px 20px 20px;
 	margin:0 0 10px 0;
-	   
-	border-radius:10px;
-	-webkit-border-radius:10px;
-	-moz-border-radius:10px;
-	-o-border-radius:10px;
-	-ms-border-radius:10px;
 }
 
 form#start-your-story header {
@@ -174,11 +169,6 @@ article section {
 	background:#fff;
 	padding:20px;
 	margin:0 0 20px 0;	   
-	border-radius:10px;
-	-webkit-border-radius:10px;
-	-moz-border-radius:10px;
-	-o-border-radius:10px; 
-	-ms-border-radius:10px; 
 }
 
  

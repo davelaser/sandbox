@@ -1,4 +1,10 @@
 RIA.MapStreetView = new Class({
+	options:{
+		geolocation:null, 
+		bookmarks:null,
+		maptype:"map",
+		contenttype:"minimized"
+	},
 	mapInitialize: function() {
 		
 		this.requestCounter = 500;
@@ -46,13 +52,11 @@ RIA.MapStreetView = new Class({
 
 		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
 		RIA.map.setStreetView(RIA.panorama);
-		    
-		if(this.options.maptype == "map") {
-			this.toggleMapFullScreen(null);
-		}
+		
 		// Now we have initialized the Map, start the Destination request 
 		RIA.InitAjaxSubmit._submit();
-
+         
+		this.toggleMapFullScreen(null);	
 	},
 	toggleMapFullScreen: function(e){
 		/*
@@ -61,6 +65,8 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		Event[Object] (optional)
 		*/ 
+		
+		Log.info("toggleMapFullScreen(): maptype: "+this.options.maptype+", contenttype: "+this.options.contenttype);
 		
 		// If we have an Event object argument, prevent any default action   
 		if(e && e.preventDefault) {
@@ -179,15 +185,22 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		latLng[Object(LatLng)]
 		*/ 
-		// Check whether Streetview Panorama data exists for this LatLng, within a 150 metre radius (argument #2 below)
+		// Check whether Streetview Panorama data exists for this LatLng, within a 150 metre radius (argument #2 below) 
+		
 		RIA.sv.getPanoramaByLocation(latLng, 150, function(svData, svStatus) {  
             // If Streetview Panorama data exists...
 			if (svStatus == google.maps.StreetViewStatus.OK) {
+				Log.info(svData.location.latLng)
 				// Set the Streetview Panorama to the position, using the returned data (rather than RIA.currentLocation, as this may be innaccurate)
 				RIA.panorama.setPosition(svData.location.latLng);                                                                              
 				// Set the Point Of View of the Panorama to match the 'current heading' data returned. Set pitch and zoom to zero, so that we are horizontal and zoomed out
+				
+				// Now calculate the heading using the Panorama LatLng to the Hotel's LatLng (visually, the Marker)
+				var heading = this.getHeading(svData.location.latLng, latLng);
+				
+				// Set the Panorama heading, pitch and zoom 
 				RIA.panorama.setPov({
-					heading: svData.tiles.centerHeading,
+					heading: heading,
 					pitch:0,
 					zoom:0
 				});				
@@ -202,7 +215,7 @@ RIA.MapStreetView = new Class({
 				// [ST]TODO: Handle OVER_QUOTA or other errors
 				Log.info("Panorama error status: "+svStatus);
 			}
-		});
+		}.bind(this));
 	},
 	dropBookmarkPin: function(hotel) {
 		/*
@@ -489,5 +502,9 @@ RIA.MapStreetView = new Class({
 		*/
 		this.removeHotelMarkers();
 		this.addBookmarkMarkers();
+	},
+	getHeading: function(latLng1, latLng2) {
+		var path = [latLng1, latLng2], heading = google.maps.geometry.spherical.computeHeading(path[0], path[1]);
+	    return heading;
 	}
 });

@@ -1,7 +1,7 @@
 RIA.Experience = new Class({
 	Implements:[Options, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
-		
+
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -34,16 +34,14 @@ RIA.Experience = new Class({
 		this.mapCanvas = document.id("map_canvas");
 		this.mapCanvas.store("styles:orig", this.mapCanvas.getCoordinates());
 		this.mapCanvas.store("styles:maximized", {width:"100%", height:"100%"});
-		this.mapCanvas.store("view:state", "minimized");
+		this.mapCanvas.store("view:state", this.options.contenttype);
 		
 		this.mapStreetview = document.id("pano");
 		this.onWindowResize();
 		this.addEventListeners();  
 		
-		if(this.options.contenttype && this.options.contenttype == "minimized") {
-			this.toggleInformation(null);
-		}
-
+		this.toggleInformation(null);
+		
 	},                            
 	addEventListeners: function() {
 		
@@ -327,7 +325,7 @@ RIA.Experience = new Class({
             index++;
 		},this);    
 		
-		shareURL+="&maptype=map&contenttype=minimized";
+		shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype;
 		
 		
 		document.id("bookmarks").getElement("a").set({"href":shareURL, "text":shareURL});  
