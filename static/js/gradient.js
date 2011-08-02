@@ -29,8 +29,7 @@ RIA.Gradient = new Class({
 				RGB["g"] = rgbG.toString(16);
 			}                 
 			
-	        RGB["b"] = rgbB.toString(16);
-                    
+	        RGB["b"] = rgbB.toString(16);                    
 			
 			if (RGB["r"].length === 1) RGB["r"] = "0" + RGB["r"];
 	        if (RGB["g"].length === 1) RGB["g"] = "0" + RGB["g"];
