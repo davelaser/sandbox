@@ -64,10 +64,10 @@ RIA.GooglePlaces = new Class({
 				liquor_store
 				local_government_office
 				locksmith
-				lodging
-				meal_delivery
-				meal_takeaway
-				mosque
+				lodging*/
+				meal_delivery:"Meal delivery",
+				meal_takeaway:"Meal takeaway",
+				/*mosque
 				movie_rental
 				movie_theater
 				moving_company*/

@@ -66,7 +66,10 @@ destination_display_names = {
 	'miami':'Miami',
 	'london':'London',
 	'nice':'Nice',
-	'tokyo':'Tokyo'
+	'tokyo':'Tokyo',
+	'rome':'Rome',
+	'milan':'Milan',
+	'sorrento':'Sorrento'
 }
 
 
