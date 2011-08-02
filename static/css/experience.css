@@ -51,7 +51,9 @@ footer  {
 	height:100%;
 	margin:0 auto;
 	text-align:left; 
+	/*	[ST] Removed overflow:hidden as it is preventing additional content from stretching full height (e.g. guardian, weather)
 	overflow:hidden;
+	*/
 	padding:0 10px; 
 	z-index:5;
 }
@@ -213,7 +215,7 @@ article section {
 	width:200px;  
 	overflow:hidden;
 	position:absolute;
-	top:150px;
+	top:101px;
 	left:485px;
 } 
 #weather header {
@@ -550,7 +552,7 @@ nav#hotel-list a.active {
 	height:auto;
 	position:fixed;
 	left:130px;
-	top:200px;
+	top:50px;
 	z-index:11; 
 	-webkit-border-radius:20px;
 }  
@@ -585,5 +587,29 @@ nav#hotel-list a.active {
 #places li {
 	display:block;
 	margin:0 0 3px 0;  
+}
+
+#places #place-radius {
+	position:relative;
+}
+           
+#places #places-distance-range {
+	width:150px;
+}           
+
+#places #places-distance-output,
+.hotel-name {
+	color:#EC008C;
+}
+#places #place-radius .min {
+	position:absolute;
+	bottom:0px;
+	left:5px;
+} 
+
+#places #place-radius .max {
+	position:absolute;
+	bottom:0px;
+	right:5px;
 }
 

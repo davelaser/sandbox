@@ -127,7 +127,7 @@ RIA.Experience = new Class({
 					var newDistance = e.target.get("value");
 					if(this.options.places.searchRadius !== newDistance) {
 						this.options.places.searchRadius = e.target.get("value");
-						this.placesDistanceOutput.set("text", this.options.places.searchRadius);
+						this.placesDistanceOutput.set("text", (this.options.places.searchRadius == 1000 ? "1K" : this.options.places.searchRadius)+"m");
 						this.resetPlacesMarkers(true);
 					}					
 				}.bind(this)
@@ -243,6 +243,7 @@ RIA.Experience = new Class({
 			}
 			
 			if(ready) {
+				document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
 				this.animateToHotel(this.hotelCollection[this.hotelIndex]);   
 				(function() {
 					this.setStreetview(this.hotelCollection[this.hotelIndex]);
@@ -281,6 +282,8 @@ RIA.Experience = new Class({
 		// reset the hotel index, so we are in first hotel position
 		this.hotelIndex = 0;
 		this.hotelCollection = this.hotels.getElements(".hotel");
+		
+		document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
 		
 		this.hotels.removeClass("waiting");
 		this.hotels.getElement(".results").morph({"opacity":1});
@@ -386,11 +389,11 @@ RIA.Experience = new Class({
 		
 		if(show) {
 			if(this.bookmarks.retrieve("viewstate") == "closed") {
-				this.bookmarks.morph({"height":"55px", "marginTop":"60px"});
+				this.bookmarks.morph({"height":"55px", "top":"60px"});
 				this._form.morph({"top":"140px", "paddingTop":"20px"});			
 				this.bookmarks.store("viewstate", "open");
 			} else {
-				this.bookmarks.morph({"height":"20px", "marginTop":"-20px"});
+				this.bookmarks.morph({"height":"20px", "top":"-20px"});
 				this._form.morph({"top":"40px", "paddingTop":"30px"});
 				this.bookmarks.store("viewstate", "closed");
 			}

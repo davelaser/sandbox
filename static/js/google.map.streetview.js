@@ -133,7 +133,7 @@ RIA.MapStreetView = new Class({
 			return this.notGotGeolocation(hotel);
 		}                       
 		
-		this.setMapZoom(13);
+		//this.setMapZoom(13);
 		
 		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
 		if(hotel.retrieve("geolocation")) {

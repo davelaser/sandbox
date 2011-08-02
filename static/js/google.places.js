@@ -163,34 +163,36 @@ RIA.GooglePlaces = new Class({
 			
 			this.hotelCollection[this.hotelIndex].places[types] = responseJSON;
 			
-			Log.info("Got new places so recounting")
-			this.updateLabelCount(types);
-			
 			this.setPlacesMarkers(types);
 		} else {
 			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}});
 			this.updateLabelCount(types);
 		}
 	}, 
-	updateLabelCount: function(types) {  
+	updateLabelCount: function(types) {                                                  
+		Log.info(this.hotelCollection[this.hotelIndex].places[types])
 		var element = document.getElement("input[data-value="+types+"]"), label, count = this.hotelCollection[this.hotelIndex].places[types] ? this.hotelCollection[this.hotelIndex].places[types].results.length : 0;
+		Log.info("types: "+types);
 		if(element) {
 			label = element.getNext("label");                                  
 			label.set("text", label.get("data-text")+" ("+count+")");
 		}
 	},
-	setPlacesMarkers: function(types) {
-		Object.each(this.hotelCollection[this.hotelIndex].places[types].results, function(place) {
-			this.addPlacesMarker(place);
+	setPlacesMarkers: function(type) {
+		Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
+			this.addPlacesMarker(place, type);
 		},this);
+		                                      
 		
+		Log.info("Got new places so recounting")
+		this.updateLabelCount(type);
 	},
 	jsonRequestFailure: function(text, error) {
 		Log.info("JSON request failure");
 		Log.info(text);
 		Log.info(error);
 	},
-	addPlacesMarker: function(place) {
+	addPlacesMarker: function(place, type) {
 		/*
 		*	@description:
 		*		Sets a Marker for a Place. Not solicited by the User
@@ -198,18 +200,19 @@ RIA.GooglePlaces = new Class({
 		*		place[Object](returned from a Places API request)
 		*		latLng[Object(LatLng)]
 		*/ 
-		
-		var mapIcon; 
+        Log.info("Creating marker for "+place.name);
+
+   	 	var mapIcon; 
 
 		if(place.types.length > 0 && RIA.MarkerIcons[place.types[0]]) {
 			mapIcon = new google.maps.MarkerImage(RIA.MarkerIcons[place.types[0]]);
 		} else {
 			mapIcon = new google.maps.MarkerImage(RIA.MarkerIcons.star);
 		}
-        
+       
 		var panoIcon = new google.maps.MarkerImage(place.icon),
 		latLng = new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng);
-		                                                  
+	                                                  
 		place.placesMarker = new google.maps.Marker({
             map:RIA.map,
 			icon:mapIcon,
@@ -221,7 +224,7 @@ RIA.GooglePlaces = new Class({
 			clickable:true,
 			zIndex:1
         }); 
-        
+       
 		place.placesMarkerSV = new google.maps.Marker({
             map:RIA.panorama,
 			icon:panoIcon,
@@ -232,15 +235,15 @@ RIA.GooglePlaces = new Class({
 			clickable:true,
 			zIndex:1
         });
-        
+       
 		place.clickEvent = google.maps.event.addListener(place.placesMarker, 'click', function(event) {
 			this.setCurrentLocation(event.latLng);
 			this.setPanoramaPosition(event.latLng);
 		}.bind(this));
-		
+	
 		this.createPlacesInfoWindow(place, place.placesMarker);
 		this.createPlacesInfoWindow(place, place.placesMarkerSV);
-		
+
 	},
 	removeAllPlacesMarkers: function() {
 		this.hotelCollection.each(function(hotel) {
@@ -261,7 +264,7 @@ RIA.GooglePlaces = new Class({
 		
 	}, 
 	removePlacesMarker: function(place) {
-		if(place) { 
+		if(place && place.placesMarker) { 
 			place.placesMarker.setMap(null);
 			place.placesMarkerSV.setMap(null);
 		}
