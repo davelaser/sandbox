@@ -14,13 +14,23 @@
 				<ul>
 					<li>
 						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=restaurant|FFFFFF" />
-						<input type="checkbox" id="restaurants" value="food|restaurant" data-value="food|restaurant" />
+						<input type="checkbox" id="restaurants" value="food|restaurant" data-value="food|restaurant" data-function=""/>
 						<label for="restaurants" data-text="Restaurants">Restaurants</label>
 					</li>
 					<li>
 						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=bar|FFFFFF" />
 						<input type="checkbox" id="bars" value="cafe|bar" data-value="cafe|bar" />
 						<label for="bars" data-text="Bars &amp; Cafes">Bars &amp; Cafes</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=shoppingcart|FFFFFF" />
+						<input type="checkbox" id="supermarkets" value="grocery_or_supermarket" data-value="grocery_or_supermarket" />
+						<label for="supermarkets" data-text="Supermarkets">Supermarkets</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=snack|FFFFFF" />
+						<input type="checkbox" id="takeaway" value="meal_delivery|meal_takeaway" data-value="meal_delivery|meal_takeaway" />
+						<label for="takeaway" data-text="Takeaways">Takeaways</label>
 					</li>			
 				</ul>
 			</fieldset>
@@ -44,21 +54,11 @@
 						<input type="checkbox" id="book_store" value="book_store" data-value="book_store" />
 						<label for="book_store" data-text="Books">Books</label>
 					</li>
-				</ul>
-			</fieldset>
-			<fieldset>
-				<h3>Self Catering</h3>
-				<ul>
 					<li>
-						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=shoppingcart|FFFFFF" />
-						<input type="checkbox" id="supermarkets" value="grocery_or_supermarket" data-value="grocery_or_supermarket" />
-						<label for="supermarkets" data-text="Supermarkets">Supermarkets</label>
+						<input type="checkbox" id="atm" value="atm|bank" data-value="atm|bank" />
+						<label for="atm" data-text="Banks &amp; ATMs">Banks &amp; ATMs</label>
 					</li>
-					<li>
-						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=snack|FFFFFF" />
-						<input type="checkbox" id="takeaway" value="meal_delivery|meal_takeaway" data-value="meal_delivery|meal_takeaway" />
-						<label for="takeaway" data-text="Takeaways">Takeaways</label>
-					</li>				
+					
 				</ul>
 			</fieldset>
 			<fieldset>
@@ -70,7 +70,17 @@
 						<label for="museums" data-text="Museums, Parks, Zoos...">Museums, Parks, Zoos...</label>
 					</li>
 				</ul>
+			</fieldset> 
+			<fieldset>
+				<h3>More</h3>
+				<ul>
+					<li>
+						<input type="checkbox" id="photos" value="" />
+						<label for="photos">Other people's Photos</label>
+					</li>
+				</ul>
 			</fieldset>
+			
 	    </form>		
 	</div>
 </section>	

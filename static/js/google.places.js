@@ -4,139 +4,134 @@ RIA.GooglePlaces = new Class({
 		places:{
 			searchRadius:500,
 			serviceURL:"/places",
-			/*
-			accounting
-			airport
-			amusement_park
-			aquarium
-			art_gallery
-			atm
-			bakery
-			bank
-			bar
-			beauty_salon
-			bicycle_store
-			book_store
-			bowling_alley
-			bus_station
-			cafe
-			campground
-			car_dealer
-			car_rental
-			car_repair
-			car_wash
-			casino
-			cemetery
-			church
-			city_hall
-			clothing_store
-			convenience_store
-			courthouse
-			dentist
-			department_store
-			doctor
-			electrician
-			electronics_store
-			embassy
-			establishment
-			finance
-			fire_station
-			florist
-			food
-			funeral_home
-			furniture_store
-			gas_station
-			general_contractor
-			geocode
-			grocery_or_supermarket
-			gym
-			hair_care
-			hardware_store
-			health
-			hindu_temple
-			home_goods_store
-			hospital
-			insurance_agency
-			jewelry_store
-			laundry
-			lawyer
-			library
-			liquor_store
-			local_government_office
-			locksmith
-			lodging
-			meal_delivery
-			meal_takeaway
-			mosque
-			movie_rental
-			movie_theater
-			moving_company
-			museum
-			night_club
-			painter
-			park
-			parking
-			pet_store
-			pharmacy
-			physiotherapist
-			place_of_worship
-			plumber
-			police
-			post_office
-			real_estate_agency
-			restaurant
-			roofing_contractor
-			rv_park
-			school
-			shoe_store
-			shopping_mall
-			spa
-			stadium
-			storage
-			store
-			subway_station
-			synagogue
-			taxi_stand
-			train_station
-			travel_agency
-			university
-			veterinary_care
-			zoo
-			
-			The following table lists types supported by the Places API when sending Place Search requests. These types cannot be used when adding a new Place.
-			
-			administrative_area_level_1
-			administrative_area_level_2
-			administrative_area_level_3
-			colloquial_area
-			country
-			floor
-			intersection
-			locality
-			natural_feature
-			neighborhood
-			political
-			point_of_interest
-			post_box
-			postal_code
-			postal_code_prefix
-			postal_town
-			premise
-			room
-			route
-			street_address
-			street_number
-			sublocality
-			sublocality_level_4
-			sublocality_level_5
-			sublocality_level_3
-			sublocality_level_2
-			sublocality_level_1
-			subpremise
-			transit_station
-			*/
-			//placesTypes:'food|establishment|restaurant|bakery|cafe|point_of_interest|shoe_store|train_station|subway_station|meal_takeaway'
-			placesTypes:'car_rental'
+			types:{
+				accounting:"Accounting",
+				/*airport
+				amusement_park
+				aquarium
+				art_gallery*/
+				atm:"ATM",
+				bakery:"Bakery",
+				bank:"Bank",
+				bar:"Bar",
+				/*beauty_salon
+				bicycle_store*/
+				book_store:"Book store",
+				/*bowling_alley
+				bus_station*/
+				cafe:"Cafe",
+				/*campground
+				car_dealer
+				car_rental
+				car_repair
+				car_wash
+				casino
+				cemetery
+				church
+				city_hall*/
+				clothing_store:"Clothing store",
+				/*convenience_store
+				courthouse
+				dentist
+				department_store
+				doctor
+				electrician
+				electronics_store
+				embassy
+				establishment
+				finance
+				fire_station
+				florist*/
+				food:"Restaurant",
+				/*funeral_home
+				furniture_store
+				gas_station
+				general_contractor
+				geocode*/
+				grocery_or_supermarket:"Grocery or Supermarket",
+				/*gym
+				hair_care
+				hardware_store
+				health
+				hindu_temple
+				home_goods_store
+				hospital
+				insurance_agency
+				jewelry_store
+				laundry
+				lawyer
+				library
+				liquor_store
+				local_government_office
+				locksmith
+				lodging
+				meal_delivery
+				meal_takeaway
+				mosque
+				movie_rental
+				movie_theater
+				moving_company*/
+				museum:"Museum",
+				/*night_club
+				painter
+				park
+				parking
+				pet_store
+				pharmacy
+				physiotherapist
+				place_of_worship
+				plumber
+				police
+				post_office
+				real_estate_agency*/
+				restaurant:"Restaurant",
+				/*roofing_contractor
+				rv_park
+				school*/
+				shoe_store:"Shoe store"
+				/*shopping_mall
+				spa
+				stadium
+				storage
+				store
+				subway_station
+				synagogue
+				taxi_stand
+				train_station
+				travel_agency
+				university
+				veterinary_care
+				zoo
+				administrative_area_level_1
+				administrative_area_level_2
+				administrative_area_level_3
+				colloquial_area
+				country
+				floor
+				intersection
+				locality
+				natural_feature
+				neighborhood
+				political
+				point_of_interest
+				post_box
+				postal_code
+				postal_code_prefix
+				postal_town
+				premise
+				room
+				route
+				street_address
+				street_number
+				sublocality
+				sublocality_level_4
+				sublocality_level_5
+				sublocality_level_3
+				sublocality_level_2
+				sublocality_level_1
+				subpremise
+				transit_station*/
+			}
 		}		
 	},
 	requestPlaces: function(locationLatLng, radiusInMeters, types, name) { 
@@ -214,8 +209,7 @@ RIA.GooglePlaces = new Class({
         
 		var panoIcon = new google.maps.MarkerImage(place.icon),
 		latLng = new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng);
-		 
-		
+		                                                  
 		place.placesMarker = new google.maps.Marker({
             map:RIA.map,
 			icon:mapIcon,
@@ -274,7 +268,7 @@ RIA.GooglePlaces = new Class({
 	},
 	createPlacesInfoWindow: function(place, marker) {
 		marker.infowindow = new google.maps.InfoWindow({        
-			content: place.name+"<br/>"+place.vicinity+"<br/>("+place.types[0]+")",
+			content: place.name+"<br/>"+place.vicinity+"<br/>("+(this.options.places.types[place.types[0]]||place.types[0])+")",
 			maxWidth:50
 		});
        

@@ -1,4 +1,5 @@
 RIA.MapStreetView = new Class({
+	Implements:[RIA.Gradient],
 	options:{
 		geolocation:null, 
 		bookmarks:null,
@@ -16,7 +17,7 @@ RIA.MapStreetView = new Class({
 			blank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
 			star:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
 			bankDollar:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FF0000',
-			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|FFFF00|000000',
+			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|@COLOR@|000000',
 			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
 			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@',
 			shadowHotel:'http://chart.apis.google.com/chart?chst=d_map_pin_shadow',
@@ -37,7 +38,9 @@ RIA.MapStreetView = new Class({
 			shoe_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
 			book_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
 			clothing_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
-			department_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF'
+			department_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
+			bank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF',
+			atm:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF'
 		}
 
 		RIA.geocoder = new google.maps.Geocoder();
@@ -69,9 +72,9 @@ RIA.MapStreetView = new Class({
 		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
 		RIA.map.setStreetView(RIA.panorama);
 		
-		//RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
+		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
 		//RIA.panoramioLayer.setTag("times square");
-		//RIA.panoramioLayer.setMap(RIA.map);
+		
 		
 		// Now we have initialized the Map, start the Destination request 
 		RIA.InitAjaxSubmit._submit();
@@ -343,7 +346,11 @@ RIA.MapStreetView = new Class({
 		*		WARNING: This exceeds the .geocode() method QUOTA
 		*	@arguments:
 		*		Hotels[ElementCollection]
-		*/
+		*/ 
+		
+		this.createHotelMarkerColors();
+		
+		 
 		var counter = 500, delay, geo;
 		hotels.each(function(hotel, index) {
 			geo = hotel.retrieve("geolocation");
@@ -362,6 +369,7 @@ RIA.MapStreetView = new Class({
 			}
 			
 		},this);
+		    
 		
 	},
 	addHotelMarker: function(hotel, latLng) {
@@ -382,6 +390,7 @@ RIA.MapStreetView = new Class({
 			RIA.hotelMarkers[LMLocationId] = hotel;
 			
 			icon = RIA.MarkerIcons.hotel.replace("@LETTER@",hotel.get("data-counter"));
+			icon = icon.replace("@COLOR@", hotel.hotelMarkerColor);
 			
 			hotel.hotelMarker = new google.maps.Marker({
 	            map:RIA.map,
@@ -481,11 +490,11 @@ RIA.MapStreetView = new Class({
 					callback(hotel, latLng);
 				}					
 			} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
-		        Log.info("No Geocode results found for "+address); 
+		        //Log.info("No Geocode results found for "+address); 
 				hotel.store("geolocation:error", status);
 				this.notGotGeolocation(hotel);
 			} else {
-				Log.info("Geocode was not successful for "+address+", for the following reason: status: " + status); 
+				//Log.info("Geocode was not successful for "+address+", for the following reason: status: " + status); 
 				hotel.store("geolocation:error", status);
 				this.notGotGeolocation(hotel);
 			}                      
@@ -530,5 +539,34 @@ RIA.MapStreetView = new Class({
 	getHeading: function(latLng1, latLng2) {
 		var path = [latLng1, latLng2], heading = google.maps.geometry.spherical.computeHeading(path[0], path[1]);
 	    return heading;
+	},
+	createHotelMarkerColors: function() { 
+		this.hotelsByPriceRange = new Array();
+		this.hotelCollection.each(function(hotel, index) {
+			hotel.priceData = parseFloat(hotel.get("data-price").substring(1)); 
+			this.hotelsByPriceRange.include(hotel);
+		},this);
+		
+		
+		this.hotelsByPriceRange = this.hotelsByPriceRange.sort(this.sortByPrice.bind(this));
+		
+		this.gradientArray = this.generateGradient("FFFF00", "FF0000", this.hotelCollection.length);
+		
+		this.gradientArray.each(function(color, index) {
+			this.hotelsByPriceRange[index].hotelMarkerColor = color.toUpperCase();
+		},this);
+
+	},
+	sortByPrice: function(a,b) {        
+		return a.priceData - b.priceData; 
+	},
+	addPanoramioPhotos: function(e) {
+		if(e && e.target) {
+			if(e.target.checked) {
+				RIA.panoramioLayer.setMap(RIA.map);
+			} else {
+				RIA.panoramioLayer.setMap(null);
+			}
+		}		
 	}
 });

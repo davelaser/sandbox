@@ -106,6 +106,10 @@ RIA.Experience = new Class({
 							this.removePlacesMarkers(places);
 							this.updateLabelCount(places);
 						}
+					}  
+					
+					else if(target.id == "photos") {
+						this.addPanoramioPhotos(e);
 					}
 					
 				}.bind(this)
