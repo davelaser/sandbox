@@ -145,7 +145,7 @@ RIA.GooglePlaces = new Class({
 					this.jsonRequestSuccess(responseJSON, responseText, types)
 				}.bind(this),
 				onError: this.jsonRequestFailure.bind(this)
-			}).send("hotelname="+this.hotelCollection[this.hotelIndex].get("data-name")+"&location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
+			}).send("locationid="+this.hotelCollection[this.hotelIndex].get("data-locationid")+"&hotelname="+this.hotelCollection[this.hotelIndex].get("data-name")+"&location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
         } else {
 	        this.setPlacesMarkers(types);
 		}
@@ -310,7 +310,7 @@ RIA.GooglePlaces = new Class({
 		this.requestPlacesPost = new Request({
 			method:"POST",
 			url:this.options.places.serviceURL,
-			data:'hotelname='+hotel.get("data-name")+'&types='+types+'&places='+placesJsonText,
+			data:'locationid='+hotel.get("data-locationid")+'&types='+types+'&places='+placesJsonText,
 			onRequest: function(e) {
 				Log.info("storePlacesSearch : onRequest");
 			},

@@ -137,7 +137,7 @@ RIA.MapStreetView = new Class({
 		//this.setMapZoom(13);
 		
 		
-		if(hotel.get("data-latlng") != "None") {
+		if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
 			dataLatLng = hotel.get("data-latlng").split(",");
 			latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
 			Log.info("setStreetview() : got latLng from hotel attribute");
@@ -362,7 +362,7 @@ RIA.MapStreetView = new Class({
 		var counter = 500, delay, geo, latLng, dataLatLng;
 		hotels.each(function(hotel, index) {
 			
-			if(hotel.get("data-latlng") != "None") {
+			if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
 				dataLatLng = hotel.get("data-latlng").split(",");
 				latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
 				Log.info("GOT latLng FROM HOTEL HTML");

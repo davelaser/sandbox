@@ -123,6 +123,7 @@ Save Hotel data
 """
 class DBHotel(db.Model):
 	timestamp = db.DateTimeProperty(auto_now_add=True)
+	locationid = db.StringProperty(required=True)
 	name = db.StringProperty(required=True)
 	price = db.FloatProperty(required=True)
 	address = db.PostalAddressProperty(required=True)
@@ -139,30 +140,32 @@ def get_hotels_by_destination(destination):
 def put_hotels_by_destination(destination, data): 
 	hotels = get_hotels_by_destination(destination)
 	if hotels.get() is None:
-		index = 0
+		counter = 1
 		for hotel in data:
-			dbHotel = DBHotel(name = hotel['Name'], price = float(hotel['Price']), address = hotel['Address'], phone = hotel['Phone'], destination = destination, index = index)
+			dbHotel = DBHotel(locationid = destination+str(counter), name = hotel['Name'], price = float(hotel['Price']), address = hotel['Address'], phone = hotel['Phone'], destination = destination, index = counter)
 			dbHotel.put()                                                                                                                                               
-			index += 1
+			counter += 1
 
 """
 Save Places data by hotel and types
 """
 class DBPlace(db.Model):
-	hotelname = db.StringProperty()
+	locationid = db.StringProperty()
 	types = db.StringProperty()
 	places = db.TextProperty()
+	radius = db.IntegerProperty()
 	
-def get_places_by_hotel_and_types(hotelname, types):
-	resultset = DBPlace.gql("WHERE hotelname = '"+hotelname+"' AND types = '"+types+"'")
+def get_places_by_hotellocationid_types_radius(locationid, types, radius):
+	resultset = DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
 	return resultset
 	
-def put_places_by_hotel_and_types(hotelname, types, places):
-	placesRequest = get_places_by_hotel_and_types(hotelname, types)
+def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
+	placesRequest = get_places_by_hotellocationid_types_radius(locationid, types, radius)
 	if placesRequest.get() is None:
 		dbPlace = DBPlace()
-		dbPlace.hotelname = str(hotelname)
-		dbPlace.types = str(types)
+		dbPlace.locationid = locationid
+		dbPlace.types = types
+		dbPlace.radius = int(radius)
 		dbPlace.places = db.Text(places, encoding='utf-8')
 		dbPlace.put()
 
@@ -598,9 +601,11 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		placesURL = "https://maps.googleapis.com/maps/api/place/search/json?%s"
 		
 		types = self.request.get('types')
+		radius = self.request.get('radius')
+		
 		urlArgs = dict()
 		urlArgs['location'] = self.request.get('location')
-		urlArgs['radius'] = self.request.get('radius')
+		urlArgs['radius'] = radius
 		urlArgs['types'] = types
 		urlArgs['name'] = self.request.get('name')
 		urlArgs['key'] = config_properties.get('Google', 'places_api_key')
@@ -608,20 +613,21 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		
 		urlAgrsEncoded = urllib.urlencode(urlArgs)
 		
-		hotelname = self.request.get('hotelname')
+		locationid = self.request.get('locationid')
 		
-		placesData = get_places_by_hotel_and_types(hotelname, types)
+		placesData = get_places_by_hotellocationid_types_radius(locationid, types, radius)
 		if placesData.get() is not None:
 			logging.info("Retrieving PLACES from datastore")
 			jsonResponse = None
 			for data in placesData:				
 				jsonResponse = data.places
 			self.response.out.write(jsonResponse)
-		else:		
+		else:
+			logging.info("REQUESTING PLACES from Google")   	
 			try:
 				result = urllib.urlopen(placesURL % urlAgrsEncoded)
 				jsonResponse = result.read()
-				put_places_by_hotel_and_types(hotelname, types, jsonResponse)
+				put_places_by_hotellocationid_and_types(locationid, types, jsonResponse, radius)
 				self.response.out.write(jsonResponse)
 			except urllib2.URLError, e:
 				logging.info("GooglePlacesHandler : urllib2 error") 
