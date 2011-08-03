@@ -60,6 +60,7 @@ RIA.Experience = new Class({
 			"resize": this.onWindowResize.bind(this)
 		});
 		
+		/*
 		this._form.getElements("input").addEvents({
 			"focus": function(e) {      
 				this.removeHotelNavEventListeners();
@@ -68,6 +69,7 @@ RIA.Experience = new Class({
 				this.addHotelNavEventListeners();
 			}.bind(this)
 		});
+		*/
 		
 		this.destination.addEvents({
 			"keydown": this.adjustInputStyles.bind(this)
@@ -154,6 +156,7 @@ RIA.Experience = new Class({
 		this.fbDialogSend();
 	},
 	addHotelNavEventListeners: function() {
+		Log.info("addHotelNavEventListeners")
 		this.hotelNavigationBind = this.hotelNavigation.bind(this)
 		document.addEvents({
 			"keyup":this.hotelNavigationBind 
@@ -174,6 +177,7 @@ RIA.Experience = new Class({
 
 	},
 	removeHotelNavEventListeners: function() {
+		Log.info("removeHotelNavEventListeners")
 		document.removeEvents({
 			"keyup":this.hotelNavigationBind 
 		});
@@ -282,7 +286,8 @@ RIA.Experience = new Class({
 		var hotelResults = this.setCurrentHotel(hotel);
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
-	getHotels: function() {
+	getHotels: function() { 
+		Log.info("getHotels : ")
 		this.removeHotelNavEventListeners();
 	},
 	gotHotels: function(destination) {    
