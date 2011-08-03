@@ -24,9 +24,10 @@ requestRestApi = r"/(.*)/(xml|json)"
 requestDestination = r"/(.*)"
 requestAjaxAPI = "/ajax"
 requestGooglePlaces = "/places"
+requestGeoCode = "/geocode"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 
 #logging.info(memcache.get_stats())
 
@@ -143,6 +144,45 @@ def put_hotels_by_destination(destination, data):
 			dbHotel = DBHotel(name = hotel['Name'], price = float(hotel['Price']), address = hotel['Address'], phone = hotel['Phone'], destination = destination, index = index)
 			dbHotel.put()                                                                                                                                               
 			index += 1
+
+"""
+Save Places data by hotel and types
+"""
+class DBPlace(db.Model):
+	hotelname = db.StringProperty()
+	types = db.StringProperty()
+	places = db.TextProperty()
+	
+def get_places_by_hotel_and_types(hotelname, types):
+	resultset = DBPlace.gql("WHERE hotelname = '"+hotelname+"' AND types = '"+types+"'")
+	return resultset
+	
+def put_places_by_hotel_and_types(hotelname, types, places):
+	placesRequest = get_places_by_hotel_and_types(hotelname, types)
+	if placesRequest.get() is None:
+		dbPlace = DBPlace()
+		dbPlace.hotelname = str(hotelname)
+		dbPlace.types = str(types)
+		dbPlace.places = db.Text(places, encoding='utf-8')
+		dbPlace.put()
+
+"""
+Save LatLng against a Hotel
+"""                        
+def get_hotel_by_name_and_destination(hotelName, destination):
+	resultset = DBHotel.gql("WHERE name = '"+hotelName+"' AND destination = '"+destination+"'")
+	return resultset                                  
+	
+def put_latlng_by_hotel_name_and_destination(hotelname, destination, lat, lng):
+	hotelRequest = get_hotel_by_name_and_destination(hotelname, destination)   
+	if hotelRequest.get() is not None: 
+		logging.info("Found hotel "+hotelname+" now assigning latlng")
+		for data in hotelRequest:
+			data.latlng = db.GeoPt(lat,lng)
+			data.put()
+		return "true"
+	else:
+		return "false"
 		
 """ Use with Live Kapow Service - Handle an RPC result instance, for Flights """
 def handle_result_ajax(rpc, destination, info_type, response):
@@ -557,24 +597,45 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		
 		placesURL = "https://maps.googleapis.com/maps/api/place/search/json?%s"
 		
+		types = self.request.get('types')
 		urlArgs = dict()
 		urlArgs['location'] = self.request.get('location')
 		urlArgs['radius'] = self.request.get('radius')
-		urlArgs['types'] = self.request.get('types')
+		urlArgs['types'] = types
 		urlArgs['name'] = self.request.get('name')
 		urlArgs['key'] = config_properties.get('Google', 'places_api_key')
 		urlArgs['sensor'] = config_properties.get('Google', 'places_sensor')
 		
 		urlAgrsEncoded = urllib.urlencode(urlArgs)
 		
-		try:
-			result = urllib.urlopen(placesURL % urlAgrsEncoded)
-			jsonResponse = result.read()
-			#logging.info(jsonResponse)
+		hotelname = self.request.get('hotelname')
+		
+		placesData = get_places_by_hotel_and_types(hotelname, types)
+		if placesData.get() is not None:
+			logging.info("Retrieving PLACES from datastore")
+			jsonResponse = None
+			for data in placesData:				
+				jsonResponse = data.places
 			self.response.out.write(jsonResponse)
-		except urllib2.URLError, e:
-			logging.info("GooglePlacesHandler : urllib2 error")
+		else:		
+			try:
+				result = urllib.urlopen(placesURL % urlAgrsEncoded)
+				jsonResponse = result.read()
+				put_places_by_hotel_and_types(hotelname, types, jsonResponse)
+				self.response.out.write(jsonResponse)
+			except urllib2.URLError, e:
+				logging.info("GooglePlacesHandler : urllib2 error") 
+	def post(self):		
+		logging.info(self.request.POST.get("hotelname")) 
+		logging.info(self.request.POST.get("types"))
+		logging.info(self.request.POST.get("places"))
+		put_places_by_hotel_and_types(self.request.POST.get("hotelname"), self.request.POST.get("types"), self.request.POST.get("places"))
 
+class GeoCodeHandler(webapp.RequestHandler):
+	def post(self):
+		result = put_latlng_by_hotel_name_and_destination(self.request.POST.get("hotelname"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
+		return result
+				
 # Tiny URL API
 #http://tinyurl.com/api-create.php?url=http://scripting.com/ 		
 
@@ -583,6 +644,7 @@ application = webapp.WSGIApplication([
 		(requestHome, HomeHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, GooglePlacesHandler),
+		(requestGeoCode, GeoCodeHandler),
 		(requestDestination, ExperienceHandler)		
     ],debug=True)
 

@@ -136,7 +136,7 @@ RIA.GooglePlaces = new Class({
 	},
 	requestPlaces: function(locationLatLng, radiusInMeters, types, name) { 
 		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {
-			this.requestCityBreak = new Request.JSON({
+			this.requestPlacesSearch = new Request.JSON({
 				method:"GET",
 				secure:true,
 				url:this.options.places.serviceURL,
@@ -145,7 +145,7 @@ RIA.GooglePlaces = new Class({
 					this.jsonRequestSuccess(responseJSON, responseText, types)
 				}.bind(this),
 				onError: this.jsonRequestFailure.bind(this)
-			}).send("location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
+			}).send("hotelname="+this.hotelCollection[this.hotelIndex].get("data-name")+"&location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
         } else {
 	        this.setPlacesMarkers(types);
 		}
@@ -160,9 +160,7 @@ RIA.GooglePlaces = new Class({
 		}
 		
 		if(responseJSON.status == "OK" && responseJSON.results.length > 0) {
-			
 			this.hotelCollection[this.hotelIndex].places[types] = responseJSON;
-			
 			this.setPlacesMarkers(types);
 		} else {
 			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}});
@@ -170,9 +168,7 @@ RIA.GooglePlaces = new Class({
 		}
 	}, 
 	updateLabelCount: function(types) {                                                  
-		Log.info(this.hotelCollection[this.hotelIndex].places[types])
 		var element = document.getElement("input[data-value="+types+"]"), label, count = this.hotelCollection[this.hotelIndex].places[types] ? this.hotelCollection[this.hotelIndex].places[types].results.length : 0;
-		Log.info("types: "+types);
 		if(element) {
 			label = element.getNext("label");                                  
 			label.set("text", label.get("data-text")+" ("+count+")");
@@ -301,6 +297,33 @@ RIA.GooglePlaces = new Class({
 				this.requestPlaces(RIA.currentLocation, this.options.places.searchRadius, input.get("value"), null);
 			}				
 		},this);
+		
+	},
+	storePlacesSearch: function(hotel, types, placesJsonText) {
+		/*
+		* 	@description:
+		*		Manually dispatch Places data of a hotel and type to the datastore
+		*	@notes:
+		*		This is not used, as the Places data is stored via the webapp after the places response is received
+		*/
+		
+		this.requestPlacesPost = new Request({
+			method:"POST",
+			url:this.options.places.serviceURL,
+			data:'hotelname='+hotel.get("data-name")+'&types='+types+'&places='+placesJsonText,
+			onRequest: function(e) {
+				Log.info("storePlacesSearch : onRequest");
+			},
+			onSuccess: function(a, b) {
+				Log.info("storePlacesSearch : onSuccess");
+				Log.info(a);
+				Log.info(b)
+			},
+			onFailure: function(e) {
+				Log.info("storePlacesSearch : onFailure");
+				Log.info(e)
+			}
+		}).send();
 		
 	}   
 });

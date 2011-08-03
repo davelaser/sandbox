@@ -60,9 +60,19 @@ RIA.Experience = new Class({
 			"resize": this.onWindowResize.bind(this)
 		});
 		
+		this._form.getElements("input").addEvents({
+			"focus": function(e) {      
+				this.removeHotelNavEventListeners();
+			}.bind(this),
+			"blur": function(e) {      
+				this.addHotelNavEventListeners();
+			}.bind(this)
+		});
+		
 		this.destination.addEvents({
 			"keydown": this.adjustInputStyles.bind(this)
-		});   
+		});                                             
+		
 		this.durationOfStay.addEvents({
 			"keydown": this.adjustInputStyles.bind(this)
 		}); 
@@ -288,15 +298,16 @@ RIA.Experience = new Class({
 		
 		this.hotels.removeClass("waiting");
 		this.hotels.getElement(".results").morph({"opacity":1});
-		RIA.currentDestination = encodeURIComponent(destination);
-		//Log.info("RIA.currentDestination is now "+RIA.currentDestination+", "+RIA.currentLocation);
-		
 		
 		RIA.bookmarks = new Object();                                         
 		this.shareMyBookmarks(false);
 		
 		
-		if(this.hotelCollection.length > 0) { 
+		if(this.hotelCollection.length > 0) {
+			
+			RIA.currentDestination = this.hotelCollection[0].get("data-destination");
+			Log.info("RIA.currentDestination is now "+RIA.currentDestination);
+					
 			this.addHotelNavEventListeners();
 			this.createHotelNav();
 			                                  

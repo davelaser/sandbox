@@ -1,6 +1,7 @@
 RIA.MapStreetView = new Class({
 	Implements:[RIA.Gradient],
 	options:{
+		geocodeURL:"/geocode",
 		geolocation:null, 
 		bookmarks:null,
 		maptype:"map",
@@ -135,6 +136,13 @@ RIA.MapStreetView = new Class({
 		
 		//this.setMapZoom(13);
 		
+		
+		if(hotel.get("data-latlng") != "None") {
+			dataLatLng = hotel.get("data-latlng").split(",");
+			latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
+			Log.info("setStreetview() : got latLng from hotel attribute");
+			hotel.store("geolocation", latLng); 
+		}
 		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
 		if(hotel.retrieve("geolocation")) {
 			this.gotGeolocation(hotel, hotel.retrieve("geolocation"));
@@ -351,8 +359,16 @@ RIA.MapStreetView = new Class({
 		this.createHotelMarkerColors();
 		
 		 
-		var counter = 500, delay, geo;
+		var counter = 500, delay, geo, latLng, dataLatLng;
 		hotels.each(function(hotel, index) {
+			
+			if(hotel.get("data-latlng") != "None") {
+				dataLatLng = hotel.get("data-latlng").split(",");
+				latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
+				Log.info("GOT latLng FROM HOTEL HTML");
+				hotel.store("geolocation", latLng); 
+			}
+			
 			geo = hotel.retrieve("geolocation");
 			error = hotel.retrieve("geolocation:error");
 			
@@ -361,7 +377,7 @@ RIA.MapStreetView = new Class({
 				delay = counter+=500;              
 				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
 			} else {
-				Log.info("setHotelMarker() : retrieved gelocation for Hotel : "+hotel.get("data-name"));
+				Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
 				// If the hotel does not already have a bookmark
 				if(hotel.bookmark == null) {
 					this.addHotelMarker(hotel, geo);
@@ -484,6 +500,8 @@ RIA.MapStreetView = new Class({
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
 				
+				this.storeGeocodeByHotel(hotel.get("data-name"), latLng);
+				
 				// Store the LatLng against the Hotel Element
 				hotel.store("geolocation", latLng);
 				if(callback) {
@@ -568,5 +586,22 @@ RIA.MapStreetView = new Class({
 				RIA.panoramioLayer.setMap(null);
 			}
 		}		
+	},
+	storeGeocodeByHotel: function(hotelName, latLng) {
+		
+		this.requestGeocodePost = new Request({
+			method:"POST",
+			url:this.options.geocodeURL,
+			data:'hotelname='+hotelName+'&destination='+RIA.currentDestination+'&lat='+latLng.lat()+'&lng='+latLng.lng(),
+			onRequest: function(e) {
+				//Log.info("storeGeocodeByHotel : onRequest");
+			},
+			onSuccess: function(a, b) {
+				//Log.info("storeGeocodeByHotel : onSuccess");
+			},
+			onFailure: function(e) {
+				Log.info("storeGeocodeByHotel : onFailure");
+			}
+		}).send();
 	}
 });
