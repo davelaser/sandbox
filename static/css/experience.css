@@ -323,20 +323,21 @@ nav#hotel-list a.active {
 	-webkit-box-shadow: 0px 3px 8px white inset;
 }   
 .hotel h3.name {
+	line-height:35px;
 	font-size:2em;
 } 
-.hotel h3.name span {         
+.hotel h3.name span {
 	display:inline-block;  
 	margin:0 5px 0 0;
 	text-align:center;
-	line-height:30px;
 	background:#EC008C;
 	color:#fff;
-	width:30px;
-	height:30px;
+	width:24px;
+	height:24px;
 	font-size:0.75em;
 	border-radius:20px;
 	-webkit-border-radius:20px;
+	line-height:24px;
 }
 #hotels.streetview .hotel h3.name {
 	font-size:1.6em;
@@ -419,17 +420,21 @@ nav#hotel-list a.active {
 #map-wrapper {
 	padding:5px;
 	background:rgba(0,0,0,0.3);
-	-webkit-border-bottom-left-radius:20px;
-	width:300px;
+	width:310px;
 	height:300px;
 	position:absolute;
 	right:0px;
 	top:0px;
 	z-index:1;   
+	border-radius:0 0 0 10px;
+	-webkit-border-radius:0 0 0 10px;
+	-moz-border-radius:0 0 0 10px;
+	-o-border-radius:0 0 0 10px;
+	-ms-border-radius:0 0 0 10px;
 }    
 
 #map_canvas {	
-	width:300px;
+	width:310px;
 	height:300px;
 	position:absolute;
 	right:0px;
@@ -480,15 +485,6 @@ nav#hotel-list a.active {
 	float:right;
 }
   
-#hotels.minimized h3.name span {
-	line-height:30px;
-	width:30px;
-	height:30px;
-	font-size:0.7em;
-	border-radius:20px;
-	-webkit-border-radius:20px;	
-}
-
 /*
 * 	Horizontal Hotels Navigation
 */
@@ -536,6 +532,8 @@ nav#hotel-list a.active {
 	height:20px;
 	background:#fff;
 	height:0;
+	
+	-webkit-border-radius:0 0 10px 10px;
 }
 #bookmarks a.url {
 	display:block;
@@ -554,7 +552,10 @@ nav#hotel-list a.active {
 	left:130px;
 	top:50px;
 	z-index:11; 
-	-webkit-border-radius:20px;
+	-moz-border-radius:20px;
+	-webkit-border-radius:10px;
+	-o-border-radius:20px;
+	-ms-border-radius:20px;
 }  
 
 #places header {
@@ -564,7 +565,10 @@ nav#hotel-list a.active {
 #places div {
 	padding:10px; 
 	width:170px; 
-	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:5px;
+	-o-border-radius:10px;
+	-ms-border-radius:10px;
 	background:#fff;
 }
 #places h2 {
@@ -574,8 +578,12 @@ nav#hotel-list a.active {
 #places fieldset {        
 	padding:10px;
 	margin:0 0 10px 0; 
-	border:1px solid #000;
+	border:1px solid #000; 
+	border-radius:5px;
+	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
+	-o-border-radius:5px;
+	-ms-border-radius:5px;
 }
 #places h3 { 
 	color:#EC008C;

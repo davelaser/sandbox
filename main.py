@@ -26,7 +26,7 @@ requestAjaxAPI = "/ajax"
 requestGooglePlaces = "/places"
 
 # TODO: remove the memcache flush
-#memcache.flush_all()
+memcache.flush_all()
 
 #logging.info(memcache.get_stats())
 
@@ -94,7 +94,7 @@ config_properties = loadConfigProperties()
 class DBCityDestination(db.Model):
 	timestamp = db.DateTimeProperty(auto_now_add=True)
 	name = db.StringProperty(required=True)
-	hotels = db.TextProperty(required=True)
+	hotels = db.ListProperty(str, required=True)
 	
 """
 Get destination content to the datastore
@@ -117,6 +117,33 @@ def kapowAPI(request):
 	return codecs.open(os.path.join(os.path.dirname(__file__), request))
 
 
+"""
+Save Hotel data
+"""
+class DBHotel(db.Model):
+	timestamp = db.DateTimeProperty(auto_now_add=True)
+	name = db.StringProperty(required=True)
+	price = db.FloatProperty(required=True)
+	address = db.PostalAddressProperty(required=True)
+	phone = db.PhoneNumberProperty()
+	category = db.CategoryProperty()
+	latlng = db.GeoPtProperty()
+	index = db.IntegerProperty(required=True)
+	destination = db.StringProperty(required=True)
+	
+def get_hotels_by_destination(destination):
+	resultset = DBHotel.gql("WHERE destination = '"+destination+"'")
+	return resultset
+			
+def put_hotels_by_destination(destination, data): 
+	hotels = get_hotels_by_destination(destination)
+	if hotels.get() is None:
+		index = 0
+		for hotel in data:
+			dbHotel = DBHotel(name = hotel['Name'], price = float(hotel['Price']), address = hotel['Address'], phone = hotel['Phone'], destination = destination, index = index)
+			dbHotel.put()                                                                                                                                               
+			index += 1
+		
 """ Use with Live Kapow Service - Handle an RPC result instance, for Flights """
 def handle_result_ajax(rpc, destination, info_type, response):
 	result = rpc.get_result()
@@ -151,11 +178,21 @@ def handle_result_ajax_v3(rpc, destination, info_type, response):
 			global_mashup['all_flights'] = f[0:-2]
 		elif info_type =="hotels":
 			# Put the response body content stringXML into the data store
-			put_datastore_by_destination(destination, result.content)
-			replaced = memcache.replace(destination,f)
-			if replaced is False:
-				memcache.add(destination,f)
-			global_mashup['hotels'] = f
+			#put_datastore_by_destination(destination, f)
+			put_hotels_by_destination(destination,f)
+			hotelsData = get_hotels_by_destination(destination)
+			if hotelsData.get() is not None:
+				logging.info("Retrieving from datastore")
+				hotelsList = list()
+				for hotel in hotelsData:
+					hotelsList.append(hotel)
+
+				replaced = memcache.replace(destination,hotelsList)
+				
+				if replaced is False:
+					memcache.add(destination,hotelsList)     
+					
+				global_mashup['hotels'] = hotelsList
 		elif info_type == "city-break":
 			global_mashup['city_break'] = f[0]
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
@@ -493,17 +530,22 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			self.response.out.write(template.render(path, global_mashup))
 		else:
-			hotelsData = get_datastore_by_destination(destination)
+			#hotelsData = get_datastore_by_destination(destination)
+			hotelsData = get_hotels_by_destination(destination)
 			if hotelsData.get() is not None:
 				logging.info("Retrieving from datastore")
-				for data in hotelsData:
-					f = parseXMLLive(data.hotels)
-					replaced = memcache.replace(destination,f)
-					if replaced is False:
-						memcache.add(destination,f)
-					global_mashup['hotels'] = f
-					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
-					self.response.out.write(template.render(path, global_mashup))
+				hotelsList = list()
+				for hotel in hotelsData:
+					hotelsList.append(hotel)
+
+				replaced = memcache.replace(destination,hotelsList)
+				
+				if replaced is False:
+					memcache.add(destination,hotelsList)     
+					
+				global_mashup['hotels'] = hotelsList
+				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
+				self.response.out.write(template.render(path, global_mashup))
 			else:
 				logging.info("NOT Got hotels from memcache or datastore")
 				mashup = kapowAPILiveRPC_v3(destination, info_type, self.response)

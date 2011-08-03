@@ -13,6 +13,7 @@ RIA.Experience = new Class({
 		this.bookmarks = document.id("bookmarks");
 		this.bookmarks.store("viewstate", "closed");
 		
+		this.content = document.id("content");
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
 		this.destination.store("styles:width:orig", this.destination.getStyle("width").toInt());
@@ -392,10 +393,12 @@ RIA.Experience = new Class({
 				this.bookmarks.morph({"height":"55px", "top":"60px"});
 				this._form.morph({"top":"140px", "paddingTop":"20px"});			
 				this.bookmarks.store("viewstate", "open");
+				this.content.morph({"opacity":0});
 			} else {
 				this.bookmarks.morph({"height":"20px", "top":"-20px"});
 				this._form.morph({"top":"40px", "paddingTop":"30px"});
 				this.bookmarks.store("viewstate", "closed");
+				this.content.morph({"opacity":1});
 			}
 		}
 	}

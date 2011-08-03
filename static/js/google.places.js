@@ -200,8 +200,6 @@ RIA.GooglePlaces = new Class({
 		*		place[Object](returned from a Places API request)
 		*		latLng[Object(LatLng)]
 		*/ 
-        Log.info("Creating marker for "+place.name);
-
    	 	var mapIcon; 
 
 		if(place.types.length > 0 && RIA.MarkerIcons[place.types[0]]) {

@@ -1,12 +1,12 @@
 {% for hotel in hotels %}
-<div class="hotel" data-locationid="{{ destination }}-{{ forloop.counter }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.Address}}" data-name="{{hotel.Name}}" data-price="&#163;{{hotel.Price|safe}}">						
+<div class="hotel" data-locationid="{{ destination }}-{{ forloop.counter }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name}}" data-price="&#163;{{hotel.price|safe}}">						
 	<header>
 		{% if hotel.thumbnail %}
 			{{ hotel.thumbnail|safe }}
 		{% endif %}
-		<h3 class="name"><span>{{ forloop.counter }}</span>{{hotel.Name|safe}}</h3>
+		<h3 class="name"><span>{{ forloop.counter }}</span>{{hotel.name|safe}}</h3>
 		{% comment %}<button id="hotel-drop-pin-{{ forloop.counter }}" type="submit" value="" class="drop-pin button">Bookmark</button>{% endcomment %}
-		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.Name }}"/></a>
+		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.name }}"/></a>
     </header>
     <div class="rating">
 		{{ hotel.rating }}
@@ -52,11 +52,11 @@
 		</p>
 		<dl>
 			<dt>Address:<dt>
-			<dd class="address">{{hotel.Address|safe}}<dd>
+			<dd class="address">{{hotel.address|safe}}<dd>
 			<dt>Phone:<dt>
 			<dd>{{hotel.phone}}<dd>
 			<dt>Price:<dt>
-			<dd>&#163;{{hotel.Price|safe}}<dd>
+			<dd>&#163;{{hotel.price|safe}}<dd>
 		</dl>
 	</div>
 </div>      
