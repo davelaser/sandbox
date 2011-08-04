@@ -146,12 +146,13 @@
 		RIA.currentDestination = "{{ destination }}";
 		// Go to Times Square
 	   	RIA.InitExperience = new RIA.Experience({
-			geolocation:null, 
+			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
 			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
 			maptype:"{{ maptype|default:'streetview' }}",
 			contenttype:"{{ contenttype|default:'maximized' }}"
 		});
-	    RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
+		RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
+		
 		(function() {
 			var e = document.createElement('script');
 			e.type = 'text/javascript';

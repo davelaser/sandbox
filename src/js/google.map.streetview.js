@@ -128,10 +128,11 @@ RIA.MapStreetView = new Class({
 		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
 		//RIA.panoramioLayer.setTag("times square");
 		
-		
+		   
 		// Now we have initialized the Map, start the Destination request 
-		RIA.InitAjaxSubmit._submit();
-        
+		if(RIA.currentDestination != "" || RIA.InitAjaxSubmit.price.get("value") != "") {
+	    	RIA.InitAjaxSubmit._submit();
+		}
 		
  
 		this.toggleMapFullScreen(null);	

@@ -11,6 +11,8 @@
 		<label for="arrival_date">arriving</label>
 		<input id="arrival_date" type="date" value="{{ arrival_date }}" />
 		<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />
+		<label for="priceMax">for less than &#163;</label>
+		<input id="priceMax" type="number" min="10" max="10000" step="10" value="{{ price }}" />
 		<button id="submit_travel_details" type="submit" class="button">Start my story</button>
 		<fieldset id="room-information">               
 			(<label for="rooms">I need</label>

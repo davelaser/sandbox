@@ -145,7 +145,8 @@ nav#hotel-list a.active {
 #hotels.minimized .details,
 #hotels.minimized nav#hotel-list {
 	display:none;
-}
+}  
+
 
 #hotels.minimized button {
 	display:none;

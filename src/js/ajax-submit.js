@@ -8,6 +8,12 @@ RIA.AjaxSubmit = new Class({
 		this.content = document.id("content");
 		this.ajaxForm = document.id("start-your-story");
 		this.destination = document.id("destination");
+		this.price = document.id("priceMax");
+		
+		RIA.currentPriceMax = this.price.get("value");
+		
+		Log.info("RIA.AjaxSubmit : RIA.currentPriceMax: "+RIA.currentPriceMax);
+		
 		this.flights = document.id("flights");
 		this.hotels = document.id("hotels");
 		this.cityBreak = document.id("city-break");
@@ -29,17 +35,19 @@ RIA.AjaxSubmit = new Class({
 			"submit": function(e) {  
 				if(e) e.preventDefault();
 				this.updateDestinationName(this.destination.get("value"));
-				if(this.destination.get("value") != "") {
-					this.requestData(this.destination.get("value"));
-				}				
+				//if(this.destination.get("value") != "") {
+					this.requestData();
+				//}				
 			}.bind(this)
 		});
 	},
-	requestData: function(destination) {
+	requestData: function() {
 		/*
 		* 	@description:
 		*		Request INDIVIDUAL updates to content buckets
-		*/                            
+		*/ 
+		var destination = this.destination.get("value");                           
+		
 		if(typeof(twitterSearch) != "undefined") {
 			twitterSearch.stop();         
 			twitterSearch.search = destination+" hotels OR restaurants since:2011-07-16 :)";
@@ -88,7 +96,7 @@ RIA.AjaxSubmit = new Class({
 			url:"/ajax",
 			evalScripts:true,
 			update:this.hotels.getElement(".results"),
-			data:'destination='+destination+'&info_type=hotels',
+			data:'destination='+destination+'&price='+this.price.get("value")+'&info_type=hotels',
 			onRequest: this.requestStart.pass([this.hotels],this),
 			onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 			onFailure: this.requestFailure.bind(this)

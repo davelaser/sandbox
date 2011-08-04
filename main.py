@@ -146,6 +146,23 @@ def put_hotels_by_destination(destination, data):
 			dbHotel.put()                                                                                                                                               
 			counter += 1
 
+def get_hotels_by_destination_and_price(destination, price):
+	queryString = ""
+	
+	if len(destination) != 0:
+		queryString += "WHERE destination = '"+destination+"'"
+		if price is not None:
+			queryString += " AND price <= "+str(price)
+	else:
+		if price is not None:
+			queryString += "WHERE price <= "+str(price)
+		
+	queryString += " ORDER BY price"
+	logging.info(queryString)
+	resultset = DBHotel.gql(queryString)
+	return resultset
+
+
 def get_hotels_order_by_price_cheapest():
 	resultset = DBHotel.gql("ORDER BY price ASC LIMIT 30")
 	return resultset
@@ -219,7 +236,7 @@ def handle_result_ajax(rpc, destination, info_type, response):
 		response.out.write(template.render(path, global_mashup)) 
 		
 """ Use with Live Kapow Service - Handle an RPC result instance, for Flights """
-def handle_result_ajax_v3(rpc, destination, info_type, response):
+def handle_result_ajax_v3(rpc, destination, price, info_type, response):
 	result = rpc.get_result()
 	if result.status_code == 200:
 		logging.info("RPC response SUCCESS code: 200")
@@ -232,7 +249,10 @@ def handle_result_ajax_v3(rpc, destination, info_type, response):
 			# Put the response body content stringXML into the data store
 			#put_datastore_by_destination(destination, f)
 			put_hotels_by_destination(destination,f)
-			hotelsData = get_hotels_by_destination(destination)
+			
+			#hotelsData = get_hotels_by_destination(destination)
+			
+			hotelsData = get_hotels_by_destination_and_price(destination, price)
 			if hotelsData.get() is not None:
 				logging.info("Retrieving from datastore")
 				hotelsList = list()
@@ -277,8 +297,8 @@ def create_callback_ajax(rpc, destination, info_type, response):
 	return lambda: handle_result_ajax(rpc, destination, info_type, response)		
 
 """ Use with Live Kapow Service - Use a helper function to define the scope of the callback, for Ajax Request Handler """
-def create_callback_ajax_v3(rpc, destination, info_type, response):
-	return lambda: handle_result_ajax_v3(rpc, destination, info_type, response)		
+def create_callback_ajax_v3(rpc, destination, price, info_type, response):
+	return lambda: handle_result_ajax_v3(rpc, destination, price, info_type, response)		
 
 
 """ Use with Live Kapow Service - Use a helper function to define the scope of the callback, for Mashup Request Handler """
@@ -348,7 +368,7 @@ def kapowAPILiveRPC(destination, info_type, response):
 	rpc.wait()
 
 """ Use with Live Kapow Service - Asynchronous mutliple RPC Requests """
-def kapowAPILiveRPC_v3(destination, info_type, response):
+def kapowAPILiveRPC_v3(destination, price, info_type, response):
 	url = None
 	if info_type == "flights":
 		url = get_flights(destination)
@@ -357,7 +377,7 @@ def kapowAPILiveRPC_v3(destination, info_type, response):
 	if info_type == "city-break":
 	    url = get_citybreak(destination)
 	rpc = urlfetch.create_rpc(1000)
-	rpc.callback = create_callback_ajax_v3(rpc, destination, info_type, response)
+	rpc.callback = create_callback_ajax_v3(rpc, destination, price, info_type, response)
 	urlfetch.make_fetch_call(rpc, url, "GET")
 	rpc.wait()
 
@@ -488,13 +508,17 @@ class HomeHandler(webapp.RequestHandler):
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		destination = self.request.get("destination")
+		price = self.request.get("priceMax")
+		logging.info(price)
+		if len(price) != 0:
+			price = float(price)
 		destinationDisplayName = destination 
 		bookmarks = self.request.get("bookmarks").split(',')
 		maptype = self.request.get("maptype") 
 		contenttype = self.request.get("contenttype")
 		if destination_display_names.has_key(destination):
 			destinationDisplayName = destination_display_names[destination]
-		args = dict(destinationDisplayName=destinationDisplayName, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype)
+		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -549,8 +573,11 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	return True
   def post(self):
 	destination = self.request.POST.get("destination")
-	
-	
+	price = self.request.POST.get("priceMax")
+	if price is not None:
+		price = float(price)
+		
+	global_mashup['price'] = price
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()
@@ -589,9 +616,8 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		elif destination == "expensive":
 			hotelsData = get_hotels_order_by_price_expensive()		
 		else:
-			hotelsData = get_hotels_by_destination(destination)
-		
-		#hotelsData = get_hotels_by_destination(destination)
+			#hotelsData = get_hotels_by_destination(destination)
+		    hotelsData = get_hotels_by_destination_and_price(destination, price)
 		
 		if hotelsData.get() is not None:
 			logging.info("Retrieving from datastore")
@@ -609,7 +635,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			self.response.out.write(template.render(path, global_mashup))
 		else:
 			logging.info("NOT Got hotels from memcache or datastore")
-			mashup = kapowAPILiveRPC_v3(destination, info_type, self.response)
+			mashup = kapowAPILiveRPC_v3(destination, price, info_type, self.response)
    	
 	return True
 

@@ -381,8 +381,11 @@ RIA.Experience = new Class({
 			this.hotels.addClass("minimized");				
 		}
 	},
-	shareMyBookmarks: function(show) {
-		var shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+RIA.currentDestination+"&bookmarks=", index = 0;
+	shareMyBookmarks: function(show) {   
+		
+		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
+		                                                                       
+		var shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
 		Object.each(RIA.bookmarks, function(value, key) {                
 			if(index == 0) {
 				shareURL+= key;
@@ -405,7 +408,7 @@ RIA.Experience = new Class({
 				this.content.morph({"opacity":0});
 			} else {
 				this.bookmarks.morph({"height":"0px", "top":"-20px"});
-				this._form.morph({"top":"40px", "paddingTop":"30px"});
+				this._form.morph({"top":"40px", "paddingTop":"40px"});
 				this.bookmarks.store("viewstate", "closed");
 				this.content.morph({"opacity":1});
 			}
