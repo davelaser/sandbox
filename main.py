@@ -149,7 +149,7 @@ def put_hotels_by_destination(destination, data):
 def get_hotels_by_destination_and_price(destination, price):
 	queryString = ""
 	
-	if len(destination) != 0:
+	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"
 		if price is not None:
 			queryString += " AND price <= "+str(price)
@@ -251,7 +251,6 @@ def handle_result_ajax_v3(rpc, destination, price, info_type, response):
 			put_hotels_by_destination(destination,f)
 			
 			#hotelsData = get_hotels_by_destination(destination)
-			
 			hotelsData = get_hotels_by_destination_and_price(destination, price)
 			if hotelsData.get() is not None:
 				logging.info("Retrieving from datastore")
@@ -509,9 +508,11 @@ class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
-		logging.info(price)
-		if len(price) != 0:
+		
+		if len(price) > 0:
 			price = float(price)
+			
+		logging.info(price)
 		destinationDisplayName = destination 
 		bookmarks = self.request.get("bookmarks").split(',')
 		maptype = self.request.get("maptype") 
@@ -574,10 +575,12 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
   def post(self):
 	destination = self.request.POST.get("destination")
 	price = self.request.POST.get("priceMax")
-	if price is not None:
+	if price is not None and len(price) > 0:
 		price = float(price)
-		
+    
+    
 	global_mashup['price'] = price
+	logging.info(price)
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()

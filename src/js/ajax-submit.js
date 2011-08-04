@@ -96,7 +96,7 @@ RIA.AjaxSubmit = new Class({
 			url:"/ajax",
 			evalScripts:true,
 			update:this.hotels.getElement(".results"),
-			data:'destination='+destination+'&price='+this.price.get("value")+'&info_type=hotels',
+			data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels',
 			onRequest: this.requestStart.pass([this.hotels],this),
 			onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 			onFailure: this.requestFailure.bind(this)
