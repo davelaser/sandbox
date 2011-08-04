@@ -1,3 +1,165 @@
+#hotels { 
+	background:none;
+	position:relative;
+	width:955px;
+	padding:10px;
+	
+	background:rgba(0,0,0,0.2);
+	border-radius:20px;
+	-moz-border-radius:20px;
+	-webkit-border-radius:10px;
+	-o-border-radius:20px;
+	-ms-border-radius:20px;
+}    
+
+#hotels h2 {
+	display:none;
+}
+
+#hotels .results-wrapper {
+	background:#fff;
+	width:845px;
+	height:100%;
+	
+	margin-left:55px;
+	overflow:hidden;  
+	
+	-moz-box-shadow:0px 3px 8px white inset;
+	-webkit-box-shadow:40px 40px 40px #fff inset;
+	
+}
+#hotels .results {
+	width:100%;
+}                   
+
+#hotels nav.controls {
+	position:absolute;
+	top:10px;
+	right:10px;
+}    
+              
+nav#hotel-list {
+	padding:20px;
+	overflow:hidden;
+}
+nav#hotel-list a {
+	display:block;
+	float:left;
+	padding:5px 2px;
+	margin:0 2px 0 0;
+}
+
+nav#hotel-list a.active {
+	background:#EC008C;
+	color:#fff;
+}      
+
+#hotels .details {
+	margin:20px 0 0 0;
+}
+#hotels.streetview .hotel .rating,
+#hotels.streetview .hotel .details,
+#hotels.streetview .hotel .photos {
+	display:none;
+}	
+.hotel {
+	width:815px;
+	display:block;
+	float:left; 
+	padding:20px; 
+}
+                        
+.hotel header {
+	overflow:hidden;
+}
+
+.hotel nav {
+	margin-top:20px;
+} 
+.hotel nav li {
+	display:inline-block;
+	background:#EC008C;
+	padding:10px;
+	color:#fff;
+	
+	border-top-left-radius:10px;
+	border-top-right-radius:10px;
+	-webkit-border-top-left-radius:10px;
+	-webkit-border-top-right-radius:10px;
+	-moz-border-top-left-radius:10px;
+	-moz-border-top-right-radius:10px;
+	-o-border-top-left-radius:10px;
+	-o-border-top-right-radius:10px;
+	-ms-border-top-left-radius:10px;
+	-ms-border-top-right-radius:10px; 
+	
+	-moz-box-shadow: 0px 3px 8px white inset;
+	-webkit-box-shadow: 0px 3px 8px white inset;
+}   
+.hotel h3 {
+	font-size:2em;
+	float:left; 
+	line-height:40px;
+	margin:2px 0 0 0;
+}                    
+
+.hotel h3 span.name {
+	display:inline-block;  
+	margin:0 5px 0 0;
+	text-align:center;
+	background:#000;
+	color:#fff;
+	width:24px;
+	height:24px;
+	font-size:0.75em;
+	border-radius:20px;
+	-webkit-border-radius:20px;
+	-moz-border-radius:20px;
+	-o-border-radius:20px;
+	-ms-border-radius:20px;
+	line-height:24px;
+}
+
+.hotel .photos {
+	float:left;
+	margin:20px 20px 0 0;
+}
+
+
+/*
+*	Minimized
+*/
+#hotels.minimized {
+	height:45px;
+}
+
+#hotels.minimized .hotel {
+	padding:0 20px; 
+}             
+
+#hotels.minimized h2,
+#hotels.minimized .rating,
+#hotels.minimized .photos,
+#hotels.minimized .nearby
+#hotels.minimized .room-and-rates,
+#hotels.minimized .details,
+#hotels.minimized nav#hotel-list {
+	display:none;
+}
+
+#hotels.minimized button {
+	display:none;
+	float:right;
+	margin:8px 0 0 0;
+} 
+
+#hotels.minimized #horizontal a {
+    top:8px;
+}
+#hotels .drop-pin {
+	float:right;
+}
+
 
 
 #background.new-york {

@@ -38,7 +38,7 @@ RIA.Experience = new Class({
 		this.hotelsNav = document.id("hotel-list");
 		
         this.hotels.getElement(".results").set("morph", {
-			duration:400,
+			duration:300,
 			link:"ignore"
 		});
 		                         		
@@ -281,7 +281,6 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() { 
-		Log.info("getHotels : ")
 		this.removeHotelNavEventListeners();
 	},
 	gotHotels: function(destination) {    

@@ -43,11 +43,63 @@ RIA.MapStreetView = new Class({
 			bank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF',
 			atm:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF'
 		}
+		         
+		var star = new google.maps.MarkerImage(RIA.MarkerIcons.star),
+		shoe_store = new google.maps.MarkerImage(RIA.MarkerIcons.shoe_store),
+		food = new google.maps.MarkerImage(RIA.MarkerIcons.food),
+		cafe = new google.maps.MarkerImage(RIA.MarkerIcons.cafe),
+		bar = new google.maps.MarkerImage(RIA.MarkerIcons.bar),
+		restaurant = new google.maps.MarkerImage(RIA.MarkerIcons.restaurant),
+		establishment = new google.maps.MarkerImage(RIA.MarkerIcons.establishment),
+		grocery_or_supermarket = new google.maps.MarkerImage(RIA.MarkerIcons.grocery_or_supermarket),
+		store = new google.maps.MarkerImage(RIA.MarkerIcons.store),
+		meal_delivery = new google.maps.MarkerImage(RIA.MarkerIcons.meal_delivery),
+		meal_takeaway = new google.maps.MarkerImage(RIA.MarkerIcons.meal_takeaway),
+		bakery = new google.maps.MarkerImage(RIA.MarkerIcons.bakery),
+		museum = new google.maps.MarkerImage(RIA.MarkerIcons.museum),
+		park = new google.maps.MarkerImage(RIA.MarkerIcons.park),
+		shopping = new google.maps.MarkerImage(RIA.MarkerIcons.shopping),
+		shoe_store = new google.maps.MarkerImage(RIA.MarkerIcons.shoe_store),
+		book_store = new google.maps.MarkerImage(RIA.MarkerIcons.book_store),
+		clothing_store = new google.maps.MarkerImage(RIA.MarkerIcons.clothing_store),
+		department_store = new google.maps.MarkerImage(RIA.MarkerIcons.department_store),
+		bank = new google.maps.MarkerImage(RIA.MarkerIcons.bank),
+		atm = new google.maps.MarkerImage(RIA.MarkerIcons.atm);
+		
+		RIA.MarkerIconsImages = {
+			star:star,
+			shoe_store:shoe_store,
+			food:food,
+			cafe:cafe,
+			bar:bar,
+			restaurant:restaurant,
+			establishment:establishment,
+			grocery_or_supermarket:grocery_or_supermarket,
+			store:store,
+			meal_delivery:meal_delivery,
+			meal_takeaway:meal_takeaway,
+			bakery:bakery,
+			museum:museum,
+			park:park,
+			shopping:shopping,
+			shoe_store:shoe_store,
+			book_store:book_store,
+			clothing_store:book_store,
+			department_store:department_store,
+			bank:department_store,
+			atm:atm
+		}
 
 		RIA.geocoder = new google.maps.Geocoder();
 		RIA.sv = new google.maps.StreetViewService();         
 		
-		this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat, this.options.geolocation.lng));
+		if(this.options.geolocation) {
+			Log.info("Got geoloction on init")
+			this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat, this.options.geolocation.lng));
+		} else {
+			this.setCurrentLocation(new google.maps.LatLng(0, 0));
+		}
+		
 		
 		this.mapOptions = {
 			scrollwheel: false,
@@ -62,7 +114,7 @@ RIA.MapStreetView = new Class({
 			position: RIA.currentLocation,
 			pov: {
 				heading: 120,
-		        pitch: 10,
+		        pitch: 20,
 		        zoom: 0
 			}
 		};
@@ -233,7 +285,7 @@ RIA.MapStreetView = new Class({
 				// Set the Panorama heading, pitch and zoom 
 				RIA.panorama.setPov({
 					heading: heading,
-					pitch:0,
+					pitch:20,
 					zoom:0
 				});				
 			}

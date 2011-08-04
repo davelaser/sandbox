@@ -60,7 +60,7 @@ footer  {
  
 #content {
 	position:relative; 
-	margin-top:110px;
+	margin-top:112px;
 	height:auto;
 }                    
   
@@ -236,121 +236,6 @@ article section {
 	height:auto;
 }  
 
-#hotels { 
-	position:relative;
-	width:435px;
-	/*
-	min-height:200px;
-	*/
-	padding-bottom:50px;
-	margin:0 10px 10px 0;
-	overflow:hidden;
-	float:left;
-}    
-
-#hotels h2 {
-	display:none;
-}
-#hotels.streetview {
-	min-height:50px;
-	height:120px;
-	opacity:1; 
-}
-#hotels .results {
-	width:100%;
-}                   
-
-#hotels nav.controls {
-	position:absolute;
-	top:10px;
-	right:10px;
-}    
-
-nav#hotel-list a {
-	display:block;
-	float:left;
-	padding:5px 2px;
-	margin:0 2px 0 0;
-}
-
-nav#hotel-list a.active {
-	background:#EC008C;
-	color:#fff;
-}      
-
-#hotels .details {
-	margin:20px 0 0 0;
-}
-#hotels.streetview .hotel .rating,
-#hotels.streetview .hotel .details,
-#hotels.streetview .hotel .photos {
-	display:none;
-}	
-.hotel {
-	width:435px;
-	display:block;
-	float:left; 
-	padding-right:20px; 
-}
-                        
-.hotel header {
-	/*
-	position:relative;
-	*/
-}
-
-.hotel nav {
-	margin-top:20px;
-} 
-.hotel nav li {
-	display:inline-block;
-	background:#EC008C;
-	padding:10px;
-	color:#fff;
-	
-	border-top-left-radius:10px;
-	border-top-right-radius:10px;
-	-webkit-border-top-left-radius:10px;
-	-webkit-border-top-right-radius:10px;
-	-moz-border-top-left-radius:10px;
-	-moz-border-top-right-radius:10px;
-	-o-border-top-left-radius:10px;
-	-o-border-top-right-radius:10px;
-	-ms-border-top-left-radius:10px;
-	-ms-border-top-right-radius:10px; 
-	
-	-moz-box-shadow: 0px 3px 8px white inset;
-	-webkit-box-shadow: 0px 3px 8px white inset;
-}   
-.hotel h3.name {
-	line-height:35px;
-	font-size:2em;
-} 
-.hotel h3.name span {
-	display:inline-block;  
-	margin:0 5px 0 0;
-	text-align:center;
-	background:#EC008C;
-	color:#fff;
-	width:24px;
-	height:24px;
-	font-size:0.75em;
-	border-radius:20px;
-	-webkit-border-radius:20px;
-	-moz-border-radius:20px;
-	-o-border-radius:20px;
-	-ms-border-radius:20px;
-	line-height:24px;
-}
-#hotels.streetview .hotel h3.name {
-	font-size:1.6em;
-}
-
-.hotel .photos {
-	float:left;
-	margin:20px 20px 0 0;
-}
-
 /*
 * 	loading
 */
@@ -433,7 +318,7 @@ nav#hotel-list a.active {
 	-webkit-border-radius:0 0 0 10px;
 	-moz-border-radius:0 0 0 10px;
 	-o-border-radius:0 0 0 10px;
-	-ms-border-radius:0 0 0 10px;
+	-ms-border-radius:0 0 0 10px; 
 }    
 
 #map_canvas {	
@@ -442,9 +327,10 @@ nav#hotel-list a.active {
 	position:absolute;
 	right:0px;
 	top:0px;
-	z-index:1;      
-}                    
+	z-index:1;
 
+}                    
+                    
 #pano {
 	width:100%;
 	height:100%;
@@ -453,60 +339,14 @@ nav#hotel-list a.active {
 	top:0px;
 	z-index:0;
 }
-
-/*
-*	Minimized
-*/
-#hotels.minimized {
-	height:50px;
-	padding:0 20px;
-}
-
-#hotels.minimized h2,
-#hotels.minimized .rating,
-#hotels.minimized .photos,
-#hotels.minimized .nearby
-#hotels.minimized .room-and-rates,
-#hotels.minimized .details,
-#hotels.minimized nav#hotel-list {
-	display:none;
-}
-
-#hotels.minimized h3 {
-	margin:10px 0 0 0;
-	font-size:2em;
-	float:left; 
-}                 
-
-#hotels.minimized button {
-	display:none;
-	float:right;
-	margin:8px 0 0 0;
-} 
-
-#hotels.minimized .drop-pin {
-	float:right;
-}
-  
+ 
 /*
 * 	Horizontal Hotels Navigation
 */
-#horizontal {
-	width:98px;
-	height:49px;
-	position:absolute;
-	left:483px;
-	top:0px;
-	border-radius:0 0 20px 20px;
-	-webkit-border-radius:0 0 20px 20px;
-	-moz-border-radius:0 0 20px 20px;
-	-o-border-radius:0 0 20px 20px;   
-	-ms-border-radius:0 0 20px 20px;
-}
 
 #horizontal a {
 	position:absolute;
-	top:0px;
+	top:45%;
 	background-image:url(../img/arrows.png);
 	background-repeat:none;
 	width:49px;
@@ -514,12 +354,12 @@ nav#hotel-list a.active {
 }
 
 .previous {
-	left:0px;	
+	left:10px;	
 	background-position:0 0;
 }
 
 .next {
-	right:0px;
+	right:10px;
 	background-position:-49px 0;
 }
 
@@ -547,7 +387,7 @@ nav#hotel-list a.active {
 */
 #places {     
 	background:#fff; 
-	background:rgba(0,0,0,0.3);
+	background:rgba(0,0,0,0.2);
 	text-align:left;
 	padding:10px;
 	height:auto;
@@ -624,3 +464,6 @@ nav#hotel-list a.active {
 	right:5px;
 }
 
+.price {
+	color:#EC008C;
+}

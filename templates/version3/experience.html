@@ -5,14 +5,13 @@
 	<title>Hotels</title>
 	<link rel="stylesheet" href="/static/css/styles.css"/>
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
-	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" /> 	
+	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+	<link rel="stylesheet" media="only screen and (min-device-width: 768px) and (max-device-width: 1024px)" href="/static/css/ipad.css" type="text/css" />
 </head>
 <body class="state-default">
 	<div id="map-visualization">
 		<div id="pano"></div>
-		<div id="map-wrapper">
-			
-		</div>
+		<div id="map-wrapper"></div>
 		<div id="map_canvas"></div>
 	</div>
 	
@@ -43,23 +42,28 @@
 		<div id="content">
 			
 			
-			<section id="hotels" class="rc">
+			<section id="hotels">
 				<header>
 					<h2>Hotels</h2>
 				</header>
-				<div class="results">
+				<div class="results-wrapper rc">
+					<div class="results">
 				
-				</div>
-				<nav id="hotel-list">
+					</div>
+					<nav id="hotel-list">
 
+					</nav>
+				</div>
+				
+				<nav id="horizontal">
+					<a href="#" class="previous"><span>Previous</span></a>
+					<a href="#" class="next"><span>Next</span></a>
 				</nav>
 			</section>
 			
-			<nav id="horizontal">
-				<a href="#" class="previous"><span>Previous</span></a>
-				<a href="#" class="next"><span>Next</span></a>
-			</nav>
-					    
+			
+			
+			{% comment %}		    
 			<section id="weather" class="rc">
 				<header>
 					<h2>Weather</h2> 
@@ -75,7 +79,7 @@
 				<div class="results">					    
 				</div>
 			</section>
-
+            {% endcomment %}
 			{% comment %}
 			<section id="twitter-news">
 				<script type="text/javascript">
@@ -135,7 +139,7 @@
 		RIA.currentDestination = "{{ destination }}";
 		// Go to Times Square
 	   	RIA.InitExperience = new RIA.Experience({
-			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
+			geolocation:null, 
 			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
 			maptype:"{{ maptype|default:'streetview' }}",
 			contenttype:"{{ contenttype|default:'maximized' }}"

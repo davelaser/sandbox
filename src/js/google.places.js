@@ -198,10 +198,10 @@ RIA.GooglePlaces = new Class({
 		*/ 
    	 	var mapIcon; 
 
-		if(place.types.length > 0 && RIA.MarkerIcons[place.types[0]]) {
-			mapIcon = new google.maps.MarkerImage(RIA.MarkerIcons[place.types[0]]);
+		if(place.types.length > 0 && RIA.MarkerIconsImages[place.types[0]]) {
+			mapIcon = RIA.MarkerIconsImages[place.types[0]];
 		} else {
-			mapIcon = new google.maps.MarkerImage(RIA.MarkerIcons.star);
+			mapIcon = RIA.MarkerIconsImages.star;
 		}
        
 		var panoIcon = new google.maps.MarkerImage(place.icon),
