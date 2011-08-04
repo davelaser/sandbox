@@ -292,16 +292,15 @@ RIA.Experience = new Class({
 		this.hotelIndex = 0;
 		this.hotelCollection = this.hotels.getElements(".hotel");
 		
-		document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
-		
 		this.hotels.removeClass("waiting");
-		this.hotels.getElement(".results").morph({"opacity":1});
 		
 		RIA.bookmarks = new Object();                                         
 		this.shareMyBookmarks(false);
 		
 		
 		if(this.hotelCollection.length > 0) {
+			
+			document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
 			
 			RIA.currentDestination = this.hotelCollection[0].get("data-destination");
 			//Log.info("RIA.currentDestination is now "+RIA.currentDestination);
