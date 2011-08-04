@@ -404,7 +404,7 @@ RIA.Experience = new Class({
 				this.bookmarks.store("viewstate", "open");
 				this.content.morph({"opacity":0});
 			} else {
-				this.bookmarks.morph({"height":"20px", "top":"-20px"});
+				this.bookmarks.morph({"height":"0px", "top":"-20px"});
 				this._form.morph({"top":"40px", "paddingTop":"30px"});
 				this.bookmarks.store("viewstate", "closed");
 				this.content.morph({"opacity":1});

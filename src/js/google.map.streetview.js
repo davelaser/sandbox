@@ -270,6 +270,7 @@ RIA.MapStreetView = new Class({
 		*		latLng[Object(LatLng)]
 		*/ 
 		// Check whether Streetview Panorama data exists for this LatLng, within a 150 metre radius (argument #2 below) 
+		Log.info("setPanoramaPosition("+latLng+")");
 		
 		RIA.sv.getPanoramaByLocation(latLng, 150, function(svData, svStatus) {  
             // If Streetview Panorama data exists...
