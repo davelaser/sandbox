@@ -151,10 +151,10 @@ def get_hotels_by_destination_and_price(destination, price):
 	
 	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"
-		if price is not None:
+		if price is not None and len(str(price)) > 0:
 			queryString += " AND price <= "+str(price)
 	else:
-		if price is not None:
+		if price is not None and len(str(price)) > 0:
 			queryString += "WHERE price <= "+str(price)
 		
 	queryString += " ORDER BY price"
@@ -207,7 +207,7 @@ def put_latlng_by_hotel_name_and_destination(hotelname, destination, lat, lng):
 		logging.info("Found hotel "+hotelname+" now assigning latlng")
 		for data in hotelRequest:
 			data.latlng = db.GeoPt(lat,lng)
-			data.put()
+			db.put(data)
 		return "true"
 	else:
 		return "false"
