@@ -141,10 +141,16 @@ def put_hotels_by_destination(destination, data):
 	hotels = get_hotels_by_destination(destination)
 	if hotels.get() is None:
 		counter = 1
+		hotelList = list()
 		for hotel in data:
 			dbHotel = DBHotel(locationid = destination+str(counter), name = hotel['Name'], price = float(hotel['Price']), address = hotel['Address'], phone = hotel['Phone'], destination = destination, index = counter)
-			dbHotel.put()                                                                                                                                               
 			counter += 1
+			hotelList.append(dbHotel)
+		"""
+		Use a batch .put(list) operation here!
+		"""
+		db.put(hotelList)                                                                                                                                               
+			
 
 def get_hotels_by_destination_and_price(destination, price):
 	queryString = ""
@@ -206,6 +212,9 @@ def put_latlng_by_hotel_name_and_destination(hotelname, destination, lat, lng):
 	if hotelRequest.get() is not None: 
 		logging.info("Found hotel "+hotelname+" now assigning latlng")
 		for data in hotelRequest:
+			"""
+			This only returns 1 entity, so no need for a batch .put() operation here
+			"""
 			data.latlng = db.GeoPt(lat,lng)
 			db.put(data)
 		return "true"
