@@ -92,7 +92,7 @@ RIA.MapStreetView = new Class({
 		*		Event[Object] (optional)
 		*/ 
 		
-		Log.info("toggleMapFullScreen(): maptype: "+this.options.maptype+", contenttype: "+this.options.contenttype);
+		//Log.info("toggleMapFullScreen(): maptype: "+this.options.maptype+", contenttype: "+this.options.contenttype);
 		
 		// If we have an Event object argument, prevent any default action   
 		if(e && e.preventDefault) {
@@ -140,7 +140,7 @@ RIA.MapStreetView = new Class({
 		if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
 			dataLatLng = hotel.get("data-latlng").split(",");
 			latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
-			Log.info("setStreetview() : got latLng from hotel attribute");
+			//Log.info("setStreetview() : got latLng from hotel attribute");
 			hotel.store("geolocation", latLng); 
 		}
 		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
@@ -365,7 +365,6 @@ RIA.MapStreetView = new Class({
 			if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
 				dataLatLng = hotel.get("data-latlng").split(",");
 				latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
-				Log.info("GOT latLng FROM HOTEL HTML");
 				hotel.store("geolocation", latLng); 
 			}
 			
@@ -377,7 +376,7 @@ RIA.MapStreetView = new Class({
 				delay = counter+=500;              
 				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
 			} else {
-				Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
+				//Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
 				// If the hotel does not already have a bookmark
 				if(hotel.bookmark == null) {
 					this.addHotelMarker(hotel, geo);

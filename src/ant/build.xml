@@ -1,0 +1,44 @@
+<project name="UIBuilder" basedir="./" default="BUILD.AllAssets">
+	
+	<property name="properties.dir" value="properties" />
+	
+	<property file="${properties.dir}/project.properties"/>
+	<property file="${properties.dir}/build.properties"/>
+	<property name="yui.compressor" value="${root.dir}/ant/tools/yuicompressor.jar"/>
+	
+	<import file="xml/regexp.xml"/>	
+	<import file="xml/css.xml"/>
+	<import file="xml/js.xml"/>
+		
+	<tstamp>
+	    <format property="timstamp" pattern="hh-mm-ss" locale="en,UK"/>
+	</tstamp>
+
+	<!--//
+	TYPE Build targets
+	//-->	
+	<target name="BUILD.CSS" description="Building CSS only">
+		<ant target="OPERATION.CSS.Trash"/>
+		<ant target="OPERATION.CSS.Build"/>
+		<ant target="OPERATION.CSS.Minify"/>
+		<ant target="OPERATION.CSS.Clean"/>
+	</target>	
+	
+	<target name="BUILD.JS" description="Building JS only">
+		<ant target="OPERATION.JS.Trash"/>
+		<ant target="OPERATION.JS.Build"/>
+		<ant target="OPERATION.JS.Clean"/>
+	</target>
+	
+	<!--//
+	BUILD All Languages
+	//-->
+	<target name="BUILD.AllAssets" description="Building CSS and JS">
+		<echo>Building CSS and JS</echo>
+		<ant target="BUILD.CSS"/>		
+		<ant target="OPERATION.CSS.Minify"/>
+		<ant target="OPERATION.CSS.Clean"/>
+		<ant target="BUILD.JS"/>
+	</target>
+
+</project>

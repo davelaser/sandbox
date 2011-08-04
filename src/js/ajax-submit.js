@@ -150,11 +150,8 @@ RIA.AjaxSubmit = new Class({
 	requestSuccessInfo: function(element) {
 		element.removeClass("waiting");
 		element.getElement(".results").morph({"opacity":1});
-		var articles = document.getElements('article[data-feed]');
-	    for (var i=0,article; article=articles[i]; i++) {
-			if (RIA.Class.Article) new RIA.Class.Article(article);
-	    }                           
-
+		if (RIA.Article) RIA.ArticleInit = new RIA.Article(article);
+	    
 	},
 	requestFailure: function(e) {
 		Log.error({method:"requestFailure", error:e});

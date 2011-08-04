@@ -1,0 +1,73 @@
+<project name="js.build.TRUNK" basedir="./" default="OPERATION.JS.Build">
+	
+	<target name="OPERATION.JS.Trash" description="Trashing JS build directories">
+		<echo message="Trashing JS build directories"/>
+		<delete dir="${build.js.dir}" includeemptydirs="true">
+		    <include name="scripts.js"/>		    
+		</delete>		
+	</target>
+	
+	<target name="OPERATION.JS.Clean" description="Cleaning JS build files">
+		<echo message="Cleaning build operation JavaScript files"/>
+		<delete dir="${build.js.dir}" includeemptydirs="true">
+		    <include name="**/*.min.js"/>
+			<include name="**/*.concat.js"/>
+			<include name="**/mootools.js"/>
+		</delete>
+	</target>
+	
+	<target name="OPERATION.JS.Concat" description="Concatenating JS">
+		<echo>Concatenating JS</echo>
+
+		<concat destfile="${build.js.dir}/mootools.js" fixlastline="yes">
+			<filelist dir="${src.js.dir}" 
+				files="
+				mootools-core-1.3.2.js,
+				mootools-more-1.3.2.1.js
+				"/>	
+		</concat>
+		
+		<concat destfile="${build.js.dir}/build.concat.js" fixlastline="yes">
+			<filelist dir="${src.js.dir}" 
+				files="
+				namespace.js,
+				log.js,
+				gradient.js,
+				google.places.js,
+				google.map.streetview.js,
+				experience.js,
+				ajax-submit.js
+				"/>	
+		</concat>
+	</target>	
+
+	<target name="OPERATION.JS.Minify" description="Minifying JS">
+		<echo>Minifying JavaScript</echo>
+		<apply executable="java" parallel="false" dest="${build.js.dir}" failonerror="true">
+			<fileset dir="${build.js.dir}" includes="*.js"/>
+			<arg line="-jar"/>
+			<arg path="${yui.compressor}"/>
+			<srcfile/>
+			<arg line="-o"/>
+			<mapper type="glob" from="*.concat.js" to="*.min.js"/>
+			<targetfile/>
+		</apply>
+	</target>
+	
+	<target name="OPERATION.JS.Package">		
+		<echo>Packing MooTools and Build files into single file</echo>		
+		<concat destfile="${build.js.dir}/scripts.js" fixlastline="yes">
+			<filelist dir="${build.js.dir}" 
+				files="
+				mootools.js,
+				build.min.js
+				"/>
+		</concat>		
+	</target>
+	
+	<target name="OPERATION.JS.Build" description="Building JS">
+		<ant target="OPERATION.JS.Concat"/>
+		<ant target="OPERATION.JS.Minify"/>
+		<ant target="OPERATION.JS.Package"/>		
+	</target>
+</project>

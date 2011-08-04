@@ -6,35 +6,35 @@ RIA = {
             var container = document.id(container).getElement(".results");
             container.innerHTML = html.join('');
         }
-    },
-    Class : {
-        Article : function() { 
-			
-            this.article = arguments[0];
-
-            this.init = function() {
-				this.feed = this.article.get("data-feed");
-                if (!this.feed) return;
-                this.id = this.article.id;
-                this.get();
-            };
-            this.get = function() {
-                this.scpt = document.createElement('script');
-                this.scpt.src = this.feed+'&callback='+this.id;
-                document.body.appendChild(this.scpt);
-            };
-            this.init();
-        }
     }
 };
 
+RIA.Article = new Class({
+	initialize: function(article) {
+		Log.info("RIA.Article");
+		
+		this.article = article;
+
+		this.feed = this.article.get("data-feed");
+        if (!this.feed) return;
+        this.id = this.article.id;
+        this.get();
+	},
+	get: function() {
+        this.scpt = document.createElement('script');
+        this.scpt.src = this.feed+'&callback='+this.id;
+        document.body.appendChild(this.scpt);
+    };
+})
+
+/*
 (function() {
     var articles = document.getElements('article[data-feed]');
     for (var i=0,article; article=articles[i]; i++) {
-		new RIA.Class.Article(article);
+		new RIA.Article(article);
     }
 })();
-
+*/
 function weather(data) {
     var html = [];   
 	if(typeof(data.query.results.channel) == "object") {

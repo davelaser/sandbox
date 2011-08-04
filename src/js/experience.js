@@ -156,11 +156,8 @@ RIA.Experience = new Class({
 		this.fbDialogSend();
 	},
 	addHotelNavEventListeners: function() {
-		Log.info("addHotelNavEventListeners")
+		//Log.info("addHotelNavEventListeners")
 		this.hotelNavigationBind = this.hotelNavigation.bind(this)
-		document.addEvents({
-			"keyup":this.hotelNavigationBind 
-		});
 		
 		this.dropBookmarkPinBind = this.dropBookmarkPin.bind(this);
 		document.getElements(".drop-pin").each(function(dropPinButton) {
@@ -177,11 +174,8 @@ RIA.Experience = new Class({
 
 	},
 	removeHotelNavEventListeners: function() {
-		Log.info("removeHotelNavEventListeners")
-		document.removeEvents({
-			"keyup":this.hotelNavigationBind 
-		});
-		
+		//Log.info("removeHotelNavEventListeners")
+
 		document.getElements(".previous, .next").each(function(link) {
 			link.removeEvents({
 				"click":this.hotelNavigationBind 
@@ -311,7 +305,7 @@ RIA.Experience = new Class({
 		if(this.hotelCollection.length > 0) {
 			
 			RIA.currentDestination = this.hotelCollection[0].get("data-destination");
-			Log.info("RIA.currentDestination is now "+RIA.currentDestination);
+			//Log.info("RIA.currentDestination is now "+RIA.currentDestination);
 					
 			this.addHotelNavEventListeners();
 			this.createHotelNav();
