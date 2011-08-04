@@ -9,6 +9,11 @@
 	<link rel="stylesheet" media="only screen and (min-device-width: 768px) and (max-device-width: 1024px)" href="/static/css/ipad.css" type="text/css" />
 </head>
 <body class="state-default">
+	<!-- ClickTale Top part -->
+	<script type="text/javascript">
+	var WRInitTime=(new Date()).getTime();
+	</script>
+	<!-- ClickTale end of Top part -->
 	<div id="map-visualization">
 		<div id="pano"></div>
 		<div id="map-wrapper"></div>
@@ -174,5 +179,15 @@
 		});
 	//]]>
 	</script>
+	<!-- ClickTale Bottom part -->
+	<div id="ClickTaleDiv" style="display: none;"></div>
+	<script type="text/javascript">
+	if(document.location.protocol!='https:')
+	 document.write(unescape("%3Cscript%20src='http://s.clicktale.net/WRc5.js'%20type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+	if(typeof ClickTale=='function') ClickTale(49092,1,"www");
+	</script>
+	<!-- ClickTale end of Bottom part -->
 </body>
 </html>

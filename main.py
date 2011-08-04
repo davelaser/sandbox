@@ -27,7 +27,7 @@ requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 
 #logging.info(memcache.get_stats())
 
@@ -134,7 +134,7 @@ class DBHotel(db.Model):
 	destination = db.StringProperty(required=True)
 	
 def get_hotels_by_destination(destination):
-	resultset = DBHotel.gql("WHERE destination = '"+destination+"'")
+	resultset = DBHotel.gql("WHERE destination = '"+destination+"' ORDER BY price")
 	return resultset
 			
 def put_hotels_by_destination(destination, data): 
@@ -146,6 +146,14 @@ def put_hotels_by_destination(destination, data):
 			dbHotel.put()                                                                                                                                               
 			counter += 1
 
+def get_hotels_order_by_price_cheapest():
+	resultset = DBHotel.gql("ORDER BY price ASC LIMIT 30")
+	return resultset
+
+def get_hotels_order_by_price_expensive():
+	resultset = DBHotel.gql("ORDER BY price DESC LIMIT 30")
+	return resultset
+	
 """
 Save Places data by hotel and types
 """
@@ -216,6 +224,7 @@ def handle_result_ajax_v3(rpc, destination, info_type, response):
 	if result.status_code == 200:
 		logging.info("RPC response SUCCESS code: 200")
 		f = parseXMLLive(result.content.replace('|', ''))
+		#logging.info(f)
 		if info_type == "flights":
 			global_mashup['cheapest_flight'] = f[-1]
 			global_mashup['all_flights'] = f[0:-2]
@@ -565,6 +574,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:		
+		"""
 		hotels = memcache.get(destination)
 		if hotels is not None: 
 			logging.info("Got hotels from memcache") 
@@ -572,27 +582,35 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			global_mashup['hotels'] = hotels
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			self.response.out.write(template.render(path, global_mashup))
+		else:        
+		"""
+		if destination == "cheap":
+			hotelsData = get_hotels_order_by_price_cheapest()
+		elif destination == "expensive":
+			hotelsData = get_hotels_order_by_price_expensive()		
 		else:
-			#hotelsData = get_datastore_by_destination(destination)
 			hotelsData = get_hotels_by_destination(destination)
-			if hotelsData.get() is not None:
-				logging.info("Retrieving from datastore")
-				hotelsList = list()
-				for hotel in hotelsData:
-					hotelsList.append(hotel)
-
-				replaced = memcache.replace(destination,hotelsList)
-				
-				if replaced is False:
-					memcache.add(destination,hotelsList)     
-					
-				global_mashup['hotels'] = hotelsList
-				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
-				self.response.out.write(template.render(path, global_mashup))
-			else:
-				logging.info("NOT Got hotels from memcache or datastore")
-				mashup = kapowAPILiveRPC_v3(destination, info_type, self.response)
 		
+		#hotelsData = get_hotels_by_destination(destination)
+		
+		if hotelsData.get() is not None:
+			logging.info("Retrieving from datastore")
+			hotelsList = list()
+			for hotel in hotelsData:
+				hotelsList.append(hotel)
+
+			replaced = memcache.replace(destination,hotelsList)
+			
+			if replaced is False:
+				memcache.add(destination,hotelsList)     
+				
+			global_mashup['hotels'] = hotelsList
+			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
+			self.response.out.write(template.render(path, global_mashup))
+		else:
+			logging.info("NOT Got hotels from memcache or datastore")
+			mashup = kapowAPILiveRPC_v3(destination, info_type, self.response)
+   	
 	return True
 
 class GooglePlacesHandler(webapp.RequestHandler):
