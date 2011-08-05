@@ -94,7 +94,6 @@ RIA.MapStreetView = new Class({
 		RIA.sv = new google.maps.StreetViewService();         
 		
 		if(this.options.geolocation) {
-			Log.info("Got geoloction on init")
 			this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat, this.options.geolocation.lng));
 		} else {
 			this.setCurrentLocation(new google.maps.LatLng(0, 0));
@@ -241,6 +240,44 @@ RIA.MapStreetView = new Class({
         } else {
 			//RIA.panorama.setVisible(false);
 		}						
+	},
+	animateCurrentMarker: function(delayStart) {
+		try {
+			if(!this.hotelCollection) return;
+
+			if(this.hotelCollection[this.hotelIndex].bookmark) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].bookmark, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].bookmark.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmark, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}	
+
+			if(this.hotelCollection[this.hotelIndex].bookmarkSV) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].bookmarkSV, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].bookmarkSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmarkSV, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}
+			
+
+			if(this.hotelCollection[this.hotelIndex].hotelMarker) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarker, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].hotelMarker.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarker, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}	
+
+			if(this.hotelCollection[this.hotelIndex].hotelMarkerSV) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarkerSV, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].hotelMarkerSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarkerSV, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}
+			
+
+		} catch(e) {
+			Log.error({method:"animateCurrentMarker()", error:e});
+		}
 	},                      
 	setMapPositionPan: function(latLng) {
 		/*
@@ -250,6 +287,8 @@ RIA.MapStreetView = new Class({
 		*		latLng[Object(LatLng)]
 		*/
 		RIA.map.panTo(latLng);
+		this.animateCurrentMarker(400);
+		
 	},
 	setMapPositionCenter: function(latLng) {
 		/*
@@ -258,7 +297,8 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		latLng[Object(LatLng)]
 		*/
-		RIA.map.setCenter(latLng);
+		RIA.map.setCenter(latLng); 
+		this.animateCurrentMarker();
 	},
 	setMapZoom: function(zoomLevel) {
 		if(RIA.map) RIA.map.setZoom(zoomLevel);
@@ -289,7 +329,7 @@ RIA.MapStreetView = new Class({
 					heading: heading,
 					pitch:20,
 					zoom:0
-				});				
+				});
 			}
 			// Else if no data exists...
 			else if(svStatus == google.maps.StreetViewStatus.ZERO_RESULTS) {				
@@ -395,8 +435,7 @@ RIA.MapStreetView = new Class({
 			this.setPanoramaPosition(event.latLng);
 			this.jumpToHotel(hotel);  
 			this.openInfoWindow(marker, infowindow);   
-			
-			
+			this.animateCurrentMarker();			
 			this.resetPlacesMarkers();
 
 		}.bind(this));
