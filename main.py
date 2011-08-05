@@ -203,14 +203,14 @@ def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 """
 Save LatLng against a Hotel
 """                        
-def get_hotel_by_name_and_destination(hotelName, destination):
-	resultset = DBHotel.gql("WHERE name = '"+hotelName+"' AND destination = '"+destination+"'")
+def get_hotel_by_locationid_and_destination(locationid, destination):
+	resultset = DBHotel.gql("WHERE locationid = '"+locationid+"' AND destination = '"+destination+"'")
 	return resultset                                  
 	
-def put_latlng_by_hotel_name_and_destination(hotelname, destination, lat, lng):
-	hotelRequest = get_hotel_by_name_and_destination(hotelname, destination)   
+def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng):
+	hotelRequest = get_hotel_by_locationid_and_destination(locationid, destination)   
 	if hotelRequest.get() is not None: 
-		logging.info("Found hotel "+hotelname+" now assigning latlng")
+		logging.info("Found hotel locationid "+locationid+" now assigning latlng")
 		for data in hotelRequest:
 			"""
 			This only returns 1 entity, so no need for a batch .put() operation here
@@ -528,7 +528,9 @@ class ExperienceHandler(webapp.RequestHandler):
 		contenttype = self.request.get("contenttype")
 		if destination_display_names.has_key(destination):
 			destinationDisplayName = destination_display_names[destination]
-		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype)
+		
+		facebookAppId = config_properties.get('Facebook', 'app_id')
+		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -695,7 +697,7 @@ class GooglePlacesHandler(webapp.RequestHandler):
 
 class GeoCodeHandler(webapp.RequestHandler):
 	def post(self):
-		result = put_latlng_by_hotel_name_and_destination(self.request.POST.get("hotelname"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
+		result = put_latlng_by_hotel_locationid_and_destination(self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
 		return result
 				
 # Tiny URL API

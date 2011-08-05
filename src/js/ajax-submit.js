@@ -150,7 +150,8 @@ RIA.AjaxSubmit = new Class({
 			* 	Set up the hotels Element Collection
 			*/
 			this.loading.setStyle("display", "none");
-			if(element.get("id") == "hotels") {
+			if(element.get("id") == "hotels") { 
+				if(element.hasClass("hide")) element.removeClass("hide");
 				RIA.InitExperience.gotHotels(destination);				     
 			}
 		}

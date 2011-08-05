@@ -432,18 +432,18 @@ RIA.MapStreetView = new Class({
 		});
        
 		// Add mouse event listeners for the Marker
-		var mouseoutEvent = null;
-		var mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
+		hotel.mouseoutEvent = null;
+		hotel.mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
 		    this.openInfoWindow(marker, infowindow);  
-			mouseoutEvent = google.maps.event.addListener(marker, 'mouseout', function(event) {
+			hotel.mouseoutEvent = google.maps.event.addListener(marker, 'mouseout', function(event) {
 			    infowindow.close(); 
-				google.maps.event.removeListener(mouseoutEvent); 
+				google.maps.event.removeListener(hotel.mouseoutEvent); 
 			}.bind(this));
 		}.bind(this)); 
-		var clickEvent = google.maps.event.addListener(marker, 'click', function(event) {
+		hotel.clickEvent = google.maps.event.addListener(marker, 'click', function(event) {
 			Log.info("Clicked hotel marker");
 			this.setCurrentLocation(event.latLng);
-			google.maps.event.removeListener(mouseoutEvent);
+			google.maps.event.removeListener(hotel.mouseoutEvent);
 			this.setPanoramaPosition(event.latLng);
 			this.jumpToHotel(hotel);  
 			this.openInfoWindow(marker, infowindow);   
@@ -604,7 +604,7 @@ RIA.MapStreetView = new Class({
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
 				
-				this.storeGeocodeByHotel(hotel.get("data-name"), latLng);
+				this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
 				
 				// Store the LatLng against the Hotel Element
 				hotel.store("geolocation", latLng);
@@ -641,7 +641,7 @@ RIA.MapStreetView = new Class({
 		*		Open an InfoWindow instance
 		*/  
 		// Only show the InfoWindow if we are maximized state
-		if(this.mapCanvas.retrieve("view:state") == "maximized") {
+		if(this.mapCanvas.retrieve("view:state") == "map") {
 			infowindow.open(RIA.map,marker);
 		}
 	},
@@ -691,12 +691,12 @@ RIA.MapStreetView = new Class({
 			}
 		}		
 	},
-	storeGeocodeByHotel: function(hotelName, latLng) {
+	storeGeocodeByHotel: function(hotelLocationid, latLng) {
 		
 		this.requestGeocodePost = new Request({
 			method:"POST",
 			url:this.options.geocodeURL,
-			data:'hotelname='+hotelName+'&destination='+RIA.currentDestination+'&lat='+latLng.lat()+'&lng='+latLng.lng(),
+			data:'locationid='+hotelLocationid+'&destination='+RIA.currentDestination+'&lat='+latLng.lat()+'&lng='+latLng.lng(),
 			onRequest: function(e) {
 				//Log.info("storeGeocodeByHotel : onRequest");
 			},

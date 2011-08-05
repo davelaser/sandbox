@@ -35,12 +35,14 @@ RIA.Experience = new Class({
 		this.travelPartners = document.id("travel-partners");
 		this.hotels = document.id("hotels"); 
 		this.hotelsNav = document.id("hotel-list");
+		           
+		if(this.hotels) {
+	        this.hotels.getElement(".results").set("morph", {
+				duration:400,
+				link:"ignore"
+			});
+		}
 		
-        this.hotels.getElement(".results").set("morph", {
-			duration:400,
-			link:"ignore"
-		});
-		                         		
 		this.mapCanvas = document.id("map_canvas");
 		this.mapCanvas.store("styles:orig", this.mapCanvas.getCoordinates());
 		this.mapCanvas.store("styles:maximized", {width:"100%", height:"100%"});
@@ -189,9 +191,12 @@ RIA.Experience = new Class({
 	},	
 	fbDialogSend: function() {
 		FB.ui({
+			app_id:RIA.fbAppId,
+			/*redirect_uri:window.location.href,*/
+			access_token:"147307178684773|2.AQCTvZXmKvdYGpvo.3600.1312552800.0-100002195041453|kXWfcjveg1hot1dkyEigL3VIVbs",
 			method: 'send',
 			display:'iframe',
-          	name: 'Checkout these Hotels I found on Lastminute.com',
+          	name: 'Your Lastminute.com Hotel Bookmarks',
 			link: RIA.shareURL,
 		});
 		//this.addDraggable(document.getElements(".fb_dialog.loading"));
@@ -339,6 +344,7 @@ RIA.Experience = new Class({
 				"href":"#",
 				"text":(index+1),
 				"class":(index == 0 ? "active" : ""),
+				"title":hotel.get("data-name")+" : "+hotel.get("data-price"),
 				"events":{
 					"click": function(e) {
 						e.preventDefault();

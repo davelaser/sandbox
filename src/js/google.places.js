@@ -32,9 +32,9 @@ RIA.GooglePlaces = new Class({
 				clothing_store:"Clothing store",
 				/*convenience_store
 				courthouse
-				dentist
-				department_store
-				doctor
+				dentist*/
+				department_store:"Department store",
+				/*doctor
 				electrician
 				electronics_store
 				embassy

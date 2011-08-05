@@ -48,9 +48,7 @@
 		
 		<div id="content">
 			       
-			{{ hotels }}
-			{% if hotels|length > 0 %}
-			<section id="hotels">
+			<section id="hotels" class="{% if not destination %}hide{% endif %}">
 				<header>
 					<h2>Hotels</h2>
 				</header>
@@ -68,7 +66,7 @@
 					<a href="#" class="next"><span>Next</span></a>
 				</nav>
 			</section>
-			{% endif %}
+			
 			
 			
 			{% comment %}		    
@@ -144,7 +142,8 @@
 	    RIA.map = null;
 		RIA.geocoder = null;
 	    RIA.sv = null;
-		RIA.currentDestination = "{{ destination }}";
+		RIA.currentDestination = "{{ destination }}"; 
+		RIA.fbAppId = '{{facebookAppId}}';
 		// Go to Times Square
 	   	RIA.InitExperience = new RIA.Experience({
 			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
@@ -164,7 +163,7 @@
 		{% comment %} Include Facebook SDK, for tracking and XFBML Like Button dynamic creation {% endcomment %}
 		window.fbAsyncInit = function() {
 			FB.init({
-				appId:'107619156000640',
+				appId:'{{facebookAppId}}',
 				status: true,
 				cookie: true,
 				xfbml: true			
