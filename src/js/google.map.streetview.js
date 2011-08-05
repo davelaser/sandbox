@@ -4,8 +4,8 @@ RIA.MapStreetView = new Class({
 		geocodeURL:"/geocode",
 		geolocation:null, 
 		bookmarks:null,
-		maptype:"map",
-		contenttype:"minimized"
+		maptype:"panorama",
+		contenttype:"maximized"
 	},
 	mapInitialize: function() {
 		
@@ -144,33 +144,46 @@ RIA.MapStreetView = new Class({
 		*		Event[Object] (optional)
 		*/ 
 		
-		//Log.info("toggleMapFullScreen(): maptype: "+this.options.maptype+", contenttype: "+this.options.contenttype);
-		
 		// If we have an Event object argument, prevent any default action   
 		if(e && e.preventDefault) {
 			e.preventDefault();
 		}                                                                 
-		
-		// Check the Map's current view state. If state == 'minimized', then maximize it
-		if(this.mapCanvas.retrieve("view:state") == "minimized") {
-			this.mapCanvas.store("view:state", "maximized");
-			this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
-			document.id("map-streetview").set("text", "Streetview");
+                                                         
+		// If WE DO NOT HAVE AN EVENT and full screen Map view is required  
+		if(!e) {
+			if(this.mapCanvas.retrieve("view:state") == "map") {
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
+				document.id("map-streetview").set("text", "Panorama");
+			} else if(this.mapCanvas.retrieve("view:state") == "panorama") {
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
+				document.id("map-streetview").set("text", "Map");
+			}
 		}
-		// Else minimize it   
-		else {
-			this.mapCanvas.store("view:state", "minimized");
-			this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
-			document.id("map-streetview").set("text", "Map");
+		
+		// IF WE DO HAVE AN EVENT and full screen Map view is required   
+		
+		if(e) {
+			if(this.mapCanvas.retrieve("view:state") == "map") {
+				this.options.maptype = "panorama";
+				this.mapCanvas.store("view:state", this.options.maptype);
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
+				document.id("map-streetview").set("text", "Map");
+			}
+			else {
+				this.options.maptype = "map";
+				this.mapCanvas.store("view:state", this.options.maptype);
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
+				document.id("map-streetview").set("text", "Panorama");
+			}
+			
 		}
 		
 		// Trigger the resize event on the Map so that it requests any required tiles
 		google.maps.event.trigger(RIA.map, "resize");                                
 		
 		// Center the Map on the current location
-		this.setMapPositionCenter(RIA.currentLocation); 
-		
-		
+		this.setMapPositionCenter(RIA.currentLocation);
+
 	},
 	setStreetview: function(hotel) { 
 		/*

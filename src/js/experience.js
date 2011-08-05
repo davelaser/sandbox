@@ -5,7 +5,7 @@ RIA.Experience = new Class({
 	},
 	initialize: function(options) {
 		this.setOptions(options);
-		  
+		Log.info(this.options)  
 		
 		RIA.places = new Object();
 		
@@ -45,7 +45,7 @@ RIA.Experience = new Class({
 		this.mapCanvas = document.id("map_canvas");
 		this.mapCanvas.store("styles:orig", this.mapCanvas.getCoordinates());
 		this.mapCanvas.store("styles:maximized", {width:"100%", height:"100%"});
-		this.mapCanvas.store("view:state", this.options.contenttype);
+		this.mapCanvas.store("view:state", this.options.maptype);
 		
 		this.mapStreetview = document.id("pano");
 		this.onWindowResize();
@@ -84,7 +84,7 @@ RIA.Experience = new Class({
 		
 		if(this.fbDialogSendButton) {
 			this.fbDialogSendButton.addEvents({
-				"click":this.fbSendDialog.bind(this)
+				"click":this.fbDialogSend.bind(this)
 			});
 		}  
 		
@@ -147,14 +147,6 @@ RIA.Experience = new Class({
 			});
 		}
 	},
-	fbSendDialog: function() {
-		RIA.InitAjaxSubmit.loading.setStyle("display", "block");
-		RIA.InitAjaxSubmit.loading.addEvent("click", function() {
-			RIA.InitAjaxSubmit.loading.setStyle("display", "none");
-		});
-		document.id("loading-message").setStyle("display", "none");
-		this.fbDialogSend();
-	},
 	addHotelNavEventListeners: function() {
 		//Log.info("addHotelNavEventListeners")
 		this.hotelNavigationBind = this.hotelNavigation.bind(this)
@@ -198,13 +190,12 @@ RIA.Experience = new Class({
 	},	
 	fbDialogSend: function() {
 		FB.ui({
-			access_token:"107619156000640|2.AQDYiMAIDC1ZFl35.3600.1311001200.0-100002195041453|1KzV-kC3q6-FnyWdsVjdgZg8uCE",
 			method: 'send',
 			display:'iframe',
-          	name: 'Checkout this Hotel, on Lastminute.com',
-			link: 'http://localhost:8087/experience',
+          	name: 'Checkout these Hotels I found on Lastminute.com',
+			link: RIA.shareURL,
 		});
-		this.addDraggable(document.getElements(".fb_dialog.loading"));
+		//this.addDraggable(document.getElements(".fb_dialog.loading"));
 	},
 	addDraggable: function(element, handle) {
   	
@@ -385,20 +376,20 @@ RIA.Experience = new Class({
 		
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
-		var shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
+		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
 		Object.each(RIA.bookmarks, function(value, key) {                
 			if(index == 0) {
-				shareURL+= key;
+				RIA.shareURL+= key;
             } else {
-				shareURL+=","+key;
+				RIA.shareURL+=","+key;
 			}				
             index++;
 		},this);    
 		
-		shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype;
+		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype;
 		
 		
-		document.id("bookmarks").getElement("a").set({"href":shareURL, "text":shareURL});  
+		document.id("bookmarks").getElement("a").set({"href":RIA.shareURL, "text":RIA.shareURL});  
 		
 		if(show) {
 			if(this.bookmarks.retrieve("viewstate") == "closed") {

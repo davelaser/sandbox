@@ -103,17 +103,19 @@ nav#hotel-list a.active {
 	margin:2px 0 0 0;
 }                    
 
-.hotel h3 span.name {
-	display:inline-block;  
-	margin:0 5px 0 0;
+.hotel h3 span.count {
+	display:block;
+	float:left;  
+	margin:6px 5px 0 0;
+	padding:3px 7px 0;
 	text-align:center;
-	background:#000;
-	color:#fff;
-	width:24px;
+	background:#ccc;
+	color:#000;
+	width:auto;
 	height:24px;
 	font-size:0.75em;
 	border-radius:20px;
-	-webkit-border-radius:20px;
+	-webkit-border-radius:5px;
 	-moz-border-radius:20px;
 	-o-border-radius:20px;
 	-ms-border-radius:20px;
