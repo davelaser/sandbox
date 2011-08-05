@@ -38,7 +38,7 @@ RIA.Experience = new Class({
 		this.hotelsNav = document.id("hotel-list");
 		
         this.hotels.getElement(".results").set("morph", {
-			duration:300,
+			duration:400,
 			link:"ignore"
 		});
 		                         		
@@ -256,7 +256,7 @@ RIA.Experience = new Class({
 				this.animateToHotel(this.hotelCollection[this.hotelIndex]);   
 				(function() {
 					this.setStreetview(this.hotelCollection[this.hotelIndex]);
-				}.bind(this)).delay(400);
+				}.bind(this)).delay(500);
 			}
 
 
@@ -305,8 +305,7 @@ RIA.Experience = new Class({
 			RIA.currentDestination = this.hotelCollection[0].get("data-destination");
 			//Log.info("RIA.currentDestination is now "+RIA.currentDestination);
 					
-			this.addHotelNavEventListeners();
-			this.createHotelNav();
+			
 			                                  
 			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
 			
@@ -332,8 +331,10 @@ RIA.Experience = new Class({
 			}
             
 			this.setHotelMarkers(this.hotelCollection);   
-			                                                                               
 			
+			this.createHotelNav();                                                                               
+			
+			this.addHotelNavEventListeners();
 			
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
