@@ -5,8 +5,7 @@ RIA.Experience = new Class({
 	},
 	initialize: function(options) {
 		this.setOptions(options);
-		Log.info(this.options)  
-		
+
 		RIA.places = new Object();
 		
 		this._form = document.id("start-your-story");

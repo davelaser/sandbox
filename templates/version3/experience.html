@@ -47,8 +47,9 @@
 		{% include "includes/form.html" %}
 		
 		<div id="content">
-			
-			
+			       
+			{{ hotels }}
+			{% if hotels|length > 0 %}
 			<section id="hotels">
 				<header>
 					<h2>Hotels</h2>
@@ -67,7 +68,7 @@
 					<a href="#" class="next"><span>Next</span></a>
 				</nav>
 			</section>
-			
+			{% endif %}
 			
 			
 			{% comment %}		    

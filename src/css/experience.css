@@ -357,7 +357,7 @@ article section {
 
 #horizontal a {
 	position:absolute;
-	top:45%;
+	top:8px;
 	background-image:url(../img/arrows.png);
 	background-repeat:none;
 	width:49px;

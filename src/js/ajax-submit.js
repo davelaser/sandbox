@@ -12,7 +12,7 @@ RIA.AjaxSubmit = new Class({
 		
 		RIA.currentPriceMax = this.price.get("value");
 		
-		Log.info("RIA.AjaxSubmit : RIA.currentPriceMax: "+RIA.currentPriceMax);
+		//Log.info("RIA.AjaxSubmit : RIA.currentPriceMax: "+RIA.currentPriceMax);
 		
 		this.flights = document.id("flights");
 		this.hotels = document.id("hotels");
