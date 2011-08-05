@@ -4,8 +4,7 @@ RIA.MapStreetView = new Class({
 		geocodeURL:"/geocode",
 		geolocation:null, 
 		bookmarks:null,
-		maptype:"panorama",
-		contenttype:"maximized"
+		maptype:"panorama"
 	},
 	mapInitialize: function() {
 		

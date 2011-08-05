@@ -1,7 +1,7 @@
 RIA.Experience = new Class({
 	Implements:[Options, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
-		
+		contenttype:"maximized"
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -357,19 +357,39 @@ RIA.Experience = new Class({
 	toggleInformation: function(e) {
 		
 		if(e) e.preventDefault();
-		if(this.hotels.hasClass("minimized")) {
-			document.id("less-more").set("text", "less...");
-			if(this.weather) this.weather.setStyle("display", "block");
-			if(this.guardian) this.guardian.setStyle("display", "block");
-			if(this.twitterNews) this.twitterNews.setStyle("display", "block");
-			this.hotels.removeClass("minimized");
-		}
-		else {   
-			document.id("less-more").set("text", "more...");
-			if(this.weather) this.weather.setStyle("display", "none");
-			if(this.guardian) this.guardian.setStyle("display", "none");
-			if(this.twitterNews) this.twitterNews.setStyle("display", "none");
-			this.hotels.addClass("minimized");				
+		
+		if(!e) {
+			if(this.options.contenttype == "maximized") {
+				document.id("less-more").set("text", "less...");
+				if(this.weather) this.weather.setStyle("display", "block");
+				if(this.guardian) this.guardian.setStyle("display", "block");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
+				this.hotels.removeClass("minimized");
+			}
+			else {   
+				document.id("less-more").set("text", "more...");
+				if(this.weather) this.weather.setStyle("display", "none");
+				if(this.guardian) this.guardian.setStyle("display", "none");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
+				this.hotels.addClass("minimized");				
+			}
+		} else {
+			if(this.hotels.hasClass("minimized")) {
+				this.options.contenttype = "maximized";
+				document.id("less-more").set("text", "less...");
+				if(this.weather) this.weather.setStyle("display", "block");
+				if(this.guardian) this.guardian.setStyle("display", "block");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
+				this.hotels.removeClass("minimized");
+			}
+			else {
+				this.options.contenttype = "minimized";   
+				document.id("less-more").set("text", "more...");
+				if(this.weather) this.weather.setStyle("display", "none");
+				if(this.guardian) this.guardian.setStyle("display", "none");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
+				this.hotels.addClass("minimized");				
+			}    
 		}
 	},
 	shareMyBookmarks: function(show) {   
