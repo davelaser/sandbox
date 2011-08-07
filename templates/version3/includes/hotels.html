@@ -28,22 +28,22 @@
 		
 	</div>	
 	<div class="room-and-rates">
-		<form name="roomselection" method="get" action="http://globaltrips.lastminute.com/trips/productDetails/addToCart">
-			<input type="hidden" name="pTxId" value="{{ hotel.pTxId }}" />
-			<input type="hidden" name="checkInDate" value="{{ hotel.checkInDate }}" />
-			<input type="hidden" name="checkOutDate" value="{{ hotel.checkOutDate }}" />
-			<input type="hidden" name="guestCounts" value="{{ hotel.guestCounts }}" />
-			<input type="hidden" name="guestCodes" value="{{ hotel.guestCodes }}" />
-			<input type="hidden" name="guestCounts" value="{{ hotel.guestCounts }}" />
-			<input type="hidden" name="city" value="{{ hotel.city }}" />
-			<input type="hidden" name="configId" value="{{ hotel.configId }}" />
-            <input type="hidden" name="numRooms" value="{{ hotel.numRooms }}" />
-            <input type="hidden" name="dest" value="{{ hotel.dest }}" />
-            <input type="hidden" name="path" value="{{ hotel.path }}" />
-            <input type="hidden" name="hotelRequestId" value="{{ hotel.hotelRequestId }}" />
-            <input type="hidden" name="mappingName" value="{{ hotel.mappingName }}" />
-            <input type="hidden" name="pageId" value="{{ hotel.pageId }}" />
-            <input type="hidden" name="action" value="{{ hotel.action }}" />
+		<form class="hotel-booking-form" name="roomselection" method="get" action="http://globaltrips.lastminute.com/trips/productDetails/addToCart">
+			<input type="hidden" name="pTxId" value="{{ hotel.bookingData.pTxId }}" />
+			<input type="hidden" name="checkInDate" value="{{ hotel.bookingData.checkInDate }}" />
+			<input type="hidden" name="checkOutDate" value="{{ hotel.bookingData.checkOutDate }}" />
+			<input type="hidden" name="guestCounts" value="{{ hotel.bookingData.guestCounts }}" />
+			<input type="hidden" name="guestCodes" value="{{ hotel.bookingData.guestCodes }}" />
+			<input type="hidden" name="city" value="{{ hotel.destination }}" />
+			<input type="hidden" name="configId" value="{{ hotel.bookingData.configId }}" />
+            <input type="hidden" name="numRooms" value="{{ hotel.bookingData.numRooms }}" />
+            <input type="hidden" name="dest" value="{{ hotel.bookingData.dest }}" />
+            <input type="hidden" name="path" value="{{ hotel.bookingData.path }}" />
+            <input type="hidden" name="hotelRequestId" value="{{ hotel.bookingData.hotelRequestId }}" />
+            <input type="hidden" name="pageId" value="{{ hotel.bookingData.pageId }}" />
+            <input type="hidden" name="action" value="{{ hotel.bookingData.action }}" />
+			<input type="hidden" name="controller" value="{{ hotel.bookingData.controller }}" />
+			<button class="button" value="submit">book now</button>
 		</form>
 	</div>
 	<div class="details">
