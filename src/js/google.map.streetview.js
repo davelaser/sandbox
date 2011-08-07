@@ -672,8 +672,14 @@ RIA.MapStreetView = new Class({
 		
 		this.hotelsByPriceRange = this.hotelsByPriceRange.sort(this.sortByPrice.bind(this));
 		
-		this.gradientArray = this.generateGradient("FFFF00", "FF0000", this.hotelCollection.length);
 		
+		this.gradientArray = new Array();
+		this.options.spectrum = new Array("00FF00", "FFFF00", "FF0000");
+		
+		for (var i = 0,l=this.options.spectrum.length-1; i < l; i++) {
+			this.gradientArray = this.gradientArray.concat(this.generateGradient(this.options.spectrum[i], this.options.spectrum[i + 1], this.hotelCollection.length));			
+		}
+
 		this.gradientArray.each(function(color, index) {
 			this.hotelsByPriceRange[index].hotelMarkerColor = color.toUpperCase();
 		},this);
