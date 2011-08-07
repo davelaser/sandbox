@@ -76,7 +76,9 @@ destination_display_names = {
 hotel_booking_dest_names = {
 	'newyork':'NYC',
 	'paris':'PAR',
-	'madrid':'MAD'		
+	'madrid':'MAD',
+	'amsterdam':'AMS',
+	'barcelona':'BCN'		
 }
 
 def loadConfigProperties():
