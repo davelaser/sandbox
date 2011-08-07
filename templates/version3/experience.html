@@ -43,11 +43,15 @@
 				<h2>My Bookmarks</h2>
             </header>								
 			<a href="#" class="url" target="_blank" rel="external"></a>
-		</section>			
+		</section>
+		
+		
+		
+		
 		{% include "includes/form.html" %}
 		
 		<div id="content">
-			       
+			{% include "includes/social.html" %}       
 			<section id="hotels" class="{% if not destination %}hide{% endif %}">
 				<header>
 					<h2>Hotels</h2>
@@ -134,6 +138,7 @@
 		<div id="loading-message"><h3>Starting new story...</h3></div>
 	</div>
 	<script src="http://widgets.twimg.com/j/2/widget.js"></script>
+	<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 	<div id="fb-root"></div>
 	<script src="/static/js/scripts.js"></script> 
 	<script type="text/javascript">
@@ -180,6 +185,12 @@
         window.addEvent("domready", function() {
 			loadScript();
 		});
+		
+		(function() {
+			var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+	    	po.src = 'https://apis.google.com/js/plusone.js';
+	    	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+	  	})();
 	//]]>
 	</script>
 	{% comment %}
