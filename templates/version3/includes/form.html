@@ -6,11 +6,11 @@
 		<label for="destination">Find me a hotel in</label>
 		<input id="destination" type="text" value="{{ destinationDisplayName }}" />
 		<label for="duration_of_stay">for</label>
-		<input id="duration_of_stay" type="text" value="7{{ duration_of_stay }}" />                                                        
-		<span>nights,</span>
+		<input id="duration_of_stay" type="text" value="1{{ duration_of_stay }}" />                                                        
+		<span>night(s),</span>
 		<label for="arrival_date">arriving</label>
-		<input id="arrival_date" type="date" value="01/05/2012{{ arrival_date }}" />
-		<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />
+		<input id="arrival_date" type="text" value="2011-09-01{{ arrival_date }}" />
+		{% comment %}<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />{% endcomment %}
 		<label for="priceMax">for less than &#163;</label>
 		<input id="priceMax" type="number" min="10" max="10000" step="10" value="{{ price }}" />
 		<button id="submit_travel_details" type="submit" class="button">Start my story</button>
