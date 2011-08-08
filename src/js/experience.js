@@ -26,7 +26,7 @@ RIA.Experience = new Class({
 		this.fbDialogSendButton = document.id("fb-dialog-send");
 		
 		this.places = document.id("places");
-		this.addDraggable(this.places, this.places.getElement("header"));
+		this.places.store("viewstate", "closed");
 		   
 		this.placesDistanceRange = document.id("places-distance-range");
 		this.placesDistanceOutput = document.id("places-distance-output");
@@ -101,7 +101,12 @@ RIA.Experience = new Class({
 			"click":this.toggleInformation.bind(this) 
 		});
 		     
-		                           
+		
+		if(document.id("nearby")) {
+			document.id("nearby").addEvents({
+				"click":this.showPlaces.bind(this)
+			});
+		}
 		if(document.id("my-bookmarks")) {
 			document.id("my-bookmarks").addEvents({
 				"click":this.shareMyBookmarks.pass([true],this)
@@ -199,22 +204,6 @@ RIA.Experience = new Class({
           	name: 'Your Lastminute.com Hotel Bookmarks',
 			link: RIA.shareURL,
 		});
-		//this.addDraggable(document.getElements(".fb_dialog.loading"));
-	},
-	addDraggable: function(element, handle) {
-  	
-   		new Drag(element, {
-	 		handle:handle,
-		    snap: 0,
-		    onSnap: function(el){
-		        el.addClass('dragging');
-		    },
-		    onComplete: function(el){
-		        el.removeClass('dragging');
-		    }
-		});	  
-
-		
 	},
 	hotelNavigation: function(e) { 
 
@@ -248,10 +237,17 @@ RIA.Experience = new Class({
 			
 			if(ready) {
 				document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
-				this.animateToHotel(this.hotelCollection[this.hotelIndex]);   
-				(function() {
+				
+				if(this.hotels.hasClass("minimized")) {
+					this.animateToHotel(this.hotelCollection[this.hotelIndex]); 
+					(function() {
+						this.setStreetview(this.hotelCollection[this.hotelIndex]);
+					}.bind(this)).delay(500);
+				} else {
+					this.jumpToHotel(this.hotelCollection[this.hotelIndex]);      
 					this.setStreetview(this.hotelCollection[this.hotelIndex]);
-				}.bind(this)).delay(500);
+				}
+				
 			}
 
 
@@ -419,15 +415,31 @@ RIA.Experience = new Class({
 		if(show) {
 			if(this.bookmarks.retrieve("viewstate") == "closed") {
 				this.bookmarks.morph({"height":"55px", "top":"60px"});
-				this._form.morph({"top":"140px", "paddingTop":"20px"});			
+				//this._form.morph({"top":"140px", "paddingTop":"20px"});			
+				this._form.morph({"opacity":0});			
 				this.bookmarks.store("viewstate", "open");
-				this.content.morph({"opacity":0});
+				
+				//this.content.morph({"opacity":0});
 			} else {
 				this.bookmarks.morph({"height":"0px", "top":"-20px"});
-				this._form.morph({"top":"40px", "paddingTop":"40px"});
-				this.bookmarks.store("viewstate", "closed");
-				this.content.morph({"opacity":1});
+				//this._form.morph({"top":"40px", "paddingTop":"40px"});
+				this._form.morph({"opacity":1});
+				this.bookmarks.store("viewstate", "closed"); 
+				
+				//this.content.morph({"opacity":1});
 			}
 		}
+	},
+	showPlaces: function(e) {
+		e.preventDefault();
+		
+		if(this.places.retrieve("viewstate") == "closed") {
+    		this.places.store("viewstate", "open"); 
+			this.places.morph({"display":"block"});
+		} else {   
+    		this.places.store("viewstate", "closed");
+			this.places.morph({"display":"none"}); 
+		}
+		
 	}
 });

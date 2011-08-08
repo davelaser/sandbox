@@ -30,6 +30,7 @@
 }
 
 #places #place-radius {
+	width:150px;
 	position:relative;
 }
            
@@ -43,12 +44,12 @@
 }
 #places #place-radius .min {
 	position:absolute;
-	bottom:0px;
-	left:5px;
+	bottom:14px;
+	left:0px;
 } 
 
 #places #place-radius .max {
 	position:absolute;
-	bottom:0px;
-	right:5px;
+	bottom:14px;
+	right:0px;
 }

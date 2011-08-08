@@ -132,6 +132,14 @@ class DBHotel(db.Model):
 	latlng = db.GeoPtProperty()
 	index = db.IntegerProperty(required=True)
 	destination = db.StringProperty(required=True)
+	thumbnailurl = db.StringProperty()
+	mainimageurl = db.StringProperty()
+	photo1url = db.StringProperty()
+	photo2url = db.StringProperty()
+	photo3url = db.StringProperty()
+	photo4url = db.StringProperty()
+	reviewurl = db.TextProperty()
+	bookingurl = db.TextProperty()
 	
 def get_hotels_by_destination(destination):
 	resultset = DBHotel.gql("WHERE destination = '"+destination+"' ORDER BY price")
@@ -144,6 +152,9 @@ def put_hotels_by_destination(destination, data):
 		hotelList = list()
 		for hotel in data:
 			dbHotel = DBHotel(locationid = destination+str(counter), name = hotel['Name'], price = float(hotel['Price']), address = hotel['Address'], phone = hotel['Phone'], destination = destination, index = counter)
+			dbHotel.mainimageurl = "http://m.travelocity.com/images/new_york/hotel/0/008667/Exterior_E_1.jpg"
+			dbHotel.thumbnailurl = "http://m.travelocity.com/images/new_york/hotel/0/008667/Exterior_H_1.jpg"
+			#dbHotel.bookingurl = "http://globaltrips.lastminute.com/trips/shoppingCart?pTxId=281994&checkInDate=2011-08-19&checkOutDate=2011-08-20&guestCounts=2&guestCodes=ADULT&propertyIds=008667&city=new+york+city&configId=S72722479&numRooms=1&numNights=1&dest=NYC&path=hotels&hotelRequestId=321709440554654&moduleName=inpage_navigation&patternName=product_details_overlay&roomTypeCodes=G674412358&cartId=493e1e9f-91a1-4026-b251-d93273469c55&itemId=32170945054166&tripId=0&productType=Hotels"
 			counter += 1
 			hotelList.append(dbHotel)
 		"""

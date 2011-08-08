@@ -1,4 +1,4 @@
-<section id="places" class="rc">
+<section id="places">
 	<div>
 		<header>
 			<h2>Places</h2>
@@ -26,11 +26,13 @@
 						<input type="checkbox" id="supermarkets" value="grocery_or_supermarket" data-value="grocery_or_supermarket" />
 						<label for="supermarkets" data-text="Supermarkets">Supermarkets</label>
 					</li>
+					{% comment %}
 					<li>
 						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=snack|FFFFFF" />
 						<input type="checkbox" id="takeaway" value="meal_delivery|meal_takeaway" data-value="meal_delivery|meal_takeaway" />
 						<label for="takeaway" data-text="Takeaways">Takeaways</label>
 					</li>			
+					{% endcomment %}
 				</ul>
 			</fieldset>
 			<fieldset>
@@ -42,18 +44,22 @@
 						<label for="department_store" data-text="Department stores">Department stores</label>
 					</li>
 					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=shoppingbag|FFFFFF" />
 						<input type="checkbox" id="clothing_store" value="clothing_store" data-value="clothing_store" />
 						<label for="clothing_store" data-text="Clothes">Clothes</label>
 					</li>
 					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=shoppingbag|FFFFFF" />
 						<input type="checkbox" id="shoe_store" value="shoe_store" data-value="shoe_store" />
 						<label for="shoe_store" data-text="Shoes">Shoes</label>
 					</li>
 					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=shoppingbag|FFFFFF" />
 						<input type="checkbox" id="book_store" value="book_store" data-value="book_store" />
 						<label for="book_store" data-text="Books">Books</label>
 					</li>
 					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=dollar|FFFFFF" />
 						<input type="checkbox" id="atm" value="atm|bank" data-value="atm|bank" />
 						<label for="atm" data-text="Banks &amp; ATMs">Banks &amp; ATMs</label>
 					</li>
@@ -67,6 +73,66 @@
 						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
 						<input type="checkbox" id="museums" value="museum" data-value="museum" />
 						<label for="museums" data-text="Museums, Parks, Zoos...">Museums, Parks, Zoos...</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="parks" value="park" data-value="park" />
+						<label for="parks" data-text="Parks">Parks</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="zoos" value="zoo" data-value="zoo" />
+						<label for="zoos" data-text="Zoos">Zoos</label>
+					</li>
+				</ul>
+			</fieldset>
+		 	<fieldset>
+				<h3>Emergencies</h3>
+				<ul>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="hospitals" value="hospital" data-value="hospital" />
+						<label for="hospitals" data-text="Hospitals">Hospitals</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="embassy" value="embassy" data-value="embassy" />
+						<label for="embassy" data-text="Embassy">Embassy</label>
+					</li>
+				</ul>
+			</fieldset>
+			<fieldset>
+				<h3>Transport</h3>
+				<ul>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="airport" value="airport" data-value="airport" />
+						<label for="airport" data-text="Airports">Airports</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="taxi_stand" value="taxi_stand" data-value="taxi_stand" />
+						<label for="taxi_stand" data-text="Taxis">Taxis</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="car_rental" value="car_rental" data-value="car_rental" />
+						<label for="car_rental" data-text="Car rental">Car rental</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="subway_station" value="subway_station" data-value="subway_station" />
+						<label for="subway_station" data-text="Subway station">Subway station</label>
+					</li>                  
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="bus_station" value="bus_station" data-value="bus_station" />
+						<label for="bus_station" data-text="Bus station">Bus station</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="train_station" value="train_station" data-value="train_station" />
+						<label for="train_station" data-text="Train station">Train station</label>
 					</li>
 				</ul>
 			</fieldset> 

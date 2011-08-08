@@ -40,7 +40,12 @@ RIA.MapStreetView = new Class({
 			clothing_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
 			department_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
 			bank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF',
-			atm:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF'
+			atm:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF',
+			bus:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bus|FFFFFF',
+			car:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=car|FFFFFF',
+			taxi:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=taxi|FFFFFF',
+			hospital:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=medical|FFFFFF',
+			embassy:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=legal|FFFFFF'
 		}
 		         
 		var star = new google.maps.MarkerImage(RIA.MarkerIcons.star),
@@ -63,7 +68,12 @@ RIA.MapStreetView = new Class({
 		clothing_store = new google.maps.MarkerImage(RIA.MarkerIcons.clothing_store),
 		department_store = new google.maps.MarkerImage(RIA.MarkerIcons.department_store),
 		bank = new google.maps.MarkerImage(RIA.MarkerIcons.bank),
-		atm = new google.maps.MarkerImage(RIA.MarkerIcons.atm);
+		atm = new google.maps.MarkerImage(RIA.MarkerIcons.atm),
+		bus_station = new google.maps.MarkerImage(RIA.MarkerIcons.bus),
+		car_rental = new google.maps.MarkerImage(RIA.MarkerIcons.car),
+		taxi_stand = new google.maps.MarkerImage(RIA.MarkerIcons.taxi),
+		hospital = new google.maps.MarkerImage(RIA.MarkerIcons.hospital),
+		embassy = new google.maps.MarkerImage(RIA.MarkerIcons.embassy);
 		
 		RIA.MarkerIconsImages = {
 			star:star,
@@ -85,8 +95,13 @@ RIA.MapStreetView = new Class({
 			book_store:book_store,
 			clothing_store:book_store,
 			department_store:department_store,
-			bank:department_store,
-			atm:atm
+			bank:bank,
+			atm:atm,
+			bus_station:bus_station,
+			car_rental:car_rental,
+			taxi_stand:taxi_stand,
+			hospital:hospital,
+			embassy:embassy
 		}
 
 		RIA.geocoder = new google.maps.Geocoder();
@@ -231,8 +246,10 @@ RIA.MapStreetView = new Class({
                                        
 		// Switch the Map on, in case it was hidden due to no results previously
 		this.mapStreetview.setStyle("display", "");          		            
+		
 		// Set the Map position and Pan to this position
 		this.setMapPositionPan(RIA.currentLocation);    
+		
 		// Set the Streetviw Panorama position
 		this.setPanoramaPosition(RIA.currentLocation);
 		
@@ -419,12 +436,12 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	createInfoWindow: function(hotel, marker) {
-		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow;
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), marker, infowindow;
 		// Create a new InfoWindow, for the Marker
 		         
 		var ytPlayer = "<object id=\"yt-player\" width=\"425\" height=\"349\"><param name=\"movie\" value=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\"/><param name=\"allowFullScreen\" value=\"true\"/><param name=\"allowscriptaccess\" value=\"always\"/><embed src=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\" type=\"application/x-shockwave-flash\" width=\"425\" height=\"349\" allowscriptaccess=\"always\" allowfullscreen=\"true\"/></object>";
 
-		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p>"+price+"</p>";
+		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" /><p>"+price+"</p>";
 		
 		infowindow = new google.maps.InfoWindow({
 		    content: hotelContent,
@@ -518,7 +535,7 @@ RIA.MapStreetView = new Class({
 				position: latLng,
 				draggable:false,
 				title:hotel.get("data-name"),
-				animation:google.maps.Animation.DROP,
+				//animation:google.maps.Animation.DROP,
 				cursor:'pointer',
 				clickable:true,
 				zIndex:1,
@@ -531,7 +548,7 @@ RIA.MapStreetView = new Class({
 				position: latLng,
 				draggable:false,
 				title:hotel.get("data-name"),
-				animation:google.maps.Animation.DROP,
+				//animation:google.maps.Animation.DROP,
 				clickable:false,
 				zIndex:1
 	        });

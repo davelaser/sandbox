@@ -1,9 +1,6 @@
 {% for hotel in hotels %}
 <div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "cheap" or destination == "expensive" or destination == "" %}({{ hotel.destination }}){% endif %}" data-price="&#163;{{hotel.price|safe}}" data-latlng="{{ hotel.latlng }}">
 	<header>
-		{% if hotel.thumbnail %}
-			{{ hotel.thumbnail|safe }}
-		{% endif %}
 		<h3><span class="count">{{ forloop.counter }} of {{hotels|length}}</span>{{hotel.name|safe}} {% if destination == "cheap" or destination == "expensive" or destination == "" %}({{ hotel.destination }}){% endif %} : <span class="price">&#163;{{ hotel.price|safe }}</span></h3>
 		{% comment %}<button id="hotel-drop-pin-{{ forloop.counter }}" type="submit" value="" class="drop-pin button">Bookmark</button>{% endcomment %}
 		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.name }}"/></a>
@@ -12,16 +9,21 @@
 		{{ hotel.rating }}
 		
 	</div>
-	<div class="photos">
-		<img src="http://m.travelocity.com/images/new_york/hotel/0/008667/Exterior_E_1.jpg" width="200" height="200" alt="" />
-		{% if hotel.photo1 %}
-			{{ hotel.photo1|safe }}
+	<div class="photos" data-thumbnail="{{ hotel.thumbnailurl|default:"" }}">
+		{% if hotel.mainimageurl %}
+			<img src="{{ hotel.mainimageurl }}" alt="{{hotel.name|safe}}" />
+		{% endif %}		
+		{% if hotel.photo1url %}
+			<img src="{{ hotel.photo1url }}" alt="{{hotel.name|safe}}" />
 		{% endif %}          
-		{% if hotel.photo2 %}
-			{{ hotel.photo2|safe }}
+		{% if hotel.photo2url %}
+			<img src="{{ hotel.photo2url }}" alt="{{hotel.name|safe}}" />
 		{% endif %}
-		{% if hotel.photo3 %}
-			{{ hotel.photo3|safe }}
+		{% if hotel.photo3url %}
+			<img src="{{ hotel.photo3url }}" alt="{{hotel.name|safe}}" />
+		{% endif %} 
+		{% if hotel.photo4url %}
+			<img src="{{ hotel.photo4url }}" alt="{{hotel.name|safe}}" />
 		{% endif %}
 	</div>
 	<div class="nearby">	

@@ -17,13 +17,13 @@ RIA.GooglePlaces = new Class({
 				/*beauty_salon
 				bicycle_store*/
 				book_store:"Book store",
-				/*bowling_alley
-				bus_station*/
+				/*bowling_alley*/
+				bus_station:"Bus station",
 				cafe:"Cafe",
 				/*campground
-				car_dealer
-				car_rental
-				car_repair
+				car_dealer*/
+				car_rental:"Car rental",
+				/*car_repair
 				car_wash
 				casino
 				cemetery
@@ -36,9 +36,9 @@ RIA.GooglePlaces = new Class({
 				department_store:"Department store",
 				/*doctor
 				electrician
-				electronics_store
-				embassy
-				establishment
+				electronics_store*/
+				embassy:"Embassy",
+				/*establishment
 				finance
 				fire_station
 				florist*/
@@ -54,9 +54,9 @@ RIA.GooglePlaces = new Class({
 				hardware_store
 				health
 				hindu_temple
-				home_goods_store
-				hospital
-				insurance_agency
+				home_goods_store*/
+				hospital:"Hospital",
+				/*insurance_agency
 				jewelry_store
 				laundry
 				lawyer
@@ -88,17 +88,17 @@ RIA.GooglePlaces = new Class({
 				/*roofing_contractor
 				rv_park
 				school*/
-				shoe_store:"Shoe store"
+				shoe_store:"Shoe store",
 				/*shopping_mall
 				spa
 				stadium
 				storage
-				store
-				subway_station
-				synagogue
-				taxi_stand
-				train_station
-				travel_agency
+				store*/
+				subway_station:"Subway station",
+				/*synagogue*/
+				taxi_stand:"Taxi rank",
+				train_station:"Train station"
+				/*travel_agency
 				university
 				veterinary_care
 				zoo
