@@ -103,6 +103,14 @@ nav#hotel-list a.active {
 	margin:2px 0 0 0;
 }                    
 
+.hotel .description,
+.hotel .address {
+	margin:0 0 10px 0;
+}
+
+.hotel .room-and-rates {
+	margin:20px 0 0 0;
+}
 .hotel h3 span.count {
 	display:block;
 	float:left;  
