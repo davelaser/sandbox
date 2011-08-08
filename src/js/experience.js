@@ -48,7 +48,10 @@ RIA.Experience = new Class({
 		this.mapCanvas.store("styles:maximized", {width:"100%", height:"100%"});
 		this.mapCanvas.store("view:state", this.options.maptype);
 		
-		this.mapStreetview = document.id("pano");
+		this.mapStreetview = document.id("pano");                
+		this.mapStreetview.store("styles:orig", this.mapStreetview.getCoordinates());
+		this.mapStreetview.store("styles:maximized", {width:"100%", height:"100%"});
+		
 		this.onWindowResize();
 		this.addEventListeners();  
 		
@@ -246,8 +249,10 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
+		this.hotelsNav.empty();
 		this.removeHotelMarkers(); 
 		this.removeHotelNavEventListeners();
+		this.hotels.getElement(".results").setStyles({"marginLeft":"0px"});
 	},
 	gotHotels: function(destination) {    
 		/*
@@ -275,7 +280,7 @@ RIA.Experience = new Class({
 			if(!this.hotels.hasClass("grid")) {
 				this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
 				this.totalLength = (this.hotelCollection.length*this.hotelWidth);
-				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
+				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px"});
 			}
 			
 			this.setStreetview(this.hotelCollection[0]);
@@ -297,7 +302,7 @@ RIA.Experience = new Class({
 	}, 
 	createHotelNav: function() {
 		
-		this.hotelsNav.empty();
+		
 		this.hotelCollection.each(function(hotel, index) {
 			this.hotelsNav.adopt(new Element("a", {
 				"href":"#",
