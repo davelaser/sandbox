@@ -4,7 +4,8 @@ RIA.MapStreetView = new Class({
 		geocodeURL:"/geocode",
 		geolocation:null, 
 		bookmarks:null,
-		maptype:"panorama"
+		maptype:"panorama",
+		spectrum:["00FF00", "FFFF00", "FF0000"]
 	},
 	mapInitialize: function() {
 		
@@ -119,7 +120,11 @@ RIA.MapStreetView = new Class({
 			keyboardShortcuts:false,
 			zoom: 13,
 			center: RIA.currentLocation, 
-			mapTypeId: google.maps.MapTypeId.ROADMAP
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			scaleControl: true,
+		    scaleControlOptions: {
+		        position: google.maps.ControlPosition.BOTTOM_LEFT
+		    }
 		}
 		
 		this.panoramaOptions = {
@@ -445,20 +450,25 @@ RIA.MapStreetView = new Class({
 		
 		infowindow = new google.maps.InfoWindow({
 		    content: hotelContent,
-			maxWidth:50
+			maxWidth:50,
+			disableAutoPan:true
 		});
-       
+        
+		infowindow.closeEvent = google.maps.event.addListener(infowindow, 'closeclick', function(event) {
+		    infowindow.opened = false;
+		}.bind(this));
+
 		// Add mouse event listeners for the Marker
 		hotel.mouseoutEvent = null;
 		hotel.mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
 		    this.openInfoWindow(marker, infowindow);  
 			hotel.mouseoutEvent = google.maps.event.addListener(marker, 'mouseout', function(event) {
-			    infowindow.close(); 
+			    if(!infowindow.opened) infowindow.close(); 
 				google.maps.event.removeListener(hotel.mouseoutEvent); 
 			}.bind(this));
 		}.bind(this)); 
 		hotel.clickEvent = google.maps.event.addListener(marker, 'click', function(event) {
-			Log.info("Clicked hotel marker");
+			infowindow.opened = true;
 			this.setCurrentLocation(event.latLng);
 			google.maps.event.removeListener(hotel.mouseoutEvent);
 			this.setPanoramaPosition(event.latLng);
@@ -498,8 +508,8 @@ RIA.MapStreetView = new Class({
 				delay = counter+=500;              
 				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
 			} else {
-				//Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
-				// If the hotel does not already have a bookmark
+				Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
+				// If the hotel does not have a bookmark in place
 				if(hotel.bookmark == null) {
 					this.addHotelMarker(hotel, geo);
 				}
@@ -535,7 +545,7 @@ RIA.MapStreetView = new Class({
 				position: latLng,
 				draggable:false,
 				title:hotel.get("data-name"),
-				//animation:google.maps.Animation.DROP,
+				animation:google.maps.Animation.DROP,
 				cursor:'pointer',
 				clickable:true,
 				zIndex:1,
@@ -548,7 +558,7 @@ RIA.MapStreetView = new Class({
 				position: latLng,
 				draggable:false,
 				title:hotel.get("data-name"),
-				//animation:google.maps.Animation.DROP,
+				animation:google.maps.Animation.DROP,
 				clickable:false,
 				zIndex:1
 	        });
@@ -680,21 +690,15 @@ RIA.MapStreetView = new Class({
 	    return heading;
 	},
 	createHotelMarkerColors: function() { 
-		this.hotelsByPriceRange = new Array();
-		this.hotelCollection.each(function(hotel, index) {
-			hotel.priceData = parseFloat(hotel.get("data-price").substring(1)); 
-			this.hotelsByPriceRange.include(hotel);
-		},this);
+		this.gradientArray = new Array();
 		
-		
-		this.hotelsByPriceRange = this.hotelsByPriceRange.sort(this.sortByPrice.bind(this));
-		
-		this.gradientArray = this.generateGradient("FFFF00", "FF0000", this.hotelCollection.length);
-		
-		this.gradientArray.each(function(color, index) {
-			this.hotelsByPriceRange[index].hotelMarkerColor = color.toUpperCase();
-		},this);
+		for (var i = 0,l=this.options.spectrum.length-1; i < l; i++) {
+			this.gradientArray = this.gradientArray.concat(this.generateGradient(this.options.spectrum[i], this.options.spectrum[i + 1], Math.ceil(this.hotelCollection.length/2)));			
+		}
 
+		this.hotelCollection.each(function(hotel, index) {
+			hotel.hotelMarkerColor = this.gradientArray[index].toUpperCase();    
+		},this);
 	},
 	sortByPrice: function(a,b) {        
 		return a.priceData - b.priceData; 

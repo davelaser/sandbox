@@ -1,0 +1,54 @@
+#hotels.grid {
+	
+}
+#hotels.grid #horizontal,
+#hotels.grid nav#hotel-list,
+#hotels.grid .hotel span.count,
+#hotels.grid .hotel span.colon {
+	display:none;
+}
+
+#hotels.grid .results-wrapper {
+	background:#fff;
+	width:955px;
+	padding:0px;
+	margin:0px;
+}
+
+
+#hotels.grid .hotel {
+	width:28%;
+	display:block;
+	float:left;
+	margin:0; 
+	padding:20px; 
+	
+}
+
+#hotels.grid .hotel .photos {
+	float:none;
+	margin:0px;
+}
+
+#hotels.grid .hotel h3 {
+	font-size:1.5em;
+	float:none; 
+	line-height:20px;
+	margin:2px 0 0 0;
+}                    
+
+
+#hotels.grid .drop-pin {
+	display:block;
+	float:none;
+}
+
+#hotels.grid .hotel .price {
+	display:block;
+	float:none;
+}
+
+#hotels.grid .hotel .name {
+	font-size:auto;
+	text-wrap:none;
+}

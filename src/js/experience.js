@@ -60,29 +60,7 @@ RIA.Experience = new Class({
 		window.addEvents({
 			"resize": this.onWindowResize.bind(this)
 		});
-		
-		/*
-		this._form.getElements("input").addEvents({
-			"focus": function(e) {      
-				this.removeHotelNavEventListeners();
-			}.bind(this),
-			"blur": function(e) {      
-				this.addHotelNavEventListeners();
-			}.bind(this)
-		});
-		*/
-		
-		this.destination.addEvents({
-			"keydown": this.adjustInputStyles.bind(this)
-		});                                             
-		
-		this.durationOfStay.addEvents({
-			"keydown": this.adjustInputStyles.bind(this)
-		}); 
-		this.arrivalDate.addEvents({
-			"keydown": this.adjustInputStyles.bind(this)
-		});
-		
+
 		if(this.fbDialogSendButton) {
 			this.fbDialogSendButton.addEvents({
 				"click":this.fbDialogSend.bind(this)
@@ -185,15 +163,7 @@ RIA.Experience = new Class({
 				"click":this.dropBookmarkPinBind
 			});
 		},this)
-	},     
-	adjustInputStyles: function(e) {
-		e.target.removeClass("unentered");
-		var charLength = e.target.get("value").length, fontSize = e.target.getStyle("font-size").toInt(), width;
-		width = Math.round((charLength*(fontSize/1.85)));
-			if(width > e.target.retrieve("styles:width:orig")) {
-			e.target.setStyle("width", width+"px")			
-		}
-	},	
+	},      
 	fbDialogSend: function() {
 		FB.ui({
 			app_id:RIA.fbAppId,
@@ -297,23 +267,11 @@ RIA.Experience = new Class({
 			//Log.info("RIA.currentDestination is now "+RIA.currentDestination);
 					
 			
-			                                  
-			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
-			
-			/*
-			this.hotels.getElements(".photos").each(function(photoContainer) {
-				var text = photoContainer.get("text").clean();
-				text.replace(" ","");
-				var temp = new Element("div").set("html", text);
-				photoContainer.innerHTML = "";
-				temp.inject(photoContainer)
-			});
-			*/
-			this.totalLength = (this.hotelCollection.length*this.hotelWidth);
-			
-			// Reset the results width and the left margin, so we are in first hotel position
-			this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
-
+			if(!this.hotels.hasClass("grid")) {
+				this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
+				this.totalLength = (this.hotelCollection.length*this.hotelWidth);
+				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
+			}
 			
 			this.setStreetview(this.hotelCollection[0]);
 			    

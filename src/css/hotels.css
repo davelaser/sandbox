@@ -181,3 +181,7 @@ h3.no-results {
 	font-size:2em;
 	padding:5px 20px;
 }
+
+.hotel-booking-form button {
+	font-size:1.3em;
+}

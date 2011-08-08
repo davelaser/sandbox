@@ -27,7 +27,7 @@ requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
 
 # TODO: remove the memcache flush
-#memcache.flush_all()
+memcache.flush_all()
 
 #logging.info(memcache.get_stats())
 
@@ -73,6 +73,13 @@ destination_display_names = {
 	'sorrento':'Sorrento'
 }
 
+hotel_booking_dest_names = {
+	'newyork':'NYC',
+	'paris':'PAR',
+	'madrid':'MAD',
+	'amsterdam':'AMS',
+	'barcelona':'BCN'		
+}
 
 def loadConfigProperties():
 	configProperties = memcache.get("config.properties")
@@ -231,7 +238,19 @@ def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat,
 		return "true"
 	else:
 		return "false"
-		
+
+
+"""
+Get Hotel Booking Form Data
+"""		
+
+def get_hotel_booking_form_data(destination):
+	bookingData = dict()
+	configItems = config_properties.items('HotelBookingForm')
+	for item in configItems:
+		bookingData[item[0]] = item[1]
+	return bookingData
+	
 """ Use with Live Kapow Service - Handle an RPC result instance, for Flights """
 def handle_result_ajax(rpc, destination, info_type, response):
 	result = rpc.get_result()
@@ -245,7 +264,7 @@ def handle_result_ajax(rpc, destination, info_type, response):
 			# Put the response body content stringXML into the data store
 			put_datastore_by_destination(destination, result.content)
 			global_mashup['hotels'] = f
-			logging.info(f)
+			#logging.info(f)
 		elif info_type == "city-break":
 			global_mashup['city_break'] = f[0]
 		path = os.path.join(os.path.dirname(__file__),'templates/version2/includes/experience-'+info_type+'.html')
@@ -269,13 +288,17 @@ def handle_result_ajax_v3(rpc, destination, price, info_type, response):
 			# Put the response body content stringXML into the data store
 			#put_datastore_by_destination(destination, f)
 			put_hotels_by_destination(destination,f)
+			bookingData = get_hotel_booking_form_data(destination)
+			bookingData['city'] = destination
+			if hotel_booking_dest_names.has_key(destination):
+				bookingData['dest'] = hotel_booking_dest_names[destination]
 			
-			#hotelsData = get_hotels_by_destination(destination)
 			hotelsData = get_hotels_by_destination_and_price(destination, price)
 			if hotelsData.get() is not None:
 				logging.info("Retrieving from datastore")
 				hotelsList = list()
 				for hotel in hotelsData:
+					hotel.bookingData = bookingData
 					hotelsList.append(hotel)
 
 				replaced = memcache.replace(destination,hotelsList)
@@ -528,11 +551,9 @@ class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
-		
 		if len(price) > 0:
 			price = float(price)
 			
-		logging.info(price)
 		destinationDisplayName = destination 
 		bookmarks = self.request.get("bookmarks").split(',')
 		maptype = self.request.get("maptype") 
@@ -540,7 +561,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		if destination_display_names.has_key(destination):
 			destinationDisplayName = destination_display_names[destination]
 		
-		facebookAppId = config_properties.get('Facebook', 'app_id')
+		#facebookAppId = config_properties.get('Facebook', 'app_id')
+		facebookAppId = ""
 		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
@@ -602,7 +624,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
     
     
 	global_mashup['price'] = price
-	logging.info(price)
+	#logging.info(price)
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()
@@ -644,10 +666,16 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			#hotelsData = get_hotels_by_destination(destination)
 		    hotelsData = get_hotels_by_destination_and_price(destination, price)
 		
+		bookingData = get_hotel_booking_form_data(destination)
+		bookingData['city'] = destination
+		if hotel_booking_dest_names.has_key(destination):
+			bookingData['dest'] = hotel_booking_dest_names[destination]
+						
 		if hotelsData.get() is not None:
 			logging.info("Retrieving from datastore")
 			hotelsList = list()
 			for hotel in hotelsData:
+				hotel.bookingData = bookingData
 				hotelsList.append(hotel)
 
 			replaced = memcache.replace(destination,hotelsList)

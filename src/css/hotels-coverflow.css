@@ -1,0 +1,24 @@
+#hotels.coverflow {
+	width:100%;
+	
+}
+
+
+#hotels.coverflow #horizontal,
+#hotels.coverflow nav#hotel-list
+{
+	display:none;
+}
+
+#hotels.coverflow .results-wrapper {
+	background:none;
+	width:10000em;
+	overflow:auto;
+	-webkit-box-shadow:none;  
+}
+
+#hotels.coverflow .hotel {
+	-webkit-transition-property: -webkit-transform;
+	-webkit-transition-duration: .8s;
+	-webkit-transform: rotateY(40deg);
+}

@@ -3,13 +3,13 @@
 		<header>
 			<h2>Travel details</h2>				
 		</header>  					
-		<label for="destination">I want to stay at a hotel in</label>
+		<label for="destination">Find me a hotel in</label>
 		<input id="destination" type="text" value="{{ destinationDisplayName }}" />
 		<label for="duration_of_stay">for</label>
-		<input id="duration_of_stay" type="text" value="{{ duration_of_stay }}" />                                                        
+		<input id="duration_of_stay" type="text" value="7{{ duration_of_stay }}" />                                                        
 		<span>nights,</span>
 		<label for="arrival_date">arriving</label>
-		<input id="arrival_date" type="date" value="{{ arrival_date }}" />
+		<input id="arrival_date" type="date" value="01/05/2012{{ arrival_date }}" />
 		<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />
 		<label for="priceMax">for less than &#163;</label>
 		<input id="priceMax" type="number" min="10" max="10000" step="10" value="{{ price }}" />

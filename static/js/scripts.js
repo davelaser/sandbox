@@ -464,4 +464,1706 @@ g=g.getParent();}var f=this.expose(),d=h.call(this);f();e.each(function(i){i();}
 if(d.mode=="vertical"){delete e.width;delete d.planes.width;}else{if(d.mode=="horizontal"){delete e.height;delete d.planes.height;}}b(d.styles,d.planes).each(function(h){g[h]=this.getStyle(h).toInt();
 },this);Object.each(d.planes,function(i,h){var k=h.capitalize(),j=this.getStyle(h);if(j=="auto"&&!f){f=this.getDimensions();}j=g[h]=(j=="auto")?f[h]:j.toInt();
 e["total"+k]=j;i.each(function(m){var l=c(m,g);e["computed"+m.capitalize()]=l;e["total"+k]+=l;});},this);return Object.append(e,g);}});})();
-var RIA={};var Log={info:function(a){if(window.console&&console.log&&a){console.log(a)}},error:function(a){if(a.error instanceof TypeError){this.info("JS ERROR : "+(a.method||"Unknown method")+" : TypeError; the type of a variable is not as expected : "+(a.error.message||a.error))}else{if(a.error instanceof RangeError){this.info("JS ERROR : "+(a.method||"Unknown method")+" : RangeError; numeric variable has exceeded its allowed range : "+(a.error.message||a.error))}else{if(a.error instanceof SyntaxError){this.info("JS ERROR : "+(a.method||"Unknown method")+" : SyntaxError; syntax error occurred while parsing : "+(a.error.message||a.error))}else{if(a.error instanceof ReferenceError){this.info("JS ERROR : "+(a.method||"Unknown method")+" : ReferenceError; invalid reference used : "+(a.error.message||a.error))}else{this.info("JS ERROR : "+(a.method||"Unknown method")+" : Unidentified Error Type : "+(a.error.message||a.error))}}}}}};RIA.Gradient=new Class({generateGradient:function(k,l,j){var m=k.toString(16),h=l.toString(16),e={},a={},c={},n=new Array();e.r=parseInt(m.substring(0,2),16);e.g=parseInt(m.substring(2,4),16);e.b=parseInt(m.substring(4,6),16);a.r=parseInt(h.substring(0,2),16);a.g=parseInt(h.substring(2,4),16);a.b=parseInt(h.substring(4,6),16);c.r=(e.r-a.r)/(j-1);c.g=(e.g-a.g)/(j-1);c.b=(e.b-a.b)/(j-1);for(var d=0;d<j;d++){var b={};var o=Math.floor(e.r-(c.r*d));var f=Math.floor(e.g-(c.g*d));var g=Math.floor(e.b-(c.b*d));b.r=o.toString(16);if(f<0){b.g="00"}else{b.g=f.toString(16)}b.b=g.toString(16);if(b.r.length===1){b.r="0"+b.r}if(b.g.length===1){b.g="0"+b.g}if(b.b.length===1){b.b="0"+b.b}n.push(b.r+b.g+b.b)}return n}});RIA.GooglePlaces=new Class({Implements:[Options],options:{places:{searchRadius:500,serviceURL:"/places",types:{accounting:"Accounting",atm:"ATM",bakery:"Bakery",bank:"Bank",bar:"Bar",book_store:"Book store",bus_station:"Bus station",cafe:"Cafe",car_rental:"Car rental",clothing_store:"Clothing store",department_store:"Department store",embassy:"Embassy",food:"Restaurant",grocery_or_supermarket:"Grocery or Supermarket",hospital:"Hospital",meal_delivery:"Meal delivery",meal_takeaway:"Meal takeaway",museum:"Museum",restaurant:"Restaurant",shoe_store:"Shoe store",subway_station:"Subway station",taxi_stand:"Taxi rank",train_station:"Train station"}}},requestPlaces:function(d,a,c,b){if(!this.hotelCollection[this.hotelIndex].places||!this.hotelCollection[this.hotelIndex].places[c]){this.requestPlacesSearch=new Request.JSON({method:"GET",secure:true,url:this.options.places.serviceURL,onRequest:this.jsonRequestStart.bind(this),onSuccess:function(f,e){this.jsonRequestSuccess(f,e,c)}.bind(this),onError:this.jsonRequestFailure.bind(this)}).send("locationid="+this.hotelCollection[this.hotelIndex].get("data-locationid")+"&hotelname="+this.hotelCollection[this.hotelIndex].get("data-name")+"&location="+d.lat()+","+d.lng()+"&radius="+a+"&types="+c)}else{this.setPlacesMarkers(c)}},jsonRequestStart:function(){},jsonRequestSuccess:function(c,b,a){if(typeof(this.hotelCollection[this.hotelIndex].places)=="undefined"){this.hotelCollection[this.hotelIndex].places=new Object()}if(c.status=="OK"&&c.results.length>0){this.hotelCollection[this.hotelIndex].places[a]=c;this.setPlacesMarkers(a)}else{Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess",error:{message:"JSON Response error"}});this.updateLabelCount(a)}},updateLabelCount:function(c){var b=document.getElement("input[data-value="+c+"]"),a,d=this.hotelCollection[this.hotelIndex].places[c]?this.hotelCollection[this.hotelIndex].places[c].results.length:0;if(b){a=b.getNext("label");a.set("text",a.get("data-text")+" ("+d+")")}},setPlacesMarkers:function(a){Object.each(this.hotelCollection[this.hotelIndex].places[a].results,function(b){this.addPlacesMarker(b,a)},this);Log.info("Got new places so recounting");this.updateLabelCount(a)},jsonRequestFailure:function(b,a){Log.info("JSON request failure");Log.info(b);Log.info(a)},addPlacesMarker:function(b,c){var e;if(b.types.length>0&&RIA.MarkerIconsImages[b.types[0]]){e=RIA.MarkerIconsImages[b.types[0]]}else{e=RIA.MarkerIconsImages.star}var a=new google.maps.MarkerImage(b.icon),d=new google.maps.LatLng(b.geometry.location.lat,b.geometry.location.lng);b.placesMarker=new google.maps.Marker({map:RIA.map,icon:e,position:d,draggable:false,title:b.name,animation:google.maps.Animation.DROP,cursor:"pointer",clickable:true,zIndex:1});b.placesMarkerSV=new google.maps.Marker({map:RIA.panorama,icon:a,position:d,draggable:false,title:b.name,animation:google.maps.Animation.DROP,clickable:true,zIndex:1});b.clickEvent=google.maps.event.addListener(b.placesMarker,"click",function(f){this.setCurrentLocation(f.latLng);this.setPanoramaPosition(f.latLng)}.bind(this));this.createPlacesInfoWindow(b,b.placesMarker);this.createPlacesInfoWindow(b,b.placesMarkerSV)},removeAllPlacesMarkers:function(){this.hotelCollection.each(function(a){Object.each(a.places,function(b){Object.each(b.results,function(c){this.removePlacesMarker(c)},this)},this)},this)},removePlacesMarkers:function(a){if(a&&this.hotelCollection[this.hotelIndex].places[a]){Object.each(this.hotelCollection[this.hotelIndex].places[a].results,function(b){this.removePlacesMarker(b)},this)}},removePlacesMarker:function(a){if(a&&a.placesMarker){a.placesMarker.setMap(null);a.placesMarkerSV.setMap(null)}},createPlacesInfoWindow:function(b,a){a.infowindow=new google.maps.InfoWindow({content:b.name+"<br/>"+b.vicinity+"<br/>("+(this.options.places.types[b.types[0]]||b.types[0])+")",maxWidth:50});a.mouseoutEvent=null;a.mouseoverEvent=google.maps.event.addListener(a,"mouseover",function(c){this.openInfoWindow(a,a.infowindow);a.mouseoutEvent=google.maps.event.addListener(a,"mouseout",function(d){a.infowindow.close();google.maps.event.removeListener(a.mouseoutEvent)}.bind(this))}.bind(this));a.clickEvent=google.maps.event.addListener(a,"click",function(c){this.setCurrentLocation(c.latLng);google.maps.event.removeListener(a.mouseoutEvent);this.setPanoramaPosition(c.latLng);this.openInfoWindow(a,a.infowindow)}.bind(this))},resetPlacesMarkers:function(a){this.removeAllPlacesMarkers();if(a){this.hotelCollection[this.hotelIndex].places=new Object()}document.getElements("#places input[type=checkbox]").each(function(b){if(b.checked&&b.get("value")!=""){this.requestPlaces(RIA.currentLocation,this.options.places.searchRadius,b.get("value"),null)}},this)},storePlacesSearch:function(c,a,b){this.requestPlacesPost=new Request({method:"POST",url:this.options.places.serviceURL,data:"locationid="+c.get("data-locationid")+"&types="+a+"&places="+b,onRequest:function(d){Log.info("storePlacesSearch : onRequest")},onSuccess:function(e,d){Log.info("storePlacesSearch : onSuccess");Log.info(e);Log.info(d)},onFailure:function(d){Log.info("storePlacesSearch : onFailure");Log.info(d)}}).send()}});RIA.MapStreetView=new Class({Implements:[RIA.Gradient],options:{geocodeURL:"/geocode",geolocation:null,bookmarks:null,maptype:"panorama"},mapInitialize:function(){this.requestCounter=500;RIA.bookmarks=new Object();RIA.hotelMarkers=new Object();RIA.MarkerIcons={blank:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00",star:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00",bankDollar:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FF0000",hotel:"http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|@COLOR@|000000",bookmark:"http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00",poc:"http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@",shadowHotel:"http://chart.apis.google.com/chart?chst=d_map_pin_shadow",shadowBookmark:"http://chart.apis.google.com/chart?chst=d_map_xpin_shadow&chld=pin_star",food:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=restaurant|FFFFFF",cafe:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=cafe|FFFFFF",bar:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bar|FFFFFF",restaurant:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=restaurant|FFFFFF",establishment:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=location|FFFFFF",grocery_or_supermarket:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingcart|FFFFFF",store:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingcart|FFFFFF",meal_delivery:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=snack|FFFFFF",meal_takeaway:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=snack|FFFFFF",bakery:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=restaurant|FFFFFF",museum:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=location|FFFFFF",park:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=location|FFFFFF",shopping:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF",shoe_store:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF",book_store:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF",clothing_store:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF",department_store:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF",bank:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF",atm:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF",bus:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bus|FFFFFF",car:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=car|FFFFFF",taxi:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=taxi|FFFFFF",hospital:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=medical|FFFFFF",embassy:"http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=legal|FFFFFF"};var v=new google.maps.MarkerImage(RIA.MarkerIcons.star),e=new google.maps.MarkerImage(RIA.MarkerIcons.shoe_store),c=new google.maps.MarkerImage(RIA.MarkerIcons.food),y=new google.maps.MarkerImage(RIA.MarkerIcons.cafe),p=new google.maps.MarkerImage(RIA.MarkerIcons.bar),o=new google.maps.MarkerImage(RIA.MarkerIcons.restaurant),n=new google.maps.MarkerImage(RIA.MarkerIcons.establishment),b=new google.maps.MarkerImage(RIA.MarkerIcons.grocery_or_supermarket),d=new google.maps.MarkerImage(RIA.MarkerIcons.store),g=new google.maps.MarkerImage(RIA.MarkerIcons.meal_delivery),m=new google.maps.MarkerImage(RIA.MarkerIcons.meal_takeaway),s=new google.maps.MarkerImage(RIA.MarkerIcons.bakery),a=new google.maps.MarkerImage(RIA.MarkerIcons.museum),t=new google.maps.MarkerImage(RIA.MarkerIcons.park),x=new google.maps.MarkerImage(RIA.MarkerIcons.shopping),e=new google.maps.MarkerImage(RIA.MarkerIcons.shoe_store),u=new google.maps.MarkerImage(RIA.MarkerIcons.book_store),r=new google.maps.MarkerImage(RIA.MarkerIcons.clothing_store),l=new google.maps.MarkerImage(RIA.MarkerIcons.department_store),f=new google.maps.MarkerImage(RIA.MarkerIcons.bank),q=new google.maps.MarkerImage(RIA.MarkerIcons.atm),h=new google.maps.MarkerImage(RIA.MarkerIcons.bus),j=new google.maps.MarkerImage(RIA.MarkerIcons.car),k=new google.maps.MarkerImage(RIA.MarkerIcons.taxi),i=new google.maps.MarkerImage(RIA.MarkerIcons.hospital),w=new google.maps.MarkerImage(RIA.MarkerIcons.embassy);RIA.MarkerIconsImages={star:v,shoe_store:e,food:c,cafe:y,bar:p,restaurant:o,establishment:n,grocery_or_supermarket:b,store:d,meal_delivery:g,meal_takeaway:m,bakery:s,museum:a,park:t,shopping:x,shoe_store:e,book_store:u,clothing_store:u,department_store:l,bank:f,atm:q,bus_station:h,car_rental:j,taxi_stand:k,hospital:i,embassy:w};RIA.geocoder=new google.maps.Geocoder();RIA.sv=new google.maps.StreetViewService();if(this.options.geolocation){this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat,this.options.geolocation.lng))}else{this.setCurrentLocation(new google.maps.LatLng(0,0))}this.mapOptions={scrollwheel:false,keyboardShortcuts:false,zoom:13,center:RIA.currentLocation,mapTypeId:google.maps.MapTypeId.ROADMAP};this.panoramaOptions={scrollwheel:false,position:RIA.currentLocation,pov:{heading:120,pitch:20,zoom:0}};RIA.map=new google.maps.Map(document.getElementById("map_canvas"),this.mapOptions);RIA.map.setCenter(RIA.currentLocation);RIA.panorama=new google.maps.StreetViewPanorama(document.getElementById("pano"),this.panoramaOptions);RIA.map.setStreetView(RIA.panorama);RIA.panoramioLayer=new google.maps.panoramio.PanoramioLayer();if(RIA.currentDestination!=""||RIA.InitAjaxSubmit.price.get("value")!=""){RIA.InitAjaxSubmit._submit()}this.toggleMapFullScreen(null)},toggleMapFullScreen:function(a){if(a&&a.preventDefault){a.preventDefault()}if(!a){if(this.mapCanvas.retrieve("view:state")=="map"){this.mapCanvas.setStyles({width:this.mapCanvas.retrieve("styles:maximized").width,height:this.mapCanvas.retrieve("styles:maximized").height});document.id("map-streetview").set("text","Panorama")}else{if(this.mapCanvas.retrieve("view:state")=="panorama"){this.mapCanvas.setStyles({width:this.mapCanvas.retrieve("styles:orig").width,height:this.mapCanvas.retrieve("styles:orig").height});document.id("map-streetview").set("text","Map")}}}if(a){if(this.mapCanvas.retrieve("view:state")=="map"){this.options.maptype="panorama";this.mapCanvas.store("view:state",this.options.maptype);this.mapCanvas.setStyles({width:this.mapCanvas.retrieve("styles:orig").width,height:this.mapCanvas.retrieve("styles:orig").height});document.id("map-streetview").set("text","Map")}else{this.options.maptype="map";this.mapCanvas.store("view:state",this.options.maptype);this.mapCanvas.setStyles({width:this.mapCanvas.retrieve("styles:maximized").width,height:this.mapCanvas.retrieve("styles:maximized").height});document.id("map-streetview").set("text","Panorama")}}google.maps.event.trigger(RIA.map,"resize");this.setMapPositionCenter(RIA.currentLocation)},setStreetview:function(c){var a=c.get("data-address"),b;if(!a||a=="None"){a="No address found";return this.notGotGeolocation(c)}if(c.get("data-latlng")&&c.get("data-latlng")!="None"){dataLatLng=c.get("data-latlng").split(",");b=new google.maps.LatLng(dataLatLng[0],dataLatLng[1]);c.store("geolocation",b)}if(c.retrieve("geolocation")){this.gotGeolocation(c,c.retrieve("geolocation"))}else{this.getGeocodeByAddress(c,this.gotGeolocation.bind(this))}},gotGeolocation:function(b,a){this.setCurrentLocation(a);this.mapStreetview.setStyle("display","");this.setMapPositionPan(RIA.currentLocation);this.setPanoramaPosition(RIA.currentLocation);this.resetPlacesMarkers()},notGotGeolocation:function(b){var a=this.requestCounter+500;this.requestCounter+=500;if(b.retrieve("geolocation:error")!=google.maps.GeocoderStatus.ZERO_RESULTS){this.getGeocodeByAddress.delay(this.requestCounter,this,[b,this.addHotelMarker.bind(this)])}else{}},animateCurrentMarker:function(a){try{if(!this.hotelCollection){return}if(this.hotelCollection[this.hotelIndex].bookmark){(function(){this.animateMarker(this.hotelCollection[this.hotelIndex].bookmark,google.maps.Animation.BOUNCE);this.hotelCollection[this.hotelIndex].bookmark.timeout=this.animateMarker.delay(2100,this,[this.hotelCollection[this.hotelIndex].bookmark,null])}.bind(this)).delay(a||0)}if(this.hotelCollection[this.hotelIndex].bookmarkSV){(function(){this.animateMarker(this.hotelCollection[this.hotelIndex].bookmarkSV,google.maps.Animation.BOUNCE);this.hotelCollection[this.hotelIndex].bookmarkSV.timeout=this.animateMarker.delay(2100,this,[this.hotelCollection[this.hotelIndex].bookmarkSV,null])}.bind(this)).delay(a||0)}if(this.hotelCollection[this.hotelIndex].hotelMarker){(function(){this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarker,google.maps.Animation.BOUNCE);this.hotelCollection[this.hotelIndex].hotelMarker.timeout=this.animateMarker.delay(2100,this,[this.hotelCollection[this.hotelIndex].hotelMarker,null])}.bind(this)).delay(a||0)}if(this.hotelCollection[this.hotelIndex].hotelMarkerSV){(function(){this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarkerSV,google.maps.Animation.BOUNCE);this.hotelCollection[this.hotelIndex].hotelMarkerSV.timeout=this.animateMarker.delay(2100,this,[this.hotelCollection[this.hotelIndex].hotelMarkerSV,null])}.bind(this)).delay(a||0)}}catch(b){Log.error({method:"animateCurrentMarker()",error:b})}},setMapPositionPan:function(a){RIA.map.panTo(a);this.animateCurrentMarker(400)},setMapPositionCenter:function(a){RIA.map.setCenter(a);this.animateCurrentMarker()},setMapZoom:function(a){if(RIA.map){RIA.map.setZoom(a)}},setPanoramaPosition:function(a){Log.info("setPanoramaPosition("+a+")");RIA.sv.getPanoramaByLocation(a,150,function(c,b){if(b==google.maps.StreetViewStatus.OK){if(!RIA.panorama.getVisible()){RIA.panorama.setVisible(true)}RIA.panorama.setPosition(c.location.latLng);var d=this.getHeading(c.location.latLng,a);RIA.panorama.setPov({heading:d,pitch:20,zoom:0})}else{if(b==google.maps.StreetViewStatus.ZERO_RESULTS){Log.info("No Panorama results found");RIA.panorama.setVisible(false)}else{Log.info("Panorama error status: "+b);RIA.panorama.setVisible(false)}}}.bind(this))},dropBookmarkPin:function(g){var h=g.get("data-name"),d=g.get("data-price"),b=g.get("data-counter"),a,e,f=g.get("data-locationid"),c;if(g.bookmark==null&&RIA.bookmarks[f]==undefined){g.getElement(".drop-pin").setStyle("display","none");if(RIA.hotelMarkers[f]!=undefined){if(RIA.hotelMarkers[f].hotelMarker!=null){this.removeMarker(RIA.hotelMarkers[f].hotelMarker);this.removeMarker(RIA.hotelMarkers[f].hotelMarkerSV)}}c=RIA.MarkerIcons.bookmark.replace("@LETTER@",g.get("data-counter"));g.bookmark=new google.maps.Marker({map:RIA.map,icon:new google.maps.MarkerImage(c),position:g.retrieve("geolocation"),draggable:false,title:h,animation:google.maps.Animation.BOUNCE,cursor:"pointer",clickable:true,zIndex:20,shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowBookmark,new google.maps.Size(37,42),new google.maps.Point(0,0),new google.maps.Point(12,42))});g.bookmarkSV=new google.maps.Marker({map:RIA.panorama,icon:new google.maps.MarkerImage(c),position:g.retrieve("geolocation"),draggable:false,title:h,animation:google.maps.Animation.BOUNCE,clickable:false,zIndex:20});RIA.bookmarks[f]=g;this.createInfoWindow(g,g.bookmark);g.bookmark.timeout=this.animateMarker.delay(2100,this,[g.bookmark,null]);g.bookmarkSV.timeout=this.animateMarker.delay(2100,this,[g.bookmarkSV,null])}},createInfoWindow:function(e,g){var i=e.get("data-name"),h=e.get("data-price"),a=(e.getElement(".photos").get("data-thumbnail")||"#"),b=e.get("data-counter"),g,f;var d='<object id="yt-player" width="425" height="349"><param name="movie" value="http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US"/><param name="allowFullScreen" value="true"/><param name="allowscriptaccess" value="always"/><embed src="http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US" type="application/x-shockwave-flash" width="425" height="349" allowscriptaccess="always" allowfullscreen="true"/></object>';var c="<h4>#"+b+": "+i+'</h4><p><img src="'+a+'" /><p>'+h+"</p>";f=new google.maps.InfoWindow({content:c,maxWidth:50});e.mouseoutEvent=null;e.mouseoverEvent=google.maps.event.addListener(g,"mouseover",function(j){this.openInfoWindow(g,f);e.mouseoutEvent=google.maps.event.addListener(g,"mouseout",function(k){f.close();google.maps.event.removeListener(e.mouseoutEvent)}.bind(this))}.bind(this));e.clickEvent=google.maps.event.addListener(g,"click",function(j){Log.info("Clicked hotel marker");this.setCurrentLocation(j.latLng);google.maps.event.removeListener(e.mouseoutEvent);this.setPanoramaPosition(j.latLng);this.jumpToHotel(e);this.openInfoWindow(g,f);this.animateCurrentMarker();this.resetPlacesMarkers()}.bind(this))},setHotelMarkers:function(a){this.createHotelMarkerColors();var b=500,c,f,d,e;a.each(function(h,g){if(h.get("data-latlng")&&h.get("data-latlng")!="None"){e=h.get("data-latlng").split(",");d=new google.maps.LatLng(e[0],e[1]);h.store("geolocation",d)}f=h.retrieve("geolocation");error=h.retrieve("geolocation:error");if(f==null&&error!="NO_RESULTS"){c=b+=500;this.getGeocodeByAddress.delay(c,this,[h,this.addHotelMarker.bind(this)])}else{if(h.bookmark==null){this.addHotelMarker(h,f)}}},this)},addHotelMarker:function(d,b){var a,c=d.get("data-locationid");if(d.bookmark==null&&d.hotelMarker==null&&RIA.hotelMarkers[c]==undefined){RIA.hotelMarkers[c]=d;a=RIA.MarkerIcons.hotel.replace("@LETTER@",d.get("data-counter"));a=a.replace("@COLOR@",d.hotelMarkerColor);d.hotelMarker=new google.maps.Marker({map:RIA.map,icon:new google.maps.MarkerImage(a),position:b,draggable:false,title:d.get("data-name"),cursor:"pointer",clickable:true,zIndex:1,shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowHotel,new google.maps.Size(37,37),new google.maps.Point(0,0),new google.maps.Point(12,37))});d.hotelMarkerSV=new google.maps.Marker({map:RIA.panorama,icon:new google.maps.MarkerImage(a),position:b,draggable:false,title:d.get("data-name"),clickable:false,zIndex:1});this.createInfoWindow(d,d.hotelMarker);this.createInfoWindow(d,d.hotelMarkerSV)}},removeHotelMarkers:function(){Object.each(RIA.hotelMarkers,function(b,a){this.removeMarker(b.hotelMarker)},this)},removeMarker:function(a){if(a){a.setMap(null)}},setBookmarkMarkers:function(a){var b=500,c,d;a.each(function(f,e){if(this.options.bookmarks.contains(f.get("data-locationid"))){d=f.retrieve("geolocation");if(d==null){c=b+=500;this.getGeocodeByAddress.delay(c,this,[f,this.addBookmarkMarker.bind(this)])}else{Log.info("setHotelMarker() : retrieved gelocation for Hotel");this.dropBookmarkPin(f)}if(RIA.hotelMarkers[f.get("data-locationid")]!=undefined){if(RIA.hotelMarkers[f.get("data-locationid")].hotelMarker!=null){this.removeMarker(RIA.hotelMarkers[f.get("data-locationid")].hotelMarker)}if(RIA.hotelMarkers[f.get("data-locationid")].hotelMarkerSV!=null){this.removeMarker(RIA.hotelMarkers[f.get("data-locationid")].hotelMarkerSV)}}}},this)},removeBookmarkMarkers:function(){Object.each(RIA.bookmarks,function(b,a){this.removeMarker(b.bookmark)},this)},addBookmarkMarker:function(b,a){this.dropBookmarkPin(b)},getGeocodeByAddress:function(b,c){var a=b.get("data-address");RIA.geocoder.geocode({address:a},function(e,d){if(d==google.maps.GeocoderStatus.OK){var f=e[0].geometry.location;this.storeGeocodeByHotel(b.get("data-locationid"),f);b.store("geolocation",f);if(c){c(b,f)}}else{if(d==google.maps.GeocoderStatus.ZERO_RESULTS){b.store("geolocation:error",d);this.notGotGeolocation(b)}else{b.store("geolocation:error",d);this.notGotGeolocation(b)}}a=null}.bind(this))},animateMarker:function(a,b){if(a){a.setAnimation(b)}},openInfoWindow:function(a,b){if(this.mapCanvas.retrieve("view:state")=="map"){b.open(RIA.map,a)}},setCurrentLocation:function(a){RIA.currentLocation=a},showMyBookmarks:function(){this.removeHotelMarkers();this.addBookmarkMarkers()},getHeading:function(d,a){var c=[d,a],b=google.maps.geometry.spherical.computeHeading(c[0],c[1]);return b},createHotelMarkerColors:function(){this.hotelsByPriceRange=new Array();this.hotelCollection.each(function(b,a){b.priceData=parseFloat(b.get("data-price").substring(1));this.hotelsByPriceRange.include(b)},this);this.hotelsByPriceRange=this.hotelsByPriceRange.sort(this.sortByPrice.bind(this));this.gradientArray=this.generateGradient("FFFF00","FF0000",this.hotelCollection.length);this.gradientArray.each(function(a,b){this.hotelsByPriceRange[b].hotelMarkerColor=a.toUpperCase()},this)},sortByPrice:function(d,c){return d.priceData-c.priceData},addPanoramioPhotos:function(a){if(a&&a.target){if(a.target.checked){RIA.panoramioLayer.setMap(RIA.map)}else{RIA.panoramioLayer.setMap(null)}}},storeGeocodeByHotel:function(b,a){this.requestGeocodePost=new Request({method:"POST",url:this.options.geocodeURL,data:"locationid="+b+"&destination="+RIA.currentDestination+"&lat="+a.lat()+"&lng="+a.lng(),onRequest:function(c){},onSuccess:function(d,c){},onFailure:function(c){Log.info("storeGeocodeByHotel : onFailure")}}).send()}});RIA.Experience=new Class({Implements:[Options,RIA.MapStreetView,RIA.GooglePlaces],options:{contenttype:"maximized"},initialize:function(a){this.setOptions(a);RIA.places=new Object();this._form=document.id("start-your-story");this.bookmarks=document.id("bookmarks");this.bookmarks.store("viewstate","closed");this.content=document.id("content");this.sections=document.getElements("section");this.destination=document.id("destination");this.destination.store("styles:width:orig",this.destination.getStyle("width").toInt());this.durationOfStay=document.id("duration_of_stay");this.durationOfStay.store("styles:width:orig",this.durationOfStay.getStyle("width").toInt());this.arrivalDate=document.id("arrival_date");this.arrivalDate.store("styles:width:orig",this.arrivalDate.getStyle("width").toInt());this.weather=document.id("weather");this.guardian=document.id("guardian");this.twitterNews=document.id("twitter-news");this.fbDialogSendButton=document.id("fb-dialog-send");this.places=document.id("places");this.places.store("viewstate","closed");this.placesDistanceRange=document.id("places-distance-range");this.placesDistanceOutput=document.id("places-distance-output");this.travelPartners=document.id("travel-partners");this.hotels=document.id("hotels");this.hotelsNav=document.id("hotel-list");if(this.hotels){this.hotels.getElement(".results").set("morph",{duration:400,link:"ignore"})}this.mapCanvas=document.id("map_canvas");this.mapCanvas.store("styles:orig",this.mapCanvas.getCoordinates());this.mapCanvas.store("styles:maximized",{width:"100%",height:"100%"});this.mapCanvas.store("view:state",this.options.maptype);this.mapStreetview=document.id("pano");this.onWindowResize();this.addEventListeners();this.toggleInformation(null)},addEventListeners:function(){window.addEvents({resize:this.onWindowResize.bind(this)});this.destination.addEvents({keydown:this.adjustInputStyles.bind(this)});this.durationOfStay.addEvents({keydown:this.adjustInputStyles.bind(this)});this.arrivalDate.addEvents({keydown:this.adjustInputStyles.bind(this)});if(this.fbDialogSendButton){this.fbDialogSendButton.addEvents({click:this.fbDialogSend.bind(this)})}document.id("map-streetview").addEvents({click:this.toggleMapFullScreen.bind(this)});document.getElements(".less").addEvents({click:this.toggleInformation.bind(this)});document.id("less-more").addEvents({click:this.toggleInformation.bind(this)});if(document.id("nearby")){document.id("nearby").addEvents({click:this.showPlaces.bind(this)})}if(document.id("my-bookmarks")){document.id("my-bookmarks").addEvents({click:this.shareMyBookmarks.pass([true],this)})}if(this.places){this.places.addEvents({click:function(c){var b=c.target,a=b.get("value");if(a&&a!=""){if(b.checked){this.requestPlaces(RIA.currentLocation,this.options.places.searchRadius,a,null)}else{this.removePlacesMarkers(a);this.updateLabelCount(a)}}else{if(b.id=="photos"){this.addPanoramioPhotos(c)}}}.bind(this)});this.places.getElement("h2").addEvents({click:function(a){this.places.getElement("form").toggleClass("hide")}.bind(this)})}if(this.placesDistanceRange){this.placesDistanceRange.addEvents({change:function(b){var a=b.target.get("value");if(this.options.places.searchRadius!==a){this.options.places.searchRadius=b.target.get("value");this.placesDistanceOutput.set("text",(this.options.places.searchRadius==1000?"1K":this.options.places.searchRadius)+"m");this.resetPlacesMarkers(true)}}.bind(this)})}},addHotelNavEventListeners:function(){this.hotelNavigationBind=this.hotelNavigation.bind(this);this.dropBookmarkPinBind=this.dropBookmarkPin.bind(this);document.getElements(".drop-pin").each(function(a){a.addEvents({click:this.dropBookmarkPinBind.pass([a.getParent(".hotel")],this)})},this);document.getElements(".previous, .next").each(function(a){a.addEvents({click:this.hotelNavigationBind})},this)},removeHotelNavEventListeners:function(){document.getElements(".previous, .next").each(function(a){a.removeEvents({click:this.hotelNavigationBind})},this);document.getElements(".drop-pin").each(function(a){a.removeEvents({click:this.dropBookmarkPinBind})},this)},adjustInputStyles:function(d){d.target.removeClass("unentered");var a=d.target.get("value").length,c=d.target.getStyle("font-size").toInt(),b;b=Math.round((a*(c/1.85)));if(b>d.target.retrieve("styles:width:orig")){d.target.setStyle("width",b+"px")}},fbDialogSend:function(){FB.ui({app_id:RIA.fbAppId,access_token:"147307178684773|2.AQCTvZXmKvdYGpvo.3600.1312552800.0-100002195041453|kXWfcjveg1hot1dkyEigL3VIVbs",method:"send",display:"iframe",name:"Your Lastminute.com Hotel Bookmarks",link:RIA.shareURL,})},hotelNavigation:function(f){if((f.type=="keyup"&&(f.key=="left"||f.key=="right"))||f.type=="click"){f.preventDefault();var a,b,c=true;b=this.hotels.getElement(".results").getStyle("marginLeft");if(f.key=="left"||(f.type=="click"&&f.target.hasClass("previous"))){if(b.toInt()>=0){b=0;c=false}else{this.hotelIndex--;b=b.toInt()+this.hotelWidth}}else{if(f.key=="right"||(f.type=="click"&&f.target.hasClass("next"))){var d=-1*(this.totalLength-this.hotelWidth);if(b.toInt()<=d){b=d;c=false}else{this.hotelIndex++;b=b.toInt()-a}}}if(c){document.getElements(".hotel-name").set("text",this.hotelCollection[this.hotelIndex].get("data-name"));if(this.hotels.hasClass("minimized")){this.animateToHotel(this.hotelCollection[this.hotelIndex]);(function(){this.setStreetview(this.hotelCollection[this.hotelIndex])}.bind(this)).delay(500)}else{this.jumpToHotel(this.hotelCollection[this.hotelIndex]);this.setStreetview(this.hotelCollection[this.hotelIndex])}}}},setCurrentHotel:function(d){var b=d.get("data-counter"),a=b-1,c=-1*(b*this.hotelWidth)+this.hotelWidth;this.hotelsNav.getElements("a").removeClass("active");this.hotelsNav.getElements("a")[a].addClass("active");this.hotelIndex=a;return{index:this.hotelIndex,marginLeft:c}},animateToHotel:function(b){var a=this.setCurrentHotel(b);this.hotels.getElement(".results").morph({marginLeft:a.marginLeft+"px"})},jumpToHotel:function(b){var a=this.setCurrentHotel(b);this.hotels.getElement(".results").setStyles({marginLeft:a.marginLeft+"px"})},getHotels:function(){this.removeHotelNavEventListeners()},gotHotels:function(a){this.hotelIndex=0;this.hotelCollection=this.hotels.getElements(".hotel");this.hotels.removeClass("waiting");RIA.bookmarks=new Object();this.shareMyBookmarks(false);if(this.hotelCollection.length>0){document.getElements(".hotel-name").set("text",this.hotelCollection[this.hotelIndex].get("data-name"));RIA.currentDestination=this.hotelCollection[0].get("data-destination");this.hotelWidth=this.hotels.getElements(".hotel")[0].getCoordinates().width;this.totalLength=(this.hotelCollection.length*this.hotelWidth);this.hotels.getElement(".results").setStyles({width:this.totalLength+"px",marginLeft:"0px"});this.setStreetview(this.hotelCollection[0]);if(this.options.bookmarks!=null&&this.options.bookmarks.length){this.setBookmarkMarkers(this.hotelCollection)}this.setHotelMarkers(this.hotelCollection);this.createHotelNav();this.addHotelNavEventListeners()}else{Log.error({method:"gotHotels()",error:{message:"No Hotels returned"}})}},createHotelNav:function(){this.hotelsNav.empty();this.hotelCollection.each(function(b,a){this.hotelsNav.adopt(new Element("a",{href:"#",text:(a+1),"class":(a==0?"active":""),title:b.get("data-name")+" : "+b.get("data-price"),events:{click:function(c){c.preventDefault();this.jumpToHotel(b);this.setStreetview(this.hotelCollection[this.hotelIndex])}.bind(this)}}))},this)},onWindowResize:function(a){this.viewport=window.getSize();if(RIA.map){google.maps.event.trigger(RIA.map,"resize")}},toggleInformation:function(a){if(a){a.preventDefault()}if(!a){if(this.options.contenttype=="maximized"){document.id("less-more").set("text","less...");if(this.weather){this.weather.setStyle("display","block")}if(this.guardian){this.guardian.setStyle("display","block")}if(this.twitterNews){this.twitterNews.setStyle("display","block")}this.hotels.removeClass("minimized")}else{document.id("less-more").set("text","more...");if(this.weather){this.weather.setStyle("display","none")}if(this.guardian){this.guardian.setStyle("display","none")}if(this.twitterNews){this.twitterNews.setStyle("display","none")}this.hotels.addClass("minimized")}}else{if(this.hotels.hasClass("minimized")){this.options.contenttype="maximized";document.id("less-more").set("text","less...");if(this.weather){this.weather.setStyle("display","block")}if(this.guardian){this.guardian.setStyle("display","block")}if(this.twitterNews){this.twitterNews.setStyle("display","block")}this.hotels.removeClass("minimized")}else{this.options.contenttype="minimized";document.id("less-more").set("text","more...");if(this.weather){this.weather.setStyle("display","none")}if(this.guardian){this.guardian.setStyle("display","none")}if(this.twitterNews){this.twitterNews.setStyle("display","none")}this.hotels.addClass("minimized")}}},shareMyBookmarks:function(a){RIA.currentPriceMax=RIA.InitAjaxSubmit.price.get("value");RIA.shareURL=window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=",index=0;Object.each(RIA.bookmarks,function(c,b){if(index==0){RIA.shareURL+=b}else{RIA.shareURL+=","+b}index++},this);RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype;document.id("bookmarks").getElement("a").set({href:RIA.shareURL,text:RIA.shareURL});if(a){if(this.bookmarks.retrieve("viewstate")=="closed"){this.bookmarks.morph({height:"55px",top:"60px"});this._form.morph({opacity:0});this.bookmarks.store("viewstate","open")}else{this.bookmarks.morph({height:"0px",top:"-20px"});this._form.morph({opacity:1});this.bookmarks.store("viewstate","closed")}}},showPlaces:function(a){a.preventDefault();if(this.places.retrieve("viewstate")=="closed"){this.places.store("viewstate","open");this.places.morph({display:"block"})}else{this.places.store("viewstate","closed");this.places.morph({display:"none"})}}});RIA.AjaxSubmit=new Class({Implements:[Options],options:{},initialize:function(a){this.setOptions(a);this.content=document.id("content");this.ajaxForm=document.id("start-your-story");this.destination=document.id("destination");this.price=document.id("priceMax");RIA.currentPriceMax=this.price.get("value");this.flights=document.id("flights");this.hotels=document.id("hotels");this.cityBreak=document.id("city-break");this.information=document.id("info");this.weather=document.id("weather");this.guardian=document.id("guardian");this.requests=[];this.loading=document.id("loading");this.addEventListeners()},_submit:function(){this.ajaxForm.fireEvent("submit")},addEventListeners:function(){this.ajaxForm.addEvents({submit:function(a){if(a){a.preventDefault()}this.updateDestinationName(this.destination.get("value"));this.requestData()}.bind(this)})},requestData:function(){var a=this.destination.get("value");if(typeof(twitterSearch)!="undefined"){twitterSearch.stop();twitterSearch.search=a+" hotels OR restaurants since:2011-07-16 :)";twitterSearch.subject=a;twitterSearch.render().start()}Array.each(this.requests,function(b){if(b.isRunning()){Log.info(b);b.cancel()}},this);this.requests.length=0;if(this.weather){this.requestInfo=new Request.HTML({method:"POST",url:"/ajax",update:this.weather.getElement(".results"),data:"destination="+a+"&info_type=weather",onRequest:this.requestStart.pass([this.weather],this),onSuccess:this.requestSuccessInfo.pass([this.weather],this),onFailure:this.requestFailure.bind(this)}).send();this.requests.include(this.requestInfo)}if(this.guardian){this.requestGuardian=new Request.HTML({method:"POST",url:"/ajax",update:this.guardian.getElement(".results"),data:"destination="+a+"&info_type=guardian",onRequest:this.requestStart.pass([this.guardian],this),onSuccess:this.requestSuccessInfo.pass([this.guardian],this),onFailure:this.requestFailure.bind(this)}).send();this.requests.include(this.requestGuardian)}this.requestHotels=new Request.HTML({method:"POST",url:"/ajax",evalScripts:true,update:this.hotels.getElement(".results"),data:"destination="+a+"&priceMax="+this.price.get("value")+"&info_type=hotels",onRequest:this.requestStart.pass([this.hotels],this),onSuccess:this.requestSuccess.pass([this.hotels,a],this),onFailure:this.requestFailure.bind(this)});this.requests.include(this.requestHotels);this.requests.each(function(b){b.send()})},requestStart:function(a){if(a){this.loading.setStyle("display","block");if(a.get("id")=="hotels"){RIA.InitExperience.getHotels()}a.addClass("waiting");a.getElement(".results").set("morph",{opacity:0})}},requestSuccess:function(b,a){if(b){this.loading.setStyle("display","none");if(b.get("id")=="hotels"){if(b.hasClass("hide")){b.removeClass("hide")}RIA.InitExperience.gotHotels(a)}}},requestSuccessInfo:function(a){a.removeClass("waiting");a.getElement(".results").morph({opacity:1});if(RIA.Article){RIA.ArticleInit=new RIA.Article(article)}},requestFailure:function(a){Log.error({method:"requestFailure",error:a})},updateDestinationName:function(a){document.getElements(".destination-name").set("text",a)}});
+var RIA = {};
+var Log = {
+	info: function(msg) {
+		if(window.console && console.log && msg) console.log(msg);
+	},
+	error: function(errorObject) {
+		/* 
+		* 	errorObject : {
+		* 		method[String]: "MyClass : myFunction()" (example) string to help you identify which js file and function caused the error
+		* 		error:[Object]: the error object
+		* 	}
+		*/
+		if (errorObject.error instanceof TypeError) {
+			this.info("JS ERROR : "+(errorObject.method||'Unknown method')+" : TypeError; the type of a variable is not as expected : "+(errorObject.error.message||errorObject.error));
+		} else if (errorObject.error instanceof RangeError) {
+			this.info("JS ERROR : "+(errorObject.method||'Unknown method')+" : RangeError; numeric variable has exceeded its allowed range : "+(errorObject.error.message||errorObject.error));
+		} else if (errorObject.error instanceof SyntaxError) {
+			this.info("JS ERROR : "+(errorObject.method||'Unknown method')+" : SyntaxError; syntax error occurred while parsing : "+(errorObject.error.message||errorObject.error));
+		} else if (errorObject.error instanceof ReferenceError) {
+			this.info("JS ERROR : "+(errorObject.method||'Unknown method')+" : ReferenceError; invalid reference used : "+(errorObject.error.message||errorObject.error));
+		} else {
+			this.info("JS ERROR : "+(errorObject.method||'Unknown method')+" : Unidentified Error Type : "+(errorObject.error.message||errorObject.error));
+		}
+	}
+};
+RIA.Gradient = new Class({
+   generateGradient: function(from, to, steps) {
+		var fromStr = from.toString(16), toStr = to.toString(16),fromRGB = {},toRGB = {},stepRGB = {},gradientColours = new Array();
+		
+	    fromRGB["r"] = parseInt(fromStr.substring(0, 2), 16);
+	    fromRGB["g"] = parseInt(fromStr.substring(2, 4), 16);
+	    fromRGB["b"] = parseInt(fromStr.substring(4, 6), 16);
+
+		toRGB["r"] = parseInt(toStr.substring(0,2), 16);
+	    toRGB["g"] = parseInt(toStr.substring(2,4), 16);
+		toRGB["b"] = parseInt(toStr.substring(4,6), 16);
+        
+	    stepRGB["r"] = (fromRGB["r"] - toRGB["r"]) / (steps - 1);
+	    stepRGB["g"] = (fromRGB["g"] - toRGB["g"]) / (steps - 1);
+	    stepRGB["b"] = (fromRGB["b"] - toRGB["b"]) / (steps - 1);
+        
+		for (var i = 0; i < steps; i++) {
+	        var RGB = {}; 
+			
+			var rgbR = Math.floor(fromRGB["r"] - (stepRGB["r"] * i)); 
+			var rgbG = Math.floor(fromRGB["g"] - (stepRGB["g"] * i));
+			var rgbB = Math.floor(fromRGB["b"] - (stepRGB["b"] * i));
+
+	        RGB["r"] = rgbR.toString(16);
+	        
+			if(rgbG < 0) {
+				RGB["g"] = "00";
+			} else {
+				RGB["g"] = rgbG.toString(16);
+			}                 
+			
+	        RGB["b"] = rgbB.toString(16);                    
+			
+			if (RGB["r"].length === 1) RGB["r"] = "0" + RGB["r"];
+	        if (RGB["g"].length === 1) RGB["g"] = "0" + RGB["g"];
+	        if (RGB["b"].length === 1) RGB["b"] = "0" + RGB["b"];
+
+			gradientColours.push(RGB["r"]+RGB["g"]+RGB["b"]);
+	    }              
+
+	    return gradientColours;
+	} 
+});
+RIA.GooglePlaces = new Class({
+	Implements:[Options],
+	options:{
+		places:{
+			searchRadius:500,
+			serviceURL:"/places",
+			types:{
+				accounting:"Accounting",
+				/*airport
+				amusement_park
+				aquarium
+				art_gallery*/
+				atm:"ATM",
+				bakery:"Bakery",
+				bank:"Bank",
+				bar:"Bar",
+				/*beauty_salon
+				bicycle_store*/
+				book_store:"Book store",
+				/*bowling_alley*/
+				bus_station:"Bus station",
+				cafe:"Cafe",
+				/*campground
+				car_dealer*/
+				car_rental:"Car rental",
+				/*car_repair
+				car_wash
+				casino
+				cemetery
+				church
+				city_hall*/
+				clothing_store:"Clothing store",
+				/*convenience_store
+				courthouse
+				dentist*/
+				department_store:"Department store",
+				/*doctor
+				electrician
+				electronics_store*/
+				embassy:"Embassy",
+				/*establishment
+				finance
+				fire_station
+				florist*/
+				food:"Restaurant",
+				/*funeral_home
+				furniture_store
+				gas_station
+				general_contractor
+				geocode*/
+				grocery_or_supermarket:"Grocery or Supermarket",
+				/*gym
+				hair_care
+				hardware_store
+				health
+				hindu_temple
+				home_goods_store*/
+				hospital:"Hospital",
+				/*insurance_agency
+				jewelry_store
+				laundry
+				lawyer
+				library
+				liquor_store
+				local_government_office
+				locksmith
+				lodging*/
+				meal_delivery:"Meal delivery",
+				meal_takeaway:"Meal takeaway",
+				/*mosque
+				movie_rental
+				movie_theater
+				moving_company*/
+				museum:"Museum",
+				/*night_club
+				painter
+				park
+				parking
+				pet_store
+				pharmacy
+				physiotherapist
+				place_of_worship
+				plumber
+				police
+				post_office
+				real_estate_agency*/
+				restaurant:"Restaurant",
+				/*roofing_contractor
+				rv_park
+				school*/
+				shoe_store:"Shoe store",
+				/*shopping_mall
+				spa
+				stadium
+				storage
+				store*/
+				subway_station:"Subway station",
+				/*synagogue*/
+				taxi_stand:"Taxi rank",
+				train_station:"Train station"
+				/*travel_agency
+				university
+				veterinary_care
+				zoo
+				administrative_area_level_1
+				administrative_area_level_2
+				administrative_area_level_3
+				colloquial_area
+				country
+				floor
+				intersection
+				locality
+				natural_feature
+				neighborhood
+				political
+				point_of_interest
+				post_box
+				postal_code
+				postal_code_prefix
+				postal_town
+				premise
+				room
+				route
+				street_address
+				street_number
+				sublocality
+				sublocality_level_4
+				sublocality_level_5
+				sublocality_level_3
+				sublocality_level_2
+				sublocality_level_1
+				subpremise
+				transit_station*/
+			}
+		}		
+	},
+	requestPlaces: function(locationLatLng, radiusInMeters, types, name) { 
+		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {
+			this.requestPlacesSearch = new Request.JSON({
+				method:"GET",
+				secure:true,
+				url:this.options.places.serviceURL,
+				onRequest: this.jsonRequestStart.bind(this),
+				onSuccess: function(responseJSON, responseText) {
+					this.jsonRequestSuccess(responseJSON, responseText, types)
+				}.bind(this),
+				onError: this.jsonRequestFailure.bind(this)
+			}).send("locationid="+this.hotelCollection[this.hotelIndex].get("data-locationid")+"&hotelname="+this.hotelCollection[this.hotelIndex].get("data-name")+"&location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
+        } else {
+	        this.setPlacesMarkers(types);
+		}
+	},
+	jsonRequestStart: function() {
+		//Log.info("JSON request underway");
+	},
+	jsonRequestSuccess: function(responseJSON, responseText, types) {
+		//Log.info("JSON request success");
+		if(typeof(this.hotelCollection[this.hotelIndex].places) == "undefined") {
+			this.hotelCollection[this.hotelIndex].places = new Object();
+		}
+		
+		if(responseJSON.status == "OK" && responseJSON.results.length > 0) {
+			this.hotelCollection[this.hotelIndex].places[types] = responseJSON;
+			this.setPlacesMarkers(types);
+		} else {
+			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}});
+			this.updateLabelCount(types);
+		}
+	}, 
+	updateLabelCount: function(types) {                                                  
+		var element = document.getElement("input[data-value="+types+"]"), label, count = this.hotelCollection[this.hotelIndex].places[types] ? this.hotelCollection[this.hotelIndex].places[types].results.length : 0;
+		if(element) {
+			label = element.getNext("label");                                  
+			label.set("text", label.get("data-text")+" ("+count+")");
+		}
+	},
+	setPlacesMarkers: function(type) {
+		Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
+			this.addPlacesMarker(place, type);
+		},this);
+		                                      
+		
+		Log.info("Got new places so recounting")
+		this.updateLabelCount(type);
+	},
+	jsonRequestFailure: function(text, error) {
+		Log.info("JSON request failure");
+		Log.info(text);
+		Log.info(error);
+	},
+	addPlacesMarker: function(place, type) {
+		/*
+		*	@description:
+		*		Sets a Marker for a Place. Not solicited by the User
+		*	@arguments:
+		*		place[Object](returned from a Places API request)
+		*		latLng[Object(LatLng)]
+		*/ 
+   	 	var mapIcon; 
+
+		if(place.types.length > 0 && RIA.MarkerIconsImages[place.types[0]]) {
+			mapIcon = RIA.MarkerIconsImages[place.types[0]];
+		} else {
+			mapIcon = RIA.MarkerIconsImages.star;
+		}
+       
+		var panoIcon = new google.maps.MarkerImage(place.icon),
+		latLng = new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng);
+	                                                  
+		place.placesMarker = new google.maps.Marker({
+            map:RIA.map,
+			icon:mapIcon,
+			position: latLng,
+			draggable:false,
+			title:place.name,
+			animation:google.maps.Animation.DROP,
+			cursor:'pointer',
+			clickable:true,
+			zIndex:1
+        }); 
+       
+		place.placesMarkerSV = new google.maps.Marker({
+            map:RIA.panorama,
+			icon:panoIcon,
+			position: latLng,
+			draggable:false,
+			title:place.name,
+			animation:google.maps.Animation.DROP,
+			clickable:true,
+			zIndex:1
+        });
+       
+		place.clickEvent = google.maps.event.addListener(place.placesMarker, 'click', function(event) {
+			this.setCurrentLocation(event.latLng);
+			this.setPanoramaPosition(event.latLng);
+		}.bind(this));
+	
+		this.createPlacesInfoWindow(place, place.placesMarker);
+		this.createPlacesInfoWindow(place, place.placesMarkerSV);
+
+	},
+	removeAllPlacesMarkers: function() {
+		this.hotelCollection.each(function(hotel) {
+			Object.each(hotel.places, function(type) {
+				Object.each(type.results, function(place) {
+					this.removePlacesMarker(place);
+				},this);			
+			},this);
+		},this);
+	},
+	removePlacesMarkers: function(type) {
+
+		if(type && this.hotelCollection[this.hotelIndex].places[type]) {
+			Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
+				this.removePlacesMarker(place);
+			},this);
+		}
+		
+	}, 
+	removePlacesMarker: function(place) {
+		if(place && place.placesMarker) { 
+			place.placesMarker.setMap(null);
+			place.placesMarkerSV.setMap(null);
+		}
+	},
+	createPlacesInfoWindow: function(place, marker) {
+		marker.infowindow = new google.maps.InfoWindow({        
+			content: place.name+"<br/>"+place.vicinity+"<br/>("+(this.options.places.types[place.types[0]]||place.types[0])+")",
+			maxWidth:50
+		});
+       
+		// Add mouse event listeners for the Marker
+		marker.mouseoutEvent = null;
+		marker.mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
+		    this.openInfoWindow(marker, marker.infowindow);  
+			marker.mouseoutEvent = google.maps.event.addListener(marker, 'mouseout', function(event) {
+			    marker.infowindow.close(); 
+				google.maps.event.removeListener(marker.mouseoutEvent); 
+			}.bind(this));
+		}.bind(this)); 
+		marker.clickEvent = google.maps.event.addListener(marker, 'click', function(event) {
+			this.setCurrentLocation(event.latLng);
+			google.maps.event.removeListener(marker.mouseoutEvent);
+			this.setPanoramaPosition(event.latLng);
+			this.openInfoWindow(marker, marker.infowindow);
+		}.bind(this));
+	},
+	resetPlacesMarkers: function(reset) {
+		this.removeAllPlacesMarkers();
+		
+		
+		if(reset) {
+			this.hotelCollection[this.hotelIndex].places = new Object();
+		}
+		document.getElements("#places input[type=checkbox]").each(function(input) {
+			if(input.checked && input.get("value") != "") {
+				this.requestPlaces(RIA.currentLocation, this.options.places.searchRadius, input.get("value"), null);
+			}				
+		},this);
+		
+	},
+	storePlacesSearch: function(hotel, types, placesJsonText) {
+		/*
+		* 	@description:
+		*		Manually dispatch Places data of a hotel and type to the datastore
+		*	@notes:
+		*		This is not used, as the Places data is stored via the webapp after the places response is received
+		*/
+		
+		this.requestPlacesPost = new Request({
+			method:"POST",
+			url:this.options.places.serviceURL,
+			data:'locationid='+hotel.get("data-locationid")+'&types='+types+'&places='+placesJsonText,
+			onRequest: function(e) {
+				Log.info("storePlacesSearch : onRequest");
+			},
+			onSuccess: function(a, b) {
+				Log.info("storePlacesSearch : onSuccess");
+				Log.info(a);
+				Log.info(b)
+			},
+			onFailure: function(e) {
+				Log.info("storePlacesSearch : onFailure");
+				Log.info(e)
+			}
+		}).send();
+		
+	}   
+});
+RIA.MapStreetView = new Class({
+	Implements:[RIA.Gradient],
+	options:{
+		geocodeURL:"/geocode",
+		geolocation:null, 
+		bookmarks:null,
+		maptype:"panorama",
+		spectrum:["00FF00", "FFFF00", "FF0000"]
+	},
+	mapInitialize: function() {
+		
+		this.requestCounter = 500;
+		
+		RIA.bookmarks = new Object();
+		RIA.hotelMarkers = new Object();
+		
+		RIA.MarkerIcons = { 
+			blank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
+			star:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
+			bankDollar:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FF0000',
+			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|@COLOR@|000000',
+			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
+			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@',
+			shadowHotel:'http://chart.apis.google.com/chart?chst=d_map_pin_shadow',
+			shadowBookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_shadow&chld=pin_star',
+			food:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=restaurant|FFFFFF',
+			cafe:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=cafe|FFFFFF',
+			bar:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bar|FFFFFF',
+			restaurant:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=restaurant|FFFFFF',
+			establishment:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=location|FFFFFF',
+			grocery_or_supermarket:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingcart|FFFFFF',
+			store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingcart|FFFFFF',
+			meal_delivery:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=snack|FFFFFF',
+			meal_takeaway:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=snack|FFFFFF',
+			bakery:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=restaurant|FFFFFF',
+			museum:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=location|FFFFFF',
+			park:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=location|FFFFFF',
+			shopping:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
+			shoe_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
+			book_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
+			clothing_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
+			department_store:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=shoppingbag|FFFFFF',
+			bank:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF',
+			atm:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FFFFFF',
+			bus:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bus|FFFFFF',
+			car:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=car|FFFFFF',
+			taxi:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=taxi|FFFFFF',
+			hospital:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=medical|FFFFFF',
+			embassy:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=legal|FFFFFF'
+		}
+		         
+		var star = new google.maps.MarkerImage(RIA.MarkerIcons.star),
+		shoe_store = new google.maps.MarkerImage(RIA.MarkerIcons.shoe_store),
+		food = new google.maps.MarkerImage(RIA.MarkerIcons.food),
+		cafe = new google.maps.MarkerImage(RIA.MarkerIcons.cafe),
+		bar = new google.maps.MarkerImage(RIA.MarkerIcons.bar),
+		restaurant = new google.maps.MarkerImage(RIA.MarkerIcons.restaurant),
+		establishment = new google.maps.MarkerImage(RIA.MarkerIcons.establishment),
+		grocery_or_supermarket = new google.maps.MarkerImage(RIA.MarkerIcons.grocery_or_supermarket),
+		store = new google.maps.MarkerImage(RIA.MarkerIcons.store),
+		meal_delivery = new google.maps.MarkerImage(RIA.MarkerIcons.meal_delivery),
+		meal_takeaway = new google.maps.MarkerImage(RIA.MarkerIcons.meal_takeaway),
+		bakery = new google.maps.MarkerImage(RIA.MarkerIcons.bakery),
+		museum = new google.maps.MarkerImage(RIA.MarkerIcons.museum),
+		park = new google.maps.MarkerImage(RIA.MarkerIcons.park),
+		shopping = new google.maps.MarkerImage(RIA.MarkerIcons.shopping),
+		shoe_store = new google.maps.MarkerImage(RIA.MarkerIcons.shoe_store),
+		book_store = new google.maps.MarkerImage(RIA.MarkerIcons.book_store),
+		clothing_store = new google.maps.MarkerImage(RIA.MarkerIcons.clothing_store),
+		department_store = new google.maps.MarkerImage(RIA.MarkerIcons.department_store),
+		bank = new google.maps.MarkerImage(RIA.MarkerIcons.bank),
+		atm = new google.maps.MarkerImage(RIA.MarkerIcons.atm),
+		bus_station = new google.maps.MarkerImage(RIA.MarkerIcons.bus),
+		car_rental = new google.maps.MarkerImage(RIA.MarkerIcons.car),
+		taxi_stand = new google.maps.MarkerImage(RIA.MarkerIcons.taxi),
+		hospital = new google.maps.MarkerImage(RIA.MarkerIcons.hospital),
+		embassy = new google.maps.MarkerImage(RIA.MarkerIcons.embassy);
+		
+		RIA.MarkerIconsImages = {
+			star:star,
+			shoe_store:shoe_store,
+			food:food,
+			cafe:cafe,
+			bar:bar,
+			restaurant:restaurant,
+			establishment:establishment,
+			grocery_or_supermarket:grocery_or_supermarket,
+			store:store,
+			meal_delivery:meal_delivery,
+			meal_takeaway:meal_takeaway,
+			bakery:bakery,
+			museum:museum,
+			park:park,
+			shopping:shopping,
+			shoe_store:shoe_store,
+			book_store:book_store,
+			clothing_store:book_store,
+			department_store:department_store,
+			bank:bank,
+			atm:atm,
+			bus_station:bus_station,
+			car_rental:car_rental,
+			taxi_stand:taxi_stand,
+			hospital:hospital,
+			embassy:embassy
+		}
+
+		RIA.geocoder = new google.maps.Geocoder();
+		RIA.sv = new google.maps.StreetViewService();         
+		
+		if(this.options.geolocation) {
+			this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat, this.options.geolocation.lng));
+		} else {
+			this.setCurrentLocation(new google.maps.LatLng(0, 0));
+		}
+		
+		
+		this.mapOptions = {
+			scrollwheel: false,
+			keyboardShortcuts:false,
+			zoom: 13,
+			center: RIA.currentLocation, 
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			scaleControl: true,
+		    scaleControlOptions: {
+		        position: google.maps.ControlPosition.BOTTOM_LEFT
+		    }
+		}
+		
+		this.panoramaOptions = {
+			scrollwheel: false,
+			position: RIA.currentLocation,
+			pov: {
+				heading: 120,
+		        pitch: 20,
+		        zoom: 0
+			}
+		};
+
+		RIA.map = new google.maps.Map(document.getElementById("map_canvas"), this.mapOptions);
+        RIA.map.setCenter(RIA.currentLocation);
+                                                                                              		
+		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
+		RIA.map.setStreetView(RIA.panorama);
+		
+		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
+		//RIA.panoramioLayer.setTag("times square");
+		
+		   
+		// Now we have initialized the Map, start the Destination request 
+		if(RIA.currentDestination != "" || RIA.InitAjaxSubmit.price.get("value") != "") {
+	    	RIA.InitAjaxSubmit._submit();
+		}
+		
+ 
+		this.toggleMapFullScreen(null);	
+	},
+	toggleMapFullScreen: function(e){
+		/*
+		*	@description:
+		*		Toggle the Map (ROADMAP) view from full screen to minimized
+		*	@arguments:
+		*		Event[Object] (optional)
+		*/ 
+		
+		// If we have an Event object argument, prevent any default action   
+		if(e && e.preventDefault) {
+			e.preventDefault();
+		}                                                                 
+                                                         
+		// If WE DO NOT HAVE AN EVENT and full screen Map view is required  
+		if(!e) {
+			if(this.mapCanvas.retrieve("view:state") == "map") {
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
+				document.id("map-streetview").set("text", "Panorama");
+			} else if(this.mapCanvas.retrieve("view:state") == "panorama") {
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
+				document.id("map-streetview").set("text", "Map");
+			}
+		}
+		
+		// IF WE DO HAVE AN EVENT and full screen Map view is required   
+		
+		if(e) {
+			if(this.mapCanvas.retrieve("view:state") == "map") {
+				this.options.maptype = "panorama";
+				this.mapCanvas.store("view:state", this.options.maptype);
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
+				document.id("map-streetview").set("text", "Map");
+			}
+			else {
+				this.options.maptype = "map";
+				this.mapCanvas.store("view:state", this.options.maptype);
+				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
+				document.id("map-streetview").set("text", "Panorama");
+			}
+			
+		}
+		
+		// Trigger the resize event on the Map so that it requests any required tiles
+		google.maps.event.trigger(RIA.map, "resize");                                
+		
+		// Center the Map on the current location
+		this.setMapPositionCenter(RIA.currentLocation);
+
+	},
+	setStreetview: function(hotel) { 
+		/*
+		* 	@description:
+		*		Update the existing Streetview Panorama to center on the current location
+		*	@arguments:
+		*		Hotel[Element]
+		*/ 
+		// Get the Hotel address     
+		var address = hotel.get("data-address"), latLng;
+		if(!address || address == "None") {
+			address = "No address found";			
+			return this.notGotGeolocation(hotel);
+		}                       
+		
+		//this.setMapZoom(13);
+		
+		
+		if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
+			dataLatLng = hotel.get("data-latlng").split(",");
+			latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
+			//Log.info("setStreetview() : got latLng from hotel attribute");
+			hotel.store("geolocation", latLng); 
+		}
+		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
+		if(hotel.retrieve("geolocation")) {
+			this.gotGeolocation(hotel, hotel.retrieve("geolocation"));
+			//Log.info("Retrieved geolocation for hotel");
+		} 
+		// Else request the LatLng data from Google, using the Hotel's address
+		else { 
+			this.getGeocodeByAddress(hotel, this.gotGeolocation.bind(this));
+		}   	
+	},
+	gotGeolocation: function(hotel, latLng) {
+		/*
+		* 	@description:
+		*		Called from a successful google.geocode(address) lookup, or using stored LatLng geocoords
+		*	@arguments:
+		*		Hotel[Element]
+		*		LatLng[Object(LatLng)]
+		*/         
+		
+		// Set the global namespace current location
+       	this.setCurrentLocation(latLng);
+                                       
+		// Switch the Map on, in case it was hidden due to no results previously
+		this.mapStreetview.setStyle("display", "");          		            
+		
+		// Set the Map position and Pan to this position
+		this.setMapPositionPan(RIA.currentLocation);    
+		
+		// Set the Streetviw Panorama position
+		this.setPanoramaPosition(RIA.currentLocation);
+		
+		this.resetPlacesMarkers();
+	},
+	notGotGeolocation: function(hotel) {
+		/*
+		* 	@description:
+		*		Called from an UNsuccessful google.geocode(address) lookup
+		*	@arguments:
+		*		Hotel[Element]
+		*/
+        var counter = this.requestCounter + 500;
+		this.requestCounter += 500
+		if(hotel.retrieve("geolocation:error") != google.maps.GeocoderStatus.ZERO_RESULTS) {
+			this.getGeocodeByAddress.delay(this.requestCounter, this, [hotel, this.addHotelMarker.bind(this)]);
+        } else {
+			//RIA.panorama.setVisible(false);
+		}						
+	},
+	animateCurrentMarker: function(delayStart) {
+		try {
+			if(!this.hotelCollection) return;
+
+			if(this.hotelCollection[this.hotelIndex].bookmark) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].bookmark, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].bookmark.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmark, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}	
+
+			if(this.hotelCollection[this.hotelIndex].bookmarkSV) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].bookmarkSV, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].bookmarkSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmarkSV, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}
+			
+
+			if(this.hotelCollection[this.hotelIndex].hotelMarker) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarker, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].hotelMarker.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarker, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}	
+
+			if(this.hotelCollection[this.hotelIndex].hotelMarkerSV) {
+				(function() {
+					this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarkerSV, google.maps.Animation.BOUNCE);
+					this.hotelCollection[this.hotelIndex].hotelMarkerSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarkerSV, null]);			
+				}.bind(this)).delay(delayStart||0);
+			}
+			
+
+		} catch(e) {
+			Log.error({method:"animateCurrentMarker()", error:e});
+		}
+	},                      
+	setMapPositionPan: function(latLng) {
+		/*
+		* 	@description:
+		*		Set the Map to a position and Pan to it using the Google Maps built-in effect
+		*	@arguments:
+		*		latLng[Object(LatLng)]
+		*/
+		RIA.map.panTo(latLng);
+		this.animateCurrentMarker(400);
+		
+	},
+	setMapPositionCenter: function(latLng) {
+		/*
+		* 	@description:
+		*		Set the Map to a position and center the Map to this position
+		*	@arguments:
+		*		latLng[Object(LatLng)]
+		*/
+		RIA.map.setCenter(latLng); 
+		this.animateCurrentMarker();
+	},
+	setMapZoom: function(zoomLevel) {
+		if(RIA.map) RIA.map.setZoom(zoomLevel);
+	},
+	setPanoramaPosition: function(latLng) {
+		/*
+		* 	@description:             
+		*		Set the position of the Streetview Panorama
+		*	@arguments:
+		*		latLng[Object(LatLng)]
+		*/ 
+		// Check whether Streetview Panorama data exists for this LatLng, within a 150 metre radius (argument #2 below) 
+		Log.info("setPanoramaPosition("+latLng+")");
+		
+		RIA.sv.getPanoramaByLocation(latLng, 150, function(svData, svStatus) {  
+            // If Streetview Panorama data exists...
+			if (svStatus == google.maps.StreetViewStatus.OK) {
+				if(!RIA.panorama.getVisible()) RIA.panorama.setVisible(true);
+				// Set the Streetview Panorama to the position, using the returned data (rather than RIA.currentLocation, as this may be innaccurate)
+				RIA.panorama.setPosition(svData.location.latLng);                                                                              
+				// Set the Point Of View of the Panorama to match the 'current heading' data returned. Set pitch and zoom to zero, so that we are horizontal and zoomed out
+				
+				// Now calculate the heading using the Panorama LatLng to the Hotel's LatLng (visually, the Marker)
+				var heading = this.getHeading(svData.location.latLng, latLng);
+				
+				// Set the Panorama heading, pitch and zoom 
+				RIA.panorama.setPov({
+					heading: heading,
+					pitch:20,
+					zoom:0
+				});
+			}
+			// Else if no data exists...
+			else if(svStatus == google.maps.StreetViewStatus.ZERO_RESULTS) {				
+				// [ST]TODO: No Streetview data was found for this LatLng, what do we do here?
+				Log.info("No Panorama results found");
+				RIA.panorama.setVisible(false);
+			} 
+			// Else there was an error...
+			else {
+				// [ST]TODO: Handle OVER_QUOTA or other errors
+				Log.info("Panorama error status: "+svStatus);
+				RIA.panorama.setVisible(false);
+			}
+		}.bind(this));
+	},
+	dropBookmarkPin: function(hotel) {
+		/*
+		* 	@description:
+		*		Call from a Bookmark request against a Hotel
+		*	@arguments:
+		*		Hotel[Element]
+		*/ 
+		// Set local variables
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
+		
+		if(hotel.bookmark == null && RIA.bookmarks[LMLocationId] == undefined) {
+			// Hide the Bookmark button
+			hotel.getElement(".drop-pin").setStyle("display", "none");
+		
+			// If we have a Hotel Marker...
+			if(RIA.hotelMarkers[LMLocationId] != undefined) {
+				// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
+				if(RIA.hotelMarkers[LMLocationId].hotelMarker != null) {    
+					this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarker);
+					this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarkerSV); 
+				}
+			}  
+				    
+			icon = RIA.MarkerIcons.bookmark.replace("@LETTER@",hotel.get("data-counter"));
+			
+			// Create a new Marker
+			hotel.bookmark = new google.maps.Marker({
+	            map: RIA.map, 
+	            icon:new google.maps.MarkerImage(icon),
+				position: hotel.retrieve("geolocation"),
+				draggable:false,
+				title:title,
+				animation:google.maps.Animation.BOUNCE,
+				cursor:'pointer',
+				clickable:true,
+				zIndex:20,
+				shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowBookmark, new google.maps.Size(37, 42), new google.maps.Point(0,0), new google.maps.Point(12,42))
+	        });
+
+			hotel.bookmarkSV = new google.maps.Marker({
+	            map: RIA.panorama, 
+	            icon:new google.maps.MarkerImage(icon),
+				position: hotel.retrieve("geolocation"),
+				draggable:false,
+				title:title,
+				animation:google.maps.Animation.BOUNCE,
+				clickable:false,
+				zIndex:20
+	        });
+        
+        
+			// Add this hotel to the global namespaced Array of Bookmarks
+			RIA.bookmarks[LMLocationId] = hotel;
+		   
+			this.createInfoWindow(hotel, hotel.bookmark);
+		
+			// Add a timeout to stop animating the Marker by removing {animation:google.maps.Animation.BOUNCE}
+			hotel.bookmark.timeout = this.animateMarker.delay(2100, this, [hotel.bookmark, null]);  
+			hotel.bookmarkSV.timeout = this.animateMarker.delay(2100, this, [hotel.bookmarkSV, null]);  
+		}
+	},
+	createInfoWindow: function(hotel, marker) {
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), marker, infowindow;
+		// Create a new InfoWindow, for the Marker
+		         
+		var ytPlayer = "<object id=\"yt-player\" width=\"425\" height=\"349\"><param name=\"movie\" value=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\"/><param name=\"allowFullScreen\" value=\"true\"/><param name=\"allowscriptaccess\" value=\"always\"/><embed src=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\" type=\"application/x-shockwave-flash\" width=\"425\" height=\"349\" allowscriptaccess=\"always\" allowfullscreen=\"true\"/></object>";
+
+		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" /><p>"+price+"</p>";
+		
+		infowindow = new google.maps.InfoWindow({
+		    content: hotelContent,
+			maxWidth:50,
+			disableAutoPan:true
+		});
+        
+		infowindow.closeEvent = google.maps.event.addListener(infowindow, 'closeclick', function(event) {
+		    infowindow.opened = false;
+		}.bind(this));
+
+		// Add mouse event listeners for the Marker
+		hotel.mouseoutEvent = null;
+		hotel.mouseoverEvent = google.maps.event.addListener(marker, 'mouseover', function(event) {
+		    this.openInfoWindow(marker, infowindow);  
+			hotel.mouseoutEvent = google.maps.event.addListener(marker, 'mouseout', function(event) {
+			    if(!infowindow.opened) infowindow.close(); 
+				google.maps.event.removeListener(hotel.mouseoutEvent); 
+			}.bind(this));
+		}.bind(this)); 
+		hotel.clickEvent = google.maps.event.addListener(marker, 'click', function(event) {
+			infowindow.opened = true;
+			this.setCurrentLocation(event.latLng);
+			google.maps.event.removeListener(hotel.mouseoutEvent);
+			this.setPanoramaPosition(event.latLng);
+			this.jumpToHotel(hotel);  
+			this.openInfoWindow(marker, infowindow);   
+			this.animateCurrentMarker();			
+			this.resetPlacesMarkers();
+
+		}.bind(this));
+	},
+	setHotelMarkers: function(hotels) { 
+		/*
+		* 	@description:
+		*		Add a Marker for each hotel
+		*		WARNING: This exceeds the .geocode() method QUOTA
+		*	@arguments:
+		*		Hotels[ElementCollection]
+		*/ 
+		
+		this.createHotelMarkerColors();
+		
+		 
+		var counter = 500, delay, geo, latLng, dataLatLng;
+		hotels.each(function(hotel, index) {
+			
+			if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
+				dataLatLng = hotel.get("data-latlng").split(",");
+				latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
+				hotel.store("geolocation", latLng); 
+			}
+			
+			geo = hotel.retrieve("geolocation");
+			error = hotel.retrieve("geolocation:error");
+			
+			// Only attempt to get a gelocation if we haven't already tried and failed
+			if(geo == null && error != "NO_RESULTS") {
+				delay = counter+=500;              
+				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
+			} else {
+				Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
+				// If the hotel does not have a bookmark in place
+				if(hotel.bookmark == null) {
+					this.addHotelMarker(hotel, geo);
+				}
+			}
+			
+		},this);
+		    
+		
+	},
+	addHotelMarker: function(hotel, latLng) {
+		/*
+		*	@description:
+		*		Sets a Marker for a Hotel. Not solicited by the User
+		*	@arguments:
+		*		hotel[Element]
+		*		latLng[Object(LatLng)]
+		*/       
+		var icon, LMLocationId = hotel.get("data-locationid");
+		
+		
+		// If the Hotel does not already have a bookmarker Marker or a hotel marker
+		if(hotel.bookmark == null && hotel.hotelMarker == null && RIA.hotelMarkers[LMLocationId] == undefined) {
+			//Log.info("Setting hotelMarker for Hotel "+hotel.get("data-name"));
+			
+			RIA.hotelMarkers[LMLocationId] = hotel;
+			
+			icon = RIA.MarkerIcons.hotel.replace("@LETTER@",hotel.get("data-counter"));
+			icon = icon.replace("@COLOR@", hotel.hotelMarkerColor);
+			
+			hotel.hotelMarker = new google.maps.Marker({
+	            map:RIA.map,
+				icon:new google.maps.MarkerImage(icon),
+				position: latLng,
+				draggable:false,
+				title:hotel.get("data-name"),
+				animation:google.maps.Animation.DROP,
+				cursor:'pointer',
+				clickable:true,
+				zIndex:1,
+				shadow:new google.maps.MarkerImage(RIA.MarkerIcons.shadowHotel, new google.maps.Size(37, 37), new google.maps.Point(0,0), new google.maps.Point(12,37))
+			}); 
+	
+			hotel.hotelMarkerSV = new google.maps.Marker({
+	            map:RIA.panorama,
+				icon:new google.maps.MarkerImage(icon),
+				position: latLng,
+				draggable:false,
+				title:hotel.get("data-name"),
+				animation:google.maps.Animation.DROP,
+				clickable:false,
+				zIndex:1
+	        });
+            
+			
+
+			this.createInfoWindow(hotel, hotel.hotelMarker);
+			this.createInfoWindow(hotel, hotel.hotelMarkerSV);
+		}	
+	},
+	removeHotelMarkers: function() {
+		Object.each(RIA.hotelMarkers, function(value, key) {
+			this.removeMarker(value.hotelMarker);
+		},this);
+	},
+	removeMarker: function(marker) {
+		if(marker) {
+			marker.setMap(null);
+		}
+	}, 
+	setBookmarkMarkers: function(hotels) {
+		var counter = 500, delay, geo;
+		hotels.each(function(hotel, index) {
+			if(this.options.bookmarks.contains(hotel.get("data-locationid"))) {
+				geo = hotel.retrieve("geolocation");
+				if(geo == null) {  
+					delay = counter+=500;              
+					//Log.info(hotel.get("data-name")+" : "+delay);
+					this.getGeocodeByAddress.delay(delay, this, [hotel, this.addBookmarkMarker.bind(this)]);				
+				} else { 
+					Log.info("setHotelMarker() : retrieved gelocation for Hotel");
+					this.dropBookmarkPin(hotel);
+				}
+				
+				if(RIA.hotelMarkers[hotel.get("data-locationid")] != undefined) {
+					// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
+					if(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarker != null) {    
+						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarker);						
+					}
+					// If the Hotel Marker instance has a hotelMarkerSV MapMarker Object, then remove it                                                                                     
+					if(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV != null) {
+						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV);
+					}						
+				}  				
+			}
+		},this);
+	},  
+	removeBookmarkMarkers: function() {
+		Object.each(RIA.bookmarks, function(value, key) {
+			this.removeMarker(value.bookmark);
+		},this);
+	},
+	addBookmarkMarker: function(hotel, latLng) {
+		// Create a new Marker     
+		this.dropBookmarkPin(hotel);
+	},
+	getGeocodeByAddress: function(hotel, callback) {
+		/*
+		* 	@description:
+		*		Make a Geocode Request sending an address.
+		*		Return the response
+		*	@arguments:
+		*		Address[String]
+		*/  
+		
+		//Log.info("getGeocodeByAddress")
+        var address = hotel.get("data-address");
+		//Log.info("Requesting Geocode for address "+address);
+		RIA.geocoder.geocode({ 'address': address}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {             
+				var latLng = results[0].geometry.location; 
+				
+				this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
+				
+				// Store the LatLng against the Hotel Element
+				hotel.store("geolocation", latLng);
+				if(callback) {
+					callback(hotel, latLng);
+				}					
+			} else if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+		        //Log.info("No Geocode results found for "+address); 
+				hotel.store("geolocation:error", status);
+				this.notGotGeolocation(hotel);
+			} else {
+				//Log.info("Geocode was not successful for "+address+", for the following reason: status: " + status); 
+				hotel.store("geolocation:error", status);
+				this.notGotGeolocation(hotel);
+			}                      
+			
+			// null local variables
+			address = null;
+		}.bind(this));
+		
+	},
+	animateMarker: function(marker, animation) {
+		/*
+		* 	@description:
+		*		Animate a Map Marker instance		
+		*/
+		if(marker) {
+			marker.setAnimation(animation);
+		}
+	},
+	openInfoWindow: function(marker,infowindow) {
+		/*
+		* 	@description:
+		*		Open an InfoWindow instance
+		*/  
+		// Only show the InfoWindow if we are maximized state
+		if(this.mapCanvas.retrieve("view:state") == "map") {
+			infowindow.open(RIA.map,marker);
+		}
+	},
+	setCurrentLocation: function(latLng) {
+		RIA.currentLocation = latLng;
+	},
+	showMyBookmarks: function() {
+		/*
+		* 	@description:
+		*		Remove all Hotel Markers and just show Bookmark Markers
+		*	@arguments:
+		*		
+		*/
+		this.removeHotelMarkers();
+		this.addBookmarkMarkers();
+	},
+	getHeading: function(latLng1, latLng2) {
+		var path = [latLng1, latLng2], heading = google.maps.geometry.spherical.computeHeading(path[0], path[1]);
+	    return heading;
+	},
+	createHotelMarkerColors: function() { 
+		this.gradientArray = new Array();
+		
+		for (var i = 0,l=this.options.spectrum.length-1; i < l; i++) {
+			this.gradientArray = this.gradientArray.concat(this.generateGradient(this.options.spectrum[i], this.options.spectrum[i + 1], Math.ceil(this.hotelCollection.length/2)));			
+		}
+
+		this.hotelCollection.each(function(hotel, index) {
+			hotel.hotelMarkerColor = this.gradientArray[index].toUpperCase();    
+		},this);
+	},
+	sortByPrice: function(a,b) {        
+		return a.priceData - b.priceData; 
+	},
+	addPanoramioPhotos: function(e) {
+		if(e && e.target) {
+			if(e.target.checked) {
+				RIA.panoramioLayer.setMap(RIA.map);
+			} else {
+				RIA.panoramioLayer.setMap(null);
+			}
+		}		
+	},
+	storeGeocodeByHotel: function(hotelLocationid, latLng) {
+		
+		this.requestGeocodePost = new Request({
+			method:"POST",
+			url:this.options.geocodeURL,
+			data:'locationid='+hotelLocationid+'&destination='+RIA.currentDestination+'&lat='+latLng.lat()+'&lng='+latLng.lng(),
+			onRequest: function(e) {
+				//Log.info("storeGeocodeByHotel : onRequest");
+			},
+			onSuccess: function(a, b) {
+				//Log.info("storeGeocodeByHotel : onSuccess");
+			},
+			onFailure: function(e) {
+				Log.info("storeGeocodeByHotel : onFailure");
+			}
+		}).send();
+	}
+});
+RIA.Experience = new Class({
+	Implements:[Options, RIA.MapStreetView, RIA.GooglePlaces],
+	options:{
+		contenttype:"maximized"
+	},
+	initialize: function(options) {
+		this.setOptions(options);
+
+		RIA.places = new Object();
+		
+		this._form = document.id("start-your-story");
+		this.bookmarks = document.id("bookmarks");
+		this.bookmarks.store("viewstate", "closed");
+		
+		this.content = document.id("content");
+		this.sections = document.getElements("section");
+		this.destination = document.id("destination");
+		this.destination.store("styles:width:orig", this.destination.getStyle("width").toInt());
+		this.durationOfStay = document.id("duration_of_stay");
+		this.durationOfStay.store("styles:width:orig", this.durationOfStay.getStyle("width").toInt());
+		this.arrivalDate = document.id("arrival_date");
+		this.arrivalDate.store("styles:width:orig", this.arrivalDate.getStyle("width").toInt());
+		this.weather = document.id("weather");
+		this.guardian = document.id("guardian");
+		this.twitterNews = document.id("twitter-news");
+		this.fbDialogSendButton = document.id("fb-dialog-send");
+		
+		this.places = document.id("places");
+		this.places.store("viewstate", "closed");
+		   
+		this.placesDistanceRange = document.id("places-distance-range");
+		this.placesDistanceOutput = document.id("places-distance-output");
+		
+		
+		this.travelPartners = document.id("travel-partners");
+		this.hotels = document.id("hotels"); 
+		this.hotelsNav = document.id("hotel-list");
+		           
+		if(this.hotels) {
+	        this.hotels.getElement(".results").set("morph", {
+				duration:400,
+				link:"ignore"
+			});
+		}
+		
+		this.mapCanvas = document.id("map_canvas");
+		this.mapCanvas.store("styles:orig", this.mapCanvas.getCoordinates());
+		this.mapCanvas.store("styles:maximized", {width:"100%", height:"100%"});
+		this.mapCanvas.store("view:state", this.options.maptype);
+		
+		this.mapStreetview = document.id("pano");
+		this.onWindowResize();
+		this.addEventListeners();  
+		
+		this.toggleInformation(null);
+		
+	},                            
+	addEventListeners: function() {
+		
+		window.addEvents({
+			"resize": this.onWindowResize.bind(this)
+		});
+
+		if(this.fbDialogSendButton) {
+			this.fbDialogSendButton.addEvents({
+				"click":this.fbDialogSend.bind(this)
+			});
+		}  
+		
+		document.id("map-streetview").addEvents({
+			"click":this.toggleMapFullScreen.bind(this)
+		});
+                                            
+		document.getElements(".less").addEvents({
+			"click":this.toggleInformation.bind(this) 
+		});
+           
+		document.id("less-more").addEvents({
+			"click":this.toggleInformation.bind(this) 
+		});
+		     
+		
+		if(document.id("nearby")) {
+			document.id("nearby").addEvents({
+				"click":this.showPlaces.bind(this)
+			});
+		}
+		if(document.id("my-bookmarks")) {
+			document.id("my-bookmarks").addEvents({
+				"click":this.shareMyBookmarks.pass([true],this)
+			});			
+		}    
+		
+		if(this.places) {
+			this.places.addEvents({
+				"click": function(e) {
+					var target = e.target, places = target.get("value");
+                    if(places && places != "") {
+						if(target.checked) {
+	                		this.requestPlaces(RIA.currentLocation, this.options.places.searchRadius, places, null);
+						}
+						else {            
+							this.removePlacesMarkers(places);
+							this.updateLabelCount(places);
+						}
+					}  
+					
+					else if(target.id == "photos") {
+						this.addPanoramioPhotos(e);
+					}
+					
+				}.bind(this)
+			});
+			this.places.getElement("h2").addEvents({
+				"click": function(e) {
+					this.places.getElement("form").toggleClass("hide");
+				}.bind(this)
+			});
+		} 
+		
+		if(this.placesDistanceRange) {
+			this.placesDistanceRange.addEvents({
+				"change": function(e) {
+					var newDistance = e.target.get("value");
+					if(this.options.places.searchRadius !== newDistance) {
+						this.options.places.searchRadius = e.target.get("value");
+						this.placesDistanceOutput.set("text", (this.options.places.searchRadius == 1000 ? "1K" : this.options.places.searchRadius)+"m");
+						this.resetPlacesMarkers(true);
+					}					
+				}.bind(this)
+			});
+		}
+	},
+	addHotelNavEventListeners: function() {
+		//Log.info("addHotelNavEventListeners")
+		this.hotelNavigationBind = this.hotelNavigation.bind(this)
+		
+		this.dropBookmarkPinBind = this.dropBookmarkPin.bind(this);
+		document.getElements(".drop-pin").each(function(dropPinButton) {
+			dropPinButton.addEvents({
+				"click":this.dropBookmarkPinBind.pass([dropPinButton.getParent(".hotel")], this)
+			});
+		},this);
+		
+		document.getElements(".previous, .next").each(function(link) {
+			link.addEvents({
+				"click":this.hotelNavigationBind 
+			});
+		},this);
+
+	},
+	removeHotelNavEventListeners: function() {
+		//Log.info("removeHotelNavEventListeners")
+
+		document.getElements(".previous, .next").each(function(link) {
+			link.removeEvents({
+				"click":this.hotelNavigationBind 
+			});
+		},this);
+		
+		document.getElements(".drop-pin").each(function(dropPinButton) {
+			dropPinButton.removeEvents({
+				"click":this.dropBookmarkPinBind
+			});
+		},this)
+	},      
+	fbDialogSend: function() {
+		FB.ui({
+			app_id:RIA.fbAppId,
+			/*redirect_uri:window.location.href,*/
+			access_token:"147307178684773|2.AQCTvZXmKvdYGpvo.3600.1312552800.0-100002195041453|kXWfcjveg1hot1dkyEigL3VIVbs",
+			method: 'send',
+			display:'iframe',
+          	name: 'Your Lastminute.com Hotel Bookmarks',
+			link: RIA.shareURL,
+		});
+	},
+	hotelNavigation: function(e) { 
+
+		if((e.type == "keyup" && (e.key == "left" || e.key == "right")) || e.type == "click") {
+			e.preventDefault();                                       
+			var hotelWidth, resultMarginLeft, ready = true;
+		
+			resultMarginLeft = this.hotels.getElement(".results").getStyle("marginLeft");
+			
+			if(e.key == "left" || (e.type == "click" && e.target.hasClass("previous"))) {
+				if(resultMarginLeft.toInt() >= 0) {
+					resultMarginLeft = 0;
+					ready = false;						
+				} else {
+					this.hotelIndex--;
+					resultMarginLeft = resultMarginLeft.toInt()+this.hotelWidth;
+				} 
+				
+			} 
+			else if (e.key == "right" || (e.type == "click" && e.target.hasClass("next"))) {
+				var totalMarginLeft = -1*(this.totalLength-this.hotelWidth);
+				if(resultMarginLeft.toInt() <= totalMarginLeft) {
+					resultMarginLeft = totalMarginLeft;
+					ready = false;
+				} else {
+					this.hotelIndex++;
+					resultMarginLeft = resultMarginLeft.toInt()-hotelWidth;                                                           						
+				}
+				              
+			}
+			
+			if(ready) {
+				document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
+				
+				if(this.hotels.hasClass("minimized")) {
+					this.animateToHotel(this.hotelCollection[this.hotelIndex]); 
+					(function() {
+						this.setStreetview(this.hotelCollection[this.hotelIndex]);
+					}.bind(this)).delay(500);
+				} else {
+					this.jumpToHotel(this.hotelCollection[this.hotelIndex]);      
+					this.setStreetview(this.hotelCollection[this.hotelIndex]);
+				}
+				
+			}
+
+
+		}
+	},
+	setCurrentHotel: function(hotel) {
+		var hotelCounter = hotel.get("data-counter"),
+		hotelIndex = hotelCounter-1, 
+		resultMarginLeft = -1*(hotelCounter*this.hotelWidth)+this.hotelWidth;
+		
+		this.hotelsNav.getElements("a").removeClass("active");
+		this.hotelsNav.getElements("a")[hotelIndex].addClass("active");
+		this.hotelIndex = hotelIndex; 
+		return {index:this.hotelIndex, marginLeft:resultMarginLeft};
+	},
+	animateToHotel: function(hotel) {
+		var hotelResults = this.setCurrentHotel(hotel);
+		this.hotels.getElement(".results").morph({"marginLeft":hotelResults.marginLeft+"px"});		
+	},
+	jumpToHotel: function(hotel) {
+		var hotelResults = this.setCurrentHotel(hotel);
+		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
+	},
+	getHotels: function() { 
+		this.removeHotelNavEventListeners();
+	},
+	gotHotels: function(destination) {    
+		/*
+		* 	Callback from AjaxSubmit successful get of hotel data
+		*/
+		
+		// reset the hotel index, so we are in first hotel position
+		this.hotelIndex = 0;
+		this.hotelCollection = this.hotels.getElements(".hotel");
+		
+		this.hotels.removeClass("waiting");
+		
+		RIA.bookmarks = new Object();                                         
+		this.shareMyBookmarks(false);
+		
+		
+		if(this.hotelCollection.length > 0) {
+			
+			document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
+			
+			RIA.currentDestination = this.hotelCollection[0].get("data-destination");
+			//Log.info("RIA.currentDestination is now "+RIA.currentDestination);
+					
+			
+			if(!this.hotels.hasClass("grid")) {
+				this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
+				this.totalLength = (this.hotelCollection.length*this.hotelWidth);
+				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
+			}
+			
+			this.setStreetview(this.hotelCollection[0]);
+			    
+			if(this.options.bookmarks != null && this.options.bookmarks.length) {
+				this.setBookmarkMarkers(this.hotelCollection);
+			}
+            
+			this.setHotelMarkers(this.hotelCollection);   
+			
+			this.createHotelNav();                                                                               
+			
+			this.addHotelNavEventListeners();
+			
+		} else {
+			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
+		}   
+		
+	}, 
+	createHotelNav: function() {
+		
+		this.hotelsNav.empty();
+		this.hotelCollection.each(function(hotel, index) {
+			this.hotelsNav.adopt(new Element("a", {
+				"href":"#",
+				"text":(index+1),
+				"class":(index == 0 ? "active" : ""),
+				"title":hotel.get("data-name")+" : "+hotel.get("data-price"),
+				"events":{
+					"click": function(e) {
+						e.preventDefault();
+						this.jumpToHotel(hotel);
+						this.setStreetview(this.hotelCollection[this.hotelIndex]);
+					}.bind(this)
+				}
+			}))
+		},this)
+	},
+	onWindowResize: function(e) {
+		this.viewport = window.getSize(); 
+		if(RIA.map) google.maps.event.trigger(RIA.map, "resize");
+	},
+	toggleInformation: function(e) {
+		
+		if(e) e.preventDefault();
+		
+		if(!e) {
+			if(this.options.contenttype == "maximized") {
+				document.id("less-more").set("text", "less...");
+				if(this.weather) this.weather.setStyle("display", "block");
+				if(this.guardian) this.guardian.setStyle("display", "block");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
+				this.hotels.removeClass("minimized");
+			}
+			else {   
+				document.id("less-more").set("text", "more...");
+				if(this.weather) this.weather.setStyle("display", "none");
+				if(this.guardian) this.guardian.setStyle("display", "none");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
+				this.hotels.addClass("minimized");				
+			}
+		} else {
+			if(this.hotels.hasClass("minimized")) {
+				this.options.contenttype = "maximized";
+				document.id("less-more").set("text", "less...");
+				if(this.weather) this.weather.setStyle("display", "block");
+				if(this.guardian) this.guardian.setStyle("display", "block");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
+				this.hotels.removeClass("minimized");
+			}
+			else {
+				this.options.contenttype = "minimized";   
+				document.id("less-more").set("text", "more...");
+				if(this.weather) this.weather.setStyle("display", "none");
+				if(this.guardian) this.guardian.setStyle("display", "none");
+				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
+				this.hotels.addClass("minimized");				
+			}    
+		}
+	},
+	shareMyBookmarks: function(show) {   
+		
+		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
+		                                                                       
+		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
+		Object.each(RIA.bookmarks, function(value, key) {                
+			if(index == 0) {
+				RIA.shareURL+= key;
+            } else {
+				RIA.shareURL+=","+key;
+			}				
+            index++;
+		},this);    
+		
+		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype;
+		
+		
+		document.id("bookmarks").getElement("a").set({"href":RIA.shareURL, "text":RIA.shareURL});  
+		
+		if(show) {
+			if(this.bookmarks.retrieve("viewstate") == "closed") {
+				this.bookmarks.morph({"height":"55px", "top":"60px"});
+				//this._form.morph({"top":"140px", "paddingTop":"20px"});			
+				this._form.morph({"opacity":0});			
+				this.bookmarks.store("viewstate", "open");
+				
+				//this.content.morph({"opacity":0});
+			} else {
+				this.bookmarks.morph({"height":"0px", "top":"-20px"});
+				//this._form.morph({"top":"40px", "paddingTop":"40px"});
+				this._form.morph({"opacity":1});
+				this.bookmarks.store("viewstate", "closed"); 
+				
+				//this.content.morph({"opacity":1});
+			}
+		}
+	},
+	showPlaces: function(e) {
+		e.preventDefault();
+		
+		if(this.places.retrieve("viewstate") == "closed") {
+    		this.places.store("viewstate", "open"); 
+			this.places.morph({"display":"block"});
+		} else {   
+    		this.places.store("viewstate", "closed");
+			this.places.morph({"display":"none"}); 
+		}
+		
+	}
+});
+RIA.AjaxSubmit = new Class({
+	Implements:[Options],
+	options:{
+
+	},
+	initialize: function(options) {
+		this.setOptions(options);
+		this.content = document.id("content");
+		this.ajaxForm = document.id("start-your-story");
+		this.destination = document.id("destination");
+		this.price = document.id("priceMax");
+		
+		RIA.currentPriceMax = this.price.get("value");
+		
+		//Log.info("RIA.AjaxSubmit : RIA.currentPriceMax: "+RIA.currentPriceMax);
+		
+		this.flights = document.id("flights");
+		this.hotels = document.id("hotels");
+		this.cityBreak = document.id("city-break");
+        this.information = document.id("info");
+		this.weather = document.id("weather");
+		this.guardian = document.id("guardian");
+		this.requests = [];
+		 
+		this.loading = document.id("loading");
+		this.addEventListeners(); 
+		 
+		
+	},
+	_submit: function() {
+		this.ajaxForm.fireEvent("submit");
+	},
+	addEventListeners: function() {
+		this.ajaxForm.addEvents({
+			"submit": function(e) {  
+				if(e) e.preventDefault();
+				this.updateDestinationName(this.destination.get("value"));
+				//if(this.destination.get("value") != "") {
+					this.requestData();
+				//}				
+			}.bind(this)
+		});
+	},
+	requestData: function() {
+		/*
+		* 	@description:
+		*		Request INDIVIDUAL updates to content buckets
+		*/ 
+		var destination = this.destination.get("value");                           
+		
+		if(typeof(twitterSearch) != "undefined") {
+			twitterSearch.stop();         
+			twitterSearch.search = destination+" hotels OR restaurants since:2011-07-16 :)";
+			twitterSearch.subject = destination;
+			twitterSearch.render().start();
+		}
+		
+		/*
+		* 	Cancel any running requests
+		*/  
+		Array.each(this.requests, function(request) {
+			if(request.isRunning()) { 
+				Log.info(request);
+				request.cancel();
+			}
+		}, this);
+		this.requests.length = 0;
+		
+		if(this.weather) {
+			this.requestInfo = new Request.HTML({
+				method:"POST",
+				url:"/ajax",
+				update:this.weather.getElement(".results"),
+				data:'destination='+destination+'&info_type=weather',
+				onRequest: this.requestStart.pass([this.weather],this),
+				onSuccess: this.requestSuccessInfo.pass([this.weather],this),
+				onFailure: this.requestFailure.bind(this)
+			}).send();        
+			this.requests.include(this.requestInfo);     
+		}
+		
+		if(this.guardian) {
+		   	this.requestGuardian = new Request.HTML({
+				method:"POST",
+				url:"/ajax",
+				update:this.guardian.getElement(".results"),
+				data:'destination='+destination+'&info_type=guardian',
+				onRequest: this.requestStart.pass([this.guardian],this),
+				onSuccess: this.requestSuccessInfo.pass([this.guardian],this),
+				onFailure: this.requestFailure.bind(this)
+			}).send();        
+			this.requests.include(this.requestGuardian);  
+		}
+		this.requestHotels = new Request.HTML({
+			method:"POST",
+			url:"/ajax",
+			evalScripts:true,
+			update:this.hotels.getElement(".results"),
+			data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels',
+			onRequest: this.requestStart.pass([this.hotels],this),
+			onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
+			onFailure: this.requestFailure.bind(this)
+		});
+		
+		this.requests.include(this.requestHotels);
+			
+		/*
+		this.requestFlights = new Request.HTML({
+			method:"POST",
+			url:"/ajax",
+			update:this.flights.getElement(".results"),
+			data:'destination='+destination+'&info_type=flights',
+			onRequest: this.requestStart.pass([this.flights],this),
+			onSuccess: this.requestSuccess.pass([this.flights],this),
+			onFailure: this.requestFailure.bind(this)
+		});        
+		this.requests.include(this.requestFlights); 
+		*/ 
+		/*
+		this.requestCityBreak = new Request.HTML({
+			method:"POST",
+			url:"/ajax",
+			update:this.cityBreak.getElement(".results"),
+			data:'destination='+destination+'&info_type=city-break',
+			onRequest: this.requestStart.pass([this.cityBreak],this),
+			onSuccess: this.requestSuccess.pass([this.cityBreak],this),
+			onFailure: this.requestFailure.bind(this)
+		});		 
+		this.requests.include(this.requestCityBreak);
+		*/
+		
+	    this.requests.each(function(request) {
+			request.send();
+		});
+	},
+	requestStart: function(element) {
+		if(element) {
+			this.loading.setStyle("display", "block");
+			if(element.get("id") == "hotels") {
+				RIA.InitExperience.getHotels();
+			}
+			element.addClass("waiting");
+			//element.getElement(".results").morph({"opacity":0});			
+			element.getElement(".results").set("morph", {"opacity":0});			
+		}
+	},
+	requestSuccess: function(element, destination) {
+		if(element) {
+			/*
+			* 	Set up the hotels Element Collection
+			*/
+			this.loading.setStyle("display", "none");
+			if(element.get("id") == "hotels") { 
+				if(element.hasClass("hide")) element.removeClass("hide");
+				RIA.InitExperience.gotHotels(destination);				     
+			}
+		}
+	},
+	requestSuccessInfo: function(element) {
+		element.removeClass("waiting");
+		element.getElement(".results").morph({"opacity":1});
+		if (RIA.Article) RIA.ArticleInit = new RIA.Article(article);
+	    
+	},
+	requestFailure: function(e) {
+		Log.error({method:"requestFailure", error:e});
+	},
+	updateDestinationName: function(name) {
+		document.getElements(".destination-name").set("text", name);
+	}
+});
