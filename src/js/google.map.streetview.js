@@ -663,6 +663,7 @@ RIA.MapStreetView = new Class({
 	    return heading;
 	},
 	createHotelMarkerColors: function() { 
+		/*
 		this.hotelsByPriceRange = new Array();
 		this.hotelCollection.each(function(hotel, index) {
 			hotel.priceData = parseFloat(hotel.get("data-price").substring(1)); 
@@ -671,7 +672,7 @@ RIA.MapStreetView = new Class({
 		
 		
 		this.hotelsByPriceRange = this.hotelsByPriceRange.sort(this.sortByPrice.bind(this));
-		
+		*/
 		
 		this.gradientArray = new Array();
 		this.options.spectrum = new Array("00FF00", "FFFF00", "FF0000");
@@ -681,7 +682,7 @@ RIA.MapStreetView = new Class({
 		}
 
 		this.gradientArray.each(function(color, index) {
-			this.hotelsByPriceRange[index].hotelMarkerColor = color.toUpperCase();
+			this.hotelCollection[index].hotelMarkerColor = color.toUpperCase();
 		},this);
 
 	},

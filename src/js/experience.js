@@ -301,23 +301,11 @@ RIA.Experience = new Class({
 			//Log.info("RIA.currentDestination is now "+RIA.currentDestination);
 					
 			
-			                                  
-			this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
-			
-			/*
-			this.hotels.getElements(".photos").each(function(photoContainer) {
-				var text = photoContainer.get("text").clean();
-				text.replace(" ","");
-				var temp = new Element("div").set("html", text);
-				photoContainer.innerHTML = "";
-				temp.inject(photoContainer)
-			});
-			*/
-			this.totalLength = (this.hotelCollection.length*this.hotelWidth);
-			
-			// Reset the results width and the left margin, so we are in first hotel position
-			this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
-
+			if(!this.hotels.hasClass("grid")) {
+				this.hotelWidth = this.hotels.getElements(".hotel")[0].getCoordinates().width;
+				this.totalLength = (this.hotelCollection.length*this.hotelWidth);
+				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px", "marginLeft":"0px"});
+			}
 			
 			this.setStreetview(this.hotelCollection[0]);
 			    

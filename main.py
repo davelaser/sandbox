@@ -234,12 +234,11 @@ Get Hotel Booking Form Data
 """		
 
 def get_hotel_booking_form_data(destination):
-	logging.info(config_properties.get('HotelBookingForm', 'pTxId'))
 	bookingData = dict()
 	configItems = config_properties.items('HotelBookingForm')
 	for item in configItems:
 		bookingData[item[0]] = item[1]
-	logging.info(bookingData)
+	return bookingData
 	
 """ Use with Live Kapow Service - Handle an RPC result instance, for Flights """
 def handle_result_ajax(rpc, destination, info_type, response):
@@ -279,9 +278,9 @@ def handle_result_ajax_v3(rpc, destination, price, info_type, response):
 			#put_datastore_by_destination(destination, f)
 			put_hotels_by_destination(destination,f)
 			bookingData = get_hotel_booking_form_data(destination)
-			bookingData.city = destination
+			bookingData['city'] = destination
 			if hotel_booking_dest_names.has_key(destination):
-				bookingData.dest = hotel_booking_dest_names[destination]
+				bookingData['dest'] = hotel_booking_dest_names[destination]
 			
 			hotelsData = get_hotels_by_destination_and_price(destination, price)
 			if hotelsData.get() is not None:
@@ -657,10 +656,18 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			#hotelsData = get_hotels_by_destination(destination)
 		    hotelsData = get_hotels_by_destination_and_price(destination, price)
 		
+		bookingData = get_hotel_booking_form_data(destination)
+		bookingData['city'] = destination
+		if hotel_booking_dest_names.has_key(destination):
+			bookingData['dest'] = hotel_booking_dest_names[destination]
+						
 		if hotelsData.get() is not None:
 			logging.info("Retrieving from datastore")
 			hotelsList = list()
 			for hotel in hotelsData:
+				hotel.bookingData = bookingData
+				logging.info("Hotel booking info added")
+				logging.info(hotel.bookingData)
 				hotelsList.append(hotel)
 
 			replaced = memcache.replace(destination,hotelsList)
