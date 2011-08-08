@@ -1,7 +1,7 @@
 {% for hotel in hotels %}
-<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "cheap" or destination == "expensive" or destination == "" or destination == "europe" %}({{ hotel.destination }}){% endif %}" data-price="&#163;{{hotel.price|safe}}" data-latlng="{{ hotel.latlng }}">
+<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}" data-price="&#163;{{hotel.price|safe}}" data-latlng="{{ hotel.latlng }}">
 	<header>
-		<h3><span class="count">{{ forloop.counter }} of {{hotels|length}}</span><span class="name">{{hotel.name|safe}} {% if destination == "cheap" or destination == "expensive" or destination == "" or destination == "europe" %}({{ hotel.destination }}){% endif %}</span><span class="colon"> : </span><span class="price">&#163;{{ hotel.price|safe }}</span></h3>
+		<h3><span class="count">{{ forloop.counter }} of {{hotels|length}}</span><span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}</span><span class="colon"> : </span><span class="price">&#163;{{ hotel.price|safe }}</span></h3>
 		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.name }}"/></a>
     </header>
     <div class="rating">
@@ -28,29 +28,34 @@
 	<div class="details">
 		<p class="description">
 			{{ hotel.description }}
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam quis enim sit amet diam tincidunt hendrerit. Aenean eget neque mauris. Etiam placerat suscipit dolor nec venenatis. Sed ultricies porttitor urna, sed sodales ante tristique vel. Phasellus ac posuere dui. 
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam quis enim sit amet diam tincidunt hendrerit. Aenean eget neque mauris. 
+		</p>
+		<p>
+				Etiam placerat suscipit dolor nec venenatis. Sed ultricies porttitor urna, sed sodales ante tristique vel. Phasellus ac posuere dui. 
 		</p>
 		<dl>
 			<dt class="address">Address: {{hotel.address|safe}}<dt>
 			<dt>Phone: {{hotel.phone}}<dt>
-		</dl>
+		</dl>		
 	</div>
 	<div class="room-and-rates">
 		<form class="hotel-booking-form" name="roomselection" method="get" action="http://globaltrips.lastminute.com/trips/productDetails/addToCart">
-			<input type="hidden" name="pTxId" value="{{ hotel.bookingData.pTxId }}" />
+			<input type="hidden" name="pTxId" value="806927" />{{ hotel.bookingData.pTxId }}
 			<input type="hidden" name="checkInDate" value="{{ hotel.bookingData.checkindate }}" />
 			<input type="hidden" name="checkOutDate" value="{{ hotel.bookingData.checkoutdate }}" />
 			<input type="hidden" name="guestCounts" value="{{ hotel.bookingData.guestcounts }}" />
 			<input type="hidden" name="guestCodes" value="{{ hotel.bookingData.guestcodes }}" />
+			<input type="hidden" name="propertyIds" value="28234-0-6-UTE00004$v1v$">
 			<input type="hidden" name="city" value="{{ hotel.destination }}" />
 			<input type="hidden" name="configId" value="{{ hotel.bookingData.configid }}" />
             <input type="hidden" name="numRooms" value="{{ hotel.bookingData.numrooms }}" />
             <input type="hidden" name="dest" value="{{ hotel.bookingData.dest }}" />
             <input type="hidden" name="path" value="{{ hotel.bookingData.path }}" />
-            <input type="hidden" name="hotelRequestId" value="{{ hotel.bookingData.hotelrequestid }}" />
+            <input type="hidden" name="hotelRequestId" value="322006310551624{{ hotel.bookingData.hotelrequestid }}" />
             <input type="hidden" name="pageId" value="{{ hotel.bookingData.pageid }}" />
             <input type="hidden" name="action" value="{{ hotel.bookingData.action }}" />
 			<input type="hidden" name="controller" value="{{ hotel.bookingData.controller }}" />
+			<input type="hidden" name="room1" checked="checked" value="G1424467369" class="radio" id="room1">
 			<button class="button" value="submit">book now</button>
 		</form>
 	</div>

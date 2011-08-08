@@ -41,8 +41,6 @@
 		{% include "includes/form.html" %}
 		
 		<div id="content">
-			{% include "includes/social.html" %}       
-
 			<section id="hotels" class="{% if not destination %}hide{% endif %}">
 				<header>
 					<h2>Hotels</h2>
@@ -124,6 +122,7 @@
          </div>
 		 
 	</article>
+	{% include "includes/social.html" %} 
 	<div id="loading">
 		<div id="mask"></div>
 		<div id="loading-message"><h3>Starting new story...</h3></div>

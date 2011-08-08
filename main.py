@@ -575,8 +575,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		if destination_display_names.has_key(destination):
 			destinationDisplayName = destination_display_names[destination]
 		
-		#facebookAppId = config_properties.get('Facebook', 'app_id')
-		facebookAppId = ""
+		facebookAppId = config_properties.get('Facebook', 'app_id')
 		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
@@ -672,11 +671,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			self.response.out.write(template.render(path, global_mashup))
 		else:        
 		"""
-		if destination == "cheap":
-			hotelsData = get_hotels_order_by_price_cheapest()
-		elif destination == "expensive":
-			hotelsData = get_hotels_order_by_price_expensive()
-		elif destination == "europe":
+		if destination == "europe":
 			hotelsData = get_hotels_in_europe_by_price(price)		
 		else:
 			#hotelsData = get_hotels_by_destination(destination)

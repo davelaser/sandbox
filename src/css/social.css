@@ -1,11 +1,17 @@
-#social {
-	width:50px;
-	position:absolute;
-	left:-100px;
-	top:-155px;
+#social {    
+	background:#fff;
+	width:auto;
+	position:fixed;
+	left:20%;
+	bottom:0px;
 	padding:10px 10px 0;
 }
 
-#social div {
-	margin:0 0 10px 0;
+#social div { 
+	float:left;
+	width:60px;
+	margin:0 20px 0 0;
+}
+#social div:last-child {
+	margin:0;
 }

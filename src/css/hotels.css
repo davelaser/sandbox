@@ -56,6 +56,10 @@ nav#hotel-list a.active {
 
 #hotels .details {
 	margin:20px 0 0 0;
+}               
+
+#hotels .details dl {
+	margin:10px 0 0 0;
 }
 #hotels.streetview .hotel .rating,
 #hotels.streetview .hotel .details,

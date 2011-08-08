@@ -1721,6 +1721,10 @@ RIA.Experience = new Class({
 			this.placesDistanceRange.addEvents({
 				"change": function(e) {
 					var newDistance = e.target.get("value");
+					this.placesDistanceOutput.set("text", (this.options.places.searchRadius == 1000 ? "1K" : newDistance)+"m");
+				}.bind(this),
+				"mouseup": function(e) {
+					var newDistance = e.target.get("value");
 					if(this.options.places.searchRadius !== newDistance) {
 						this.options.places.searchRadius = e.target.get("value");
 						this.placesDistanceOutput.set("text", (this.options.places.searchRadius == 1000 ? "1K" : this.options.places.searchRadius)+"m");
@@ -1990,7 +1994,6 @@ RIA.Experience = new Class({
 	},
 	showPlaces: function(e) {
 		e.preventDefault();
-		
 		if(this.places.retrieve("viewstate") == "closed") {
     		this.places.store("viewstate", "open"); 
 			this.places.morph({"display":"block"});
