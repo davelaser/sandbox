@@ -186,7 +186,21 @@ def get_hotels_by_destination_and_price(destination, price):
 	resultset = DBHotel.gql(queryString)
 	return resultset
 
-
+def get_hotels_in_europe_by_price(price):
+	queryDestinationList = list()
+	queryDestinationList.append('paris')
+	queryDestinationList.append('madrid')
+	queryDestinationList.append('barcelona')
+	queryDestinationList.append('amsterdam')
+	queryDestinationList.append('rome')
+	queryString = "WHERE destination IN :1"
+	if price is not None and len(str(price)) > 0:
+		queryString += " AND price <= "+str(price)
+	queryString += " ORDER BY price"
+	logging.info(queryString)
+	resultset = DBHotel.gql(queryString, queryDestinationList)
+	return resultset
+	
 def get_hotels_order_by_price_cheapest():
 	resultset = DBHotel.gql("ORDER BY price ASC LIMIT 30")
 	return resultset
@@ -661,7 +675,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		if destination == "cheap":
 			hotelsData = get_hotels_order_by_price_cheapest()
 		elif destination == "expensive":
-			hotelsData = get_hotels_order_by_price_expensive()		
+			hotelsData = get_hotels_order_by_price_expensive()
+		elif destination == "europe":
+			hotelsData = get_hotels_in_europe_by_price(price)		
 		else:
 			#hotelsData = get_hotels_by_destination(destination)
 		    hotelsData = get_hotels_by_destination_and_price(destination, price)

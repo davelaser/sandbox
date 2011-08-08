@@ -241,7 +241,8 @@ RIA.Experience = new Class({
 		var hotelResults = this.setCurrentHotel(hotel);
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
-	getHotels: function() { 
+	getHotels: function() {
+		this.removeHotelMarkers(); 
 		this.removeHotelNavEventListeners();
 	},
 	gotHotels: function(destination) {    
@@ -257,7 +258,7 @@ RIA.Experience = new Class({
 		
 		RIA.bookmarks = new Object();                                         
 		this.shareMyBookmarks(false);
-		
+		RIA.hotelMarkers = new Object();
 		
 		if(this.hotelCollection.length > 0) {
 			

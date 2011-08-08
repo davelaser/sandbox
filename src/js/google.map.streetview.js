@@ -508,7 +508,7 @@ RIA.MapStreetView = new Class({
 				delay = counter+=500;              
 				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
 			} else {
-				Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
+				//Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
 				// If the hotel does not have a bookmark in place
 				if(hotel.bookmark == null) {
 					this.addHotelMarker(hotel, geo);
@@ -567,12 +567,15 @@ RIA.MapStreetView = new Class({
 
 			this.createInfoWindow(hotel, hotel.hotelMarker);
 			this.createInfoWindow(hotel, hotel.hotelMarkerSV);
+		} else {
+			Log.info("We have a hotelMarker or a bookmark for "+hotel.get("data-name"));
 		}	
 	},
 	removeHotelMarkers: function() {
 		Object.each(RIA.hotelMarkers, function(value, key) {
 			this.removeMarker(value.hotelMarker);
 		},this);
+		
 	},
 	removeMarker: function(marker) {
 		if(marker) {
@@ -691,9 +694,10 @@ RIA.MapStreetView = new Class({
 	},
 	createHotelMarkerColors: function() { 
 		this.gradientArray = new Array();
-		
+		                                                                                                                                 
+		var hotelCount = Math.ceil(this.hotelCollection.length/2);
 		for (var i = 0,l=this.options.spectrum.length-1; i < l; i++) {
-			this.gradientArray = this.gradientArray.concat(this.generateGradient(this.options.spectrum[i], this.options.spectrum[i + 1], Math.ceil(this.hotelCollection.length/2)));			
+			this.gradientArray = this.gradientArray.concat(this.generateGradient(this.options.spectrum[i], this.options.spectrum[i + 1], hotelCount));			
 		}
 
 		this.hotelCollection.each(function(hotel, index) {
