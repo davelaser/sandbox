@@ -13,4 +13,21 @@ indexes:
 - kind: DBHotel
   properties:
   - name: destination
+  - name: index
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: index
   - name: price
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: price
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: price
+  - name: index

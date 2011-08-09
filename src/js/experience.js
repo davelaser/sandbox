@@ -258,6 +258,7 @@ RIA.Experience = new Class({
 		if(this.hotelsNav) this.hotelsNav.empty();
 		this.removeHotelMarkers(); 
 		this.removeHotelNavEventListeners();
+		this.hotels.getElement(".results").empty();
 		this.hotels.getElement(".results").setStyles({"marginLeft":"0px"});
 	},
 	gotHotels: function(destination) {    

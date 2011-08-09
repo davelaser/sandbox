@@ -118,7 +118,7 @@ RIA.MapStreetView = new Class({
 		this.mapOptions = {
 			scrollwheel: false,
 			keyboardShortcuts:false,
-			zoom: 13,
+			zoom: 15,
 			center: RIA.currentLocation, 
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			scaleControl: true,

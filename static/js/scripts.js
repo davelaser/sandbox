@@ -981,7 +981,7 @@ RIA.MapStreetView = new Class({
 		this.mapOptions = {
 			scrollwheel: false,
 			keyboardShortcuts:false,
-			zoom: 13,
+			zoom: 15,
 			center: RIA.currentLocation, 
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			scaleControl: true,
@@ -1880,6 +1880,7 @@ RIA.Experience = new Class({
 		if(this.hotelsNav) this.hotelsNav.empty();
 		this.removeHotelMarkers(); 
 		this.removeHotelNavEventListeners();
+		this.hotels.getElement(".results").empty();
 		this.hotels.getElement(".results").setStyles({"marginLeft":"0px"});
 	},
 	gotHotels: function(destination) {    

@@ -85,7 +85,12 @@ hotel_booking_dest_names = {
 tripadvisor_image_paths = {
 	'newyork':'new_york',
 	'paris':'paris',
-	'london':'london'
+	'london':'london',
+	'barcelona':'barcelona',
+	'madrid':'madrid',
+	'amsterdam':'amsterdam',
+	'rome':'rome',
+	'losangeles':'los_angeles'
 }                   
 
 def loadConfigProperties():
@@ -136,8 +141,8 @@ class DBHotel(db.Model):
 	propertyids = db.StringProperty()
 	name = db.StringProperty(required=True)
 	price = db.FloatProperty(required=True)
-	startdate = db.DateTimeProperty()
-	enddate = db.DateTimeProperty()
+	startdate = db.DateProperty()
+	enddate = db.DateProperty()
 	address = db.PostalAddressProperty(required=True)
 	phone = db.PhoneNumberProperty()
 	category = db.CategoryProperty()
@@ -157,7 +162,7 @@ class DBHotel(db.Model):
 	hotelrequestid = db.StringProperty()
 	
 def get_hotels_by_destination(destination):
-	resultset = DBHotel.gql("WHERE destination = '"+destination+"'")# ORDER BY price")
+	resultset = DBHotel.gql("WHERE destination = '"+destination+"' ORDER BY index")# ORDER BY price")
 	return resultset
 			
 def put_hotels_by_destination(destination, data, startDate, endDate):
@@ -223,12 +228,14 @@ def get_hotels_by_destination_and_price(destination, price):
 	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"
 		if price is not None and len(str(price)) > 0:
-			queryString += " AND price <= "+str(price)
+			queryString += " AND price <= "+str(price)+" ORDER BY price, index"
+		else:
+			queryString += " ORDER BY index"
 	else:
 		if price is not None and len(str(price)) > 0:
-			queryString += "WHERE price <= "+str(price)
+			queryString += "WHERE price <= "+str(price)+" ORDER BY price, index"
 		
-	#queryString += " ORDER BY price"
+
 	logging.info(queryString)
 	resultset = DBHotel.gql(queryString)
 	return resultset
@@ -244,7 +251,7 @@ def get_hotels_in_europe_by_price(price):
 	queryString = "WHERE destination IN :1"
 	if price is not None and len(str(price)) > 0:
 		queryString += " AND price <= "+str(price)
-	#queryString += " ORDER BY price"
+	queryString += " ORDER BY index"#, price
 	logging.info(queryString)
 	resultset = DBHotel.gql(queryString, queryDestinationList)
 	return resultset
@@ -327,7 +334,9 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 		
 			bookingData = get_hotel_booking_form_data(destination)
 			bookingData['city'] = destination
-		
+			bookingData['checkindate'] = startDate.isoformat()
+			bookingData['checkoutdate'] = endDate.isoformat()
+					
 			if hotel_booking_dest_names.has_key(destination):
 				bookingData['dest'] = hotel_booking_dest_names[destination]
 		
@@ -444,15 +453,19 @@ class ExperienceHandler(webapp.RequestHandler):
 		if len(price) > 0:
 			price = float(price)
 			
-		destinationDisplayName = destination 
+		destinationDisplayName = destination
+		tripAdvisorDestination = destination 
 		bookmarks = self.request.get("bookmarks").split(',')
 		maptype = self.request.get("maptype") 
 		contenttype = self.request.get("contenttype")
 		if destination_display_names.has_key(destination):
 			destinationDisplayName = destination_display_names[destination]
 		
+		if tripadvisor_image_paths.has_key(destination):
+			tripAdvisorDestination = tripadvisor_image_paths[destination]
+		
 		facebookAppId = config_properties.get('Facebook', 'app_id')
-		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId)
+		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, tripAdvisorDestination=tripAdvisorDestination)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -473,7 +486,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	startDateRaw = self.request.POST.get("startDate")
 	
 	startDate = startDateRaw.split('-')
-	dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+	dateTime = datetime.date(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 	startDate = dateTime       
 	
 	numberOfNightsRaw = self.request.POST.get("numberOfNights")
@@ -500,6 +513,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	"""
 	if destination_display_names.has_key(destination):
 		global_mashup['name'] = destination_display_names[destination]
+		
+   	if tripadvisor_image_paths.has_key(destination):
+		global_mashup['tripAdvisorDestination'] = tripadvisor_image_paths[destination]
 
 	if info_type == "weather":
 		get_weather(destination)
@@ -518,6 +534,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		
 		bookingData = get_hotel_booking_form_data(destination)
 		bookingData['city'] = destination
+		bookingData['checkindate'] = startDate.isoformat()
+		bookingData['checkoutdate'] = endDate.isoformat()
+		
 		if hotel_booking_dest_names.has_key(destination):
 			bookingData['dest'] = hotel_booking_dest_names[destination]
 						
