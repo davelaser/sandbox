@@ -176,7 +176,9 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 		for hotel in data:
 			
 			if hotel['address'] is not None:
-				price = float(hotel['price'].replace('&#163;',''))
+				price = hotel['price'].replace('&#163;','')
+				price = price.replace(',','')
+				price = float(price)                                           
 				
 				dbHotel = DBHotel(productdetailsurl = hotel['url'], name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
 
