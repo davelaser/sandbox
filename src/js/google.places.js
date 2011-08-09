@@ -8,8 +8,8 @@ RIA.GooglePlaces = new Class({
 				accounting:"Accounting",
 				/*airport
 				amusement_park
-				aquarium
-				art_gallery*/
+				aquarium*/
+				art_gallery:"Art gallery",
 				atm:"ATM",
 				bakery:"Bakery",
 				bank:"Bank",

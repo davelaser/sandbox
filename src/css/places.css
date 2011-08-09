@@ -5,6 +5,9 @@
 #places {
 	display:none;     
 	overflow:none;
+	position:absolute;
+	top:130px;
+	left:165px;
 }  
 
 
@@ -29,7 +32,7 @@
 }
 
 #places #place-radius {
-	width:150px;
+	width:100%;
 	position:relative;
 }
            
@@ -50,5 +53,5 @@
 #places #place-radius .max {
 	position:absolute;
 	bottom:14px;
-	right:0px;
+	left:122px;
 }

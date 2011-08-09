@@ -5,8 +5,8 @@
 		</header>
 		<form>		
 			<fieldset id="place-radius">   
-				<label for="range">Show places within <span id="places-distance-output">1Km</span> of <span class="hotel-name">the current hotel</span></label><br/><br/>
-				<span class="min">100m</span><input id="places-distance-range" type="range" min="100" max="1000" value="1000" step="100" /><span class="max">1Km</span>
+				<label for="range">Show places within <span id="places-distance-output">1000m</span> of <span class="hotel-name">the current hotel</span></label><br/><br/>
+				<span class="min">100m</span><input id="places-distance-range" type="range" min="100" max="3000" value="1000" step="100" /><span class="max">3Km</span>
 			</fieldset>
 			<fieldset>
 				<h3>Food &amp; Drink</h3>
@@ -72,7 +72,12 @@
 					<li>
 						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
 						<input type="checkbox" id="museums" value="museum" data-value="museum" />
-						<label for="museums" data-text="Museums, Parks, Zoos...">Museums, Parks, Zoos...</label>
+						<label for="museums" data-text="Museums">Museums</label>
+					</li>
+					<li>
+						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
+						<input type="checkbox" id="art_gallery" value="art_gallery" data-value="art_gallery" />
+						<label for="art_gallery" data-text="Galleries">Galleries</label>
 					</li>
 					<li>
 						<img src="http://chart.apis.google.com/chart?chst=d_map_pin_icon&amp;chld=location|FFFFFF" />
@@ -86,7 +91,8 @@
 					</li>
 				</ul>
 			</fieldset>
-		 	<fieldset>
+		 	{% comment %}
+			<fieldset>
 				<h3>Emergencies</h3>
 				<ul>
 					<li>
@@ -135,9 +141,10 @@
 						<label for="train_station" data-text="Train station">Train station</label>
 					</li>
 				</ul>
-			</fieldset> 
+			</fieldset>
+			{% endcomment %} 
 			<fieldset>
-				<h3>More</h3>
+				<h3>Social</h3>
 				<ul>
 					<li>
 						<input type="checkbox" id="photos" value="" />
@@ -145,7 +152,6 @@
 					</li>
 				</ul>
 			</fieldset>
-			
 	    </form>		
 	</div>
 </section>	

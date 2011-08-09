@@ -542,8 +542,8 @@ RIA.GooglePlaces = new Class({
 				accounting:"Accounting",
 				/*airport
 				amusement_park
-				aquarium
-				art_gallery*/
+				aquarium*/
+				art_gallery:"Art gallery",
 				atm:"ATM",
 				bakery:"Bakery",
 				bank:"Bank",
@@ -909,7 +909,8 @@ RIA.MapStreetView = new Class({
 			car:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=car|FFFFFF',
 			taxi:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=taxi|FFFFFF',
 			hospital:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=medical|FFFFFF',
-			embassy:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=legal|FFFFFF'
+			embassy:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=legal|FFFFFF',
+			art_gallery:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=location|FFFFFF'
 		}
 		         
 		var star = new google.maps.MarkerImage(RIA.MarkerIcons.star),
@@ -937,7 +938,8 @@ RIA.MapStreetView = new Class({
 		car_rental = new google.maps.MarkerImage(RIA.MarkerIcons.car),
 		taxi_stand = new google.maps.MarkerImage(RIA.MarkerIcons.taxi),
 		hospital = new google.maps.MarkerImage(RIA.MarkerIcons.hospital),
-		embassy = new google.maps.MarkerImage(RIA.MarkerIcons.embassy);
+		embassy = new google.maps.MarkerImage(RIA.MarkerIcons.embassy),
+		art_gallery = new google.maps.MarkerImage(RIA.MarkerIcons.art_gallery);
 		
 		RIA.MarkerIconsImages = {
 			star:star,
@@ -965,7 +967,8 @@ RIA.MapStreetView = new Class({
 			car_rental:car_rental,
 			taxi_stand:taxi_stand,
 			hospital:hospital,
-			embassy:embassy
+			embassy:embassy,
+			art_gallery:art_gallery
 		}
 
 		RIA.geocoder = new google.maps.Geocoder();
@@ -1729,7 +1732,8 @@ RIA.Experience = new Class({
 						}
 						else {            
 							this.removePlacesMarkers(places);
-							this.updateLabelCount(places);
+							//this.updateLabelCount(places);
+							target.getNext("label").set("text", target.getNext("label").get("data-text"));
 						}
 					}  
 					
