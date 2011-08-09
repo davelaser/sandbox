@@ -102,11 +102,11 @@ nav#hotel-list a.active {
 }   
 .hotel h3 {
 	font-size:2em;
-	float:left; 
-	line-height:40px;
-	margin:2px 0 0 0;
 }                    
 
+.hotel sup {
+	line-height:20px;
+}
 .hotel .description,
 .hotel .address {
 	margin:0 0 10px 0;
@@ -114,24 +114,17 @@ nav#hotel-list a.active {
 
 .hotel .room-and-rates {
 	margin:20px 0 0 0;
+} 
+
+.hotel h3 .from,
+.hotel h3 .stars {
+	font-size:0.7em;
 }
-.hotel h3 span.count {
+.hotel h3 .count {
 	display:block;
-	float:left;  
-	margin:6px 5px 0 0;
-	padding:3px 7px 0;
-	text-align:center;
-	background:#ccc;
-	color:#000;
-	width:auto;
-	height:25px;
-	font-size:0.75em;
-	border-radius:20px;
-	-webkit-border-radius:5px;
-	-moz-border-radius:20px;
-	-o-border-radius:20px;
-	-ms-border-radius:20px;
-	line-height:24px;
+	float:right;  
+	margin:0 50px 0 0;
+	font-size:0.7em;	
 }
 
 .hotel .photos {
@@ -150,7 +143,9 @@ nav#hotel-list a.active {
 #hotels.minimized .hotel {
 	padding:0 20px; 
 }             
-
+#hotels.minimized .hotel header {
+	margin:5px 0 0 0;
+}
 #hotels.minimized h2,
 #hotels.minimized .rating,
 #hotels.minimized .photos,

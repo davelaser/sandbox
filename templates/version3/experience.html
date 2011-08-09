@@ -27,13 +27,18 @@
    			<h1><img src="/static/img/site_master_top_logo.gif" alt="last minute" /></h1> 
 			{% comment %}<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button>{% endcomment %} 
 			
-			<section id="controls">                                    
+			<nav id="map-controls" class="">
+				<button id="toggle-streetview" class="map-control {% if maptype == "panorama" or maptype == "" %}active{% endif %}">Streeview</button>
+				<button id="toggle-map" class="map-control {% if maptype == "map" %}active{% endif %}">Map</button>
+				
+				{% comment %}
 				<button id="nearby" class="button">What's nearby?</button>
 				<button id="my-bookmarks" class="button">My Bookmarks</button>
 				<button id="less-more" class="button">Less</button>
-				<button id="map-streetview" class="button">Map</button>
-				<button id="fb-dialog-send" class="button">Share</button>			
-			</section>
+				<button id="map-streetview" class="button">Map</button>                               
+				{% endcomment %}
+				{% comment %}<button id="fb-dialog-send" class="button">Share</button>{% endcomment %}
+			</nav>
 		</header>
 		
 		{% include "includes/bookmarks.html" %}
@@ -180,7 +185,17 @@
 			var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
 	    	po.src = 'https://apis.google.com/js/plusone.js';
 	    	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-	  	})();
+	  	})(); 
+	
+	 var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-22860026-3']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
 	
 	//]]>
 	</script>

@@ -167,39 +167,53 @@ RIA.MapStreetView = new Class({
 		if(e && e.preventDefault) {
 			e.preventDefault();
 		}                                                                 
-                                                         
+
 		// If WE DO NOT HAVE AN EVENT and full screen Map view is required  
 		if(!e) {
 			if(this.mapCanvas.retrieve("view:state") == "map") {
-				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
+				this.mapCanvas.setStyles({"zIndex":1, "width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
 				document.id("map-streetview").set("text", "Panorama");
+				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});  
 			} else if(this.mapCanvas.retrieve("view:state") == "panorama") {
-				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
+				this.mapCanvas.setStyles({"zIndex":3, "width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
 				document.id("map-streetview").set("text", "Map");
+				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
 			}
 		}
 		
 		// IF WE DO HAVE AN EVENT and full screen Map view is required   
 		
 		if(e) {
+			
+			
 			if(this.mapCanvas.retrieve("view:state") == "map") {
+				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
+				google.maps.event.trigger(RIA.panorama, "resize"); 
 				this.options.maptype = "panorama";
 				this.mapCanvas.store("view:state", this.options.maptype);
-				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
-				document.id("map-streetview").set("text", "Map");
+				this.mapCanvas.setStyles({"zIndex":3, "width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
+			   
+			 	document.id("toggle-streetview").addClass("active");
+				document.id("toggle-map").removeClass("active");
+				
 			}
 			else {
+				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});
+				google.maps.event.trigger(RIA.panorama, "resize"); 
+				
 				this.options.maptype = "map";
 				this.mapCanvas.store("view:state", this.options.maptype);
-				this.mapCanvas.setStyles({"width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
-				document.id("map-streetview").set("text", "Panorama");
+				this.mapCanvas.setStyles({"zIndex":1, "width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height});
+				
+				document.id("toggle-streetview").removeClass("active");
+				document.id("toggle-map").addClass("active");
 			}
 			
 		}
 		
 		// Trigger the resize event on the Map so that it requests any required tiles
 		google.maps.event.trigger(RIA.map, "resize");                                
-		
+
 		// Center the Map on the current location
 		this.setMapPositionCenter(RIA.currentLocation);
 
@@ -224,13 +238,13 @@ RIA.MapStreetView = new Class({
 		if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
 			dataLatLng = hotel.get("data-latlng").split(",");
 			latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
-			//Log.info("setStreetview() : got latLng from hotel attribute");
+			Log.info("setStreetview() : got latLng from hotel attribute");
 			hotel.store("geolocation", latLng); 
 		}
 		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
 		if(hotel.retrieve("geolocation")) {
 			this.gotGeolocation(hotel, hotel.retrieve("geolocation"));
-			//Log.info("Retrieved geolocation for hotel");
+			Log.info("Retrieved geolocation for hotel");
 		} 
 		// Else request the LatLng data from Google, using the Hotel's address
 		else { 
@@ -255,7 +269,7 @@ RIA.MapStreetView = new Class({
 		// Set the Map position and Pan to this position
 		this.setMapPositionPan(RIA.currentLocation);    
 		
-		// Set the Streetviw Panorama position
+		// Set the Streetview Panorama position
 		this.setPanoramaPosition(RIA.currentLocation);
 		
 		this.resetPlacesMarkers();
@@ -330,7 +344,7 @@ RIA.MapStreetView = new Class({
 		*		Set the Map to a position and center the Map to this position
 		*	@arguments:
 		*		latLng[Object(LatLng)]
-		*/
+		*/ 
 		RIA.map.setCenter(latLng); 
 		this.animateCurrentMarker();
 	},
@@ -446,7 +460,7 @@ RIA.MapStreetView = new Class({
 		         
 		var ytPlayer = "<object id=\"yt-player\" width=\"425\" height=\"349\"><param name=\"movie\" value=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\"/><param name=\"allowFullScreen\" value=\"true\"/><param name=\"allowscriptaccess\" value=\"always\"/><embed src=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\" type=\"application/x-shockwave-flash\" width=\"425\" height=\"349\" allowscriptaccess=\"always\" allowfullscreen=\"true\"/></object>";
 
-		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" /><p>"+price+"</p>";
+		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" height=\"75\" width\"100\" /><p>"+price+"</p>";
 		
 		infowindow = new google.maps.InfoWindow({
 		    content: hotelContent,
@@ -490,6 +504,7 @@ RIA.MapStreetView = new Class({
 		
 		this.createHotelMarkerColors();
 		
+		//Log.info(RIA.hotelMarkers)
 		 
 		var counter = 500, delay, geo, latLng, dataLatLng;
 		hotels.each(function(hotel, index) {
@@ -568,7 +583,7 @@ RIA.MapStreetView = new Class({
 			this.createInfoWindow(hotel, hotel.hotelMarker);
 			this.createInfoWindow(hotel, hotel.hotelMarkerSV);
 		} else {
-			Log.info("We have a hotelMarker or a bookmark for "+hotel.get("data-name"));
+			Log.info("Do we already have a hotelMarker or a bookmark for "+hotel.get("data-name")+" ?");
 		}	
 	},
 	removeHotelMarkers: function() {
@@ -633,8 +648,9 @@ RIA.MapStreetView = new Class({
 		RIA.geocoder.geocode({ 'address': address}, function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
-				
-				this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
+				                        
+				// [ST]TODO: Check why this is firing even when we have stored hotels in the datastore
+				//this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
 				
 				// Store the LatLng against the Hotel Element
 				hotel.store("geolocation", latLng);

@@ -6,10 +6,11 @@ RIA.AjaxSubmit = new Class({
 	initialize: function(options) {
 		this.setOptions(options);
 		this.content = document.id("content");
-		this.ajaxForm = document.id("start-your-story");
+		this.ajaxForm = document.id("search");
 		this.destination = document.id("destination");
 		this.price = document.id("priceMax");
-		
+		this.arrivalDate = document.id("arrival_date");
+		this.numberOfNights = document.id("number_of_nights");
 		RIA.currentPriceMax = this.price.get("value");
 		
 		//Log.info("RIA.AjaxSubmit : RIA.currentPriceMax: "+RIA.currentPriceMax);
@@ -96,7 +97,7 @@ RIA.AjaxSubmit = new Class({
 			url:"/ajax",
 			evalScripts:true,
 			update:this.hotels.getElement(".results"),
-			data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels',
+			data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
 			onRequest: this.requestStart.pass([this.hotels],this),
 			onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 			onFailure: this.requestFailure.bind(this)

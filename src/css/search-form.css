@@ -1,0 +1,58 @@
+/*
+*	Search Form
+*/
+form#search {  
+	zoom:1;  
+	z-index:2;
+	width:929px;
+	position:fixed;
+	top:60px;
+	overflow:hidden;
+	background:#fff;
+	padding:20px 23px 10px 23px;
+	margin:0 0 10px 0;
+}
+
+form#search #search-options a {
+	font-size:0.7em;
+	text-decoration:underline;
+}
+form#search input {
+	padding:7px 5px;
+	margin:0;
+	font-size:1.8em;
+	border:none;
+	border-radius:3px;
+	-webkit-border-radius:3px;
+	-moz-border-radius:3px;
+	-webkit-box-shadow: 0 0 3px gray inset;
+	-moz-box-shadow: 0 0 3px gray inset;
+}
+
+form#search label {
+	font-size:1.4em;
+	line-height:40px;
+	margin:0 5px;
+}     
+
+#destination {
+	width:170px;
+}
+#number_of_nights {
+	width:30px;
+}
+#arrival_date {
+	width:150px;
+}
+#priceMax {
+	width:70px;
+}
+/*
+* 	Search Form submit button
+*/
+#submit-search { 
+	position:absolute;
+	top:18px;
+	right:23px;    
+	font-size:1.3em;
+}

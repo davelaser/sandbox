@@ -1,29 +1,26 @@
 {% for hotel in hotels %}
-<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}" data-price="&#163;{{hotel.price|safe}}" data-latlng="{{ hotel.latlng }}">
+<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid|safe }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}" data-price="&#163;{{hotel.price|safe}}" data-latlng="{{ hotel.latlng }}">
 	<header>
-		<h3><span class="count">{{ forloop.counter }} of {{hotels|length}}</span><span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}</span><span class="colon"> : </span><span class="price">&#163;{{ hotel.price|safe }}</span></h3>
+		<h3>
+			<span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}</span> 
+			<span class="stars">{{ hotel.rating }} star,</span>
+			<span class="from">from</span>
+			<span class="price">&#163;{{ hotel.price|safe }}<sup>*</sup></span>
+			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
+		</h3>
+		{% comment %}
 		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.name }}"/></a>
+		{% endcomment %}
     </header>
     <div class="rating">
-		{{ hotel.rating }}
-		
+		{% if hotel.rating %}
+		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.rating }}-0.gif" />
+		{% endif %}
 	</div>
-	<div class="photos" data-thumbnail="{{ hotel.thumbnailurl|default:"" }}">
-		{% if hotel.mainimageurl %}
-			<img src="{{ hotel.mainimageurl }}" alt="{{hotel.name|safe}}" />
-		{% endif %}		
-		{% if hotel.photo1url %}
-			<img src="{{ hotel.photo1url }}" alt="{{hotel.name|safe}}" />
-		{% endif %}          
-		{% if hotel.photo2url %}
-			<img src="{{ hotel.photo2url }}" alt="{{hotel.name|safe}}" />
-		{% endif %}
-		{% if hotel.photo3url %}
-			<img src="{{ hotel.photo3url }}" alt="{{hotel.name|safe}}" />
-		{% endif %} 
-		{% if hotel.photo4url %}
-			<img src="{{ hotel.photo4url }}" alt="{{hotel.name|safe}}" />
-		{% endif %}
+	<div class="photos" data-thumbnail="http://m.travelocity.com/images/new_york/hotel/0/{{ hotel.propertyids }}/Exterior_H_1.jpg">
+		{% comment %}
+		<img src="http://m.travelocity.com/images/new_york/hotel/0/{{ hotel.propertyids }}/Exterior_E_1.jpg" alt="{{hotel.name|safe}}" />		
+		{% endcomment %}
 	</div>
 	<div class="details">
 		<p class="description">
@@ -31,7 +28,7 @@
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam quis enim sit amet diam tincidunt hendrerit. Aenean eget neque mauris. 
 		</p>
 		<p>
-				Etiam placerat suscipit dolor nec venenatis. Sed ultricies porttitor urna, sed sodales ante tristique vel. Phasellus ac posuere dui. 
+			Etiam placerat suscipit dolor nec venenatis. Sed ultricies porttitor urna, sed sodales ante tristique vel. Phasellus ac posuere dui. 
 		</p>
 		<dl>
 			<dt class="address">Address: {{hotel.address|safe}}<dt>
@@ -45,13 +42,13 @@
 			<input type="hidden" name="checkOutDate" value="{{ hotel.bookingData.checkoutdate }}" />
 			<input type="hidden" name="guestCounts" value="{{ hotel.bookingData.guestcounts }}" />
 			<input type="hidden" name="guestCodes" value="{{ hotel.bookingData.guestcodes }}" />
-			<input type="hidden" name="propertyIds" value="28234-0-6-UTE00004$v1v$">
+			<input type="hidden" name="propertyIds" value="{{ hotel.locationid }}">
 			<input type="hidden" name="city" value="{{ hotel.destination }}" />
 			<input type="hidden" name="configId" value="{{ hotel.bookingData.configid }}" />
             <input type="hidden" name="numRooms" value="{{ hotel.bookingData.numrooms }}" />
             <input type="hidden" name="dest" value="{{ hotel.bookingData.dest }}" />
             <input type="hidden" name="path" value="{{ hotel.bookingData.path }}" />
-            <input type="hidden" name="hotelRequestId" value="322006310551624{{ hotel.bookingData.hotelrequestid }}" />
+            <input type="hidden" name="hotelRequestId" value="{{ hotel.hotelrequestid }}" />
             <input type="hidden" name="pageId" value="{{ hotel.bookingData.pageid }}" />
             <input type="hidden" name="action" value="{{ hotel.bookingData.action }}" />
 			<input type="hidden" name="controller" value="{{ hotel.bookingData.controller }}" />

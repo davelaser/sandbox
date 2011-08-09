@@ -8,7 +8,7 @@ RIA.Experience = new Class({
 
 		RIA.places = new Object();
 		
-		this._form = document.id("start-your-story");
+		this._form = document.id("search");
 		this.bookmarks = document.id("bookmarks");
 		this.bookmarks.store("viewstate", "closed");
 		
@@ -16,10 +16,6 @@ RIA.Experience = new Class({
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
 		this.destination.store("styles:width:orig", this.destination.getStyle("width").toInt());
-		this.durationOfStay = document.id("duration_of_stay");
-		this.durationOfStay.store("styles:width:orig", this.durationOfStay.getStyle("width").toInt());
-		this.arrivalDate = document.id("arrival_date");
-		this.arrivalDate.store("styles:width:orig", this.arrivalDate.getStyle("width").toInt());
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
 		this.twitterNews = document.id("twitter-news");
@@ -70,17 +66,21 @@ RIA.Experience = new Class({
 			});
 		}  
 		
-		document.id("map-streetview").addEvents({
-			"click":this.toggleMapFullScreen.bind(this)
-		});
+		if(document.id("map-controls")) {
+			document.id("map-controls").addEvents({
+				"click":this.toggleMapFullScreen.bind(this)
+			});			
+		}
                                             
 		document.getElements(".less").addEvents({
 			"click":this.toggleInformation.bind(this) 
 		});
-           
-		document.id("less-more").addEvents({
-			"click":this.toggleInformation.bind(this) 
-		});
+        
+		if(document.id("less-more")) {
+			document.id("less-more").addEvents({
+				"click":this.toggleInformation.bind(this) 
+			});			
+		}
 		     
 		
 		if(document.id("nearby")) {
@@ -329,14 +329,14 @@ RIA.Experience = new Class({
 		
 		if(!e) {
 			if(this.options.contenttype == "maximized") {
-				document.id("less-more").set("text", "less...");
+				if(document.id("less-more")) document.id("less-more").set("text", "less...");
 				if(this.weather) this.weather.setStyle("display", "block");
 				if(this.guardian) this.guardian.setStyle("display", "block");
 				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
 				this.hotels.removeClass("minimized");
 			}
 			else {   
-				document.id("less-more").set("text", "more...");
+				if(document.id("less-more")) document.id("less-more").set("text", "more...");
 				if(this.weather) this.weather.setStyle("display", "none");
 				if(this.guardian) this.guardian.setStyle("display", "none");
 				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
@@ -345,7 +345,7 @@ RIA.Experience = new Class({
 		} else {
 			if(this.hotels.hasClass("minimized")) {
 				this.options.contenttype = "maximized";
-				document.id("less-more").set("text", "less...");
+				if(document.id("less-more")) document.id("less-more").set("text", "less...");
 				if(this.weather) this.weather.setStyle("display", "block");
 				if(this.guardian) this.guardian.setStyle("display", "block");
 				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
@@ -353,7 +353,7 @@ RIA.Experience = new Class({
 			}
 			else {
 				this.options.contenttype = "minimized";   
-				document.id("less-more").set("text", "more...");
+				if(document.id("less-more")) document.id("less-more").set("text", "more...");
 				if(this.weather) this.weather.setStyle("display", "none");
 				if(this.guardian) this.guardian.setStyle("display", "none");
 				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
