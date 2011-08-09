@@ -63,7 +63,9 @@ footer  {
  
 #content {
 	position:relative; 
+	/*
 	margin-top:132px;
+	*/
 	height:auto;
 }                    
   

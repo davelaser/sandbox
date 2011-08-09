@@ -1257,15 +1257,15 @@ RIA.MapStreetView = new Class({
 			}
 		}.bind(this));
 	},
-	dropBookmarkPin: function() {
+	dropBookmarkPin: function(hotel) {
 		/*
 		* 	@description:
 		*		Call from a Bookmark request against a Hotel
 		*	@arguments:
 		*		Hotel[Element]
 		*/ 
-		// Set local variables
-		var hotel = this.hotelCollection[this.hotelIndex];
+		// If the argument is an event, then use the current hotel index
+		if(hotel.event) var hotel = this.hotelCollection[this.hotelIndex];
 		
 		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
 		
@@ -1463,12 +1463,11 @@ RIA.MapStreetView = new Class({
 	}, 
 	setBookmarkMarkers: function(hotels) {
 		var counter = 500, delay, geo;
-		hotels.each(function(hotel, index) {
-			if(this.options.bookmarks.contains(hotel.get("data-locationid"))) {
+		hotels.each(function(hotel, index) {   
+			if(this.options.bookmarks.contains(hotel.get("data-locationid"))) { 
 				geo = hotel.retrieve("geolocation");
 				if(geo == null) {  
 					delay = counter+=500;              
-					//Log.info(hotel.get("data-name")+" : "+delay);
 					this.getGeocodeByAddress.delay(delay, this, [hotel, this.addBookmarkMarker.bind(this)]);				
 				} else { 
 					Log.info("setHotelMarker() : retrieved gelocation for Hotel");
@@ -1484,7 +1483,7 @@ RIA.MapStreetView = new Class({
 					if(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV != null) {
 						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV);
 					}						
-				}  				
+				}   	
 			}
 		},this);
 	},  
@@ -1635,7 +1634,7 @@ RIA.Experience = new Class({
 		
 		this._form = document.id("search");
 		this.bookmarks = document.id("bookmarks");
-		this.bookmarks.store("viewstate", "closed");
+		if(this.bookmarks) this.bookmarks.store("viewstate", "closed");
 		
 		this.toggleContent = document.id("toggle-content");
 		this.content = document.id("content");
@@ -1716,8 +1715,8 @@ RIA.Experience = new Class({
 				"click":this.showPlaces.bind(this)
 			});
 		}
-		if(document.id("my-bookmarks")) {
-			document.id("my-bookmarks").addEvents({
+		if(document.id("share")) {
+			document.id("share").addEvents({
 				"click":this.shareMyBookmarks.pass([true],this)
 			});			
 		}    
@@ -2027,21 +2026,15 @@ RIA.Experience = new Class({
 		
 		document.id("bookmarks").getElement("a").set({"href":RIA.shareURL, "text":RIA.shareURL});  
 		
-		if(show) {
+		if(show && this.bookmarks) { 
 			if(this.bookmarks.retrieve("viewstate") == "closed") {
-				this.bookmarks.morph({"height":"55px", "top":"60px"});
-				//this._form.morph({"top":"140px", "paddingTop":"20px"});			
-				this._form.morph({"opacity":0});			
+				   		
 				this.bookmarks.store("viewstate", "open");
+				this.bookmarks.setStyle("display","block");
 				
-				//this.content.morph({"opacity":0});
 			} else {
-				this.bookmarks.morph({"height":"0px", "top":"-20px"});
-				//this._form.morph({"top":"40px", "paddingTop":"40px"});
-				this._form.morph({"opacity":1});
-				this.bookmarks.store("viewstate", "closed"); 
-				
-				//this.content.morph({"opacity":1});
+				this.bookmarks.store("viewstate", "closed");
+				this.bookmarks.setStyle("display","none"); 
 			}
 		}
 	},

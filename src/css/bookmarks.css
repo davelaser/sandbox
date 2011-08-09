@@ -3,8 +3,14 @@
 */  
 #bookmarks {    
 	background:#fff;
-	height:0px;	
+	/*
 	-webkit-border-radius:0 0 10px 10px;
+	*/
+	position:absolute;
+	display:none;    
+	top:302px;
+	left:0px;
+	
 }
 #bookmarks a.url {
 	display:block;

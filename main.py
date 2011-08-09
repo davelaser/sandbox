@@ -200,7 +200,7 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 					for param in hotelLinkSplit:
 						if param.startswith("propertyIds"):        
 							propertyIdValue = param.split("=")[1]
-							dbHotel.locationid = propertyIdValue.split('-',1)[0]
+							
 							dbHotel.propertyids = propertyIdValue.split('-',1)[0]
 							if len(dbHotel.propertyids) == 3:
 								dbHotel.propertyids = "000"+dbHotel.propertyids
@@ -208,6 +208,8 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 								dbHotel.propertyids = "00"+dbHotel.propertyids
 							if len(dbHotel.propertyids) == 5:
 								dbHotel.propertyids = "0"+dbHotel.propertyids
+							
+							dbHotel.locationid = dbHotel.propertyids
 							logging.info("dbHotel.locationid: "+dbHotel.locationid)
 						if param.startswith("hotelRequestId"):
 							dbHotel.hotelrequestid = param.split("=")[1]

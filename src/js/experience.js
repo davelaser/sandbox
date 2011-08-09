@@ -10,7 +10,7 @@ RIA.Experience = new Class({
 		
 		this._form = document.id("search");
 		this.bookmarks = document.id("bookmarks");
-		this.bookmarks.store("viewstate", "closed");
+		if(this.bookmarks) this.bookmarks.store("viewstate", "closed");
 		
 		this.toggleContent = document.id("toggle-content");
 		this.content = document.id("content");
@@ -91,8 +91,8 @@ RIA.Experience = new Class({
 				"click":this.showPlaces.bind(this)
 			});
 		}
-		if(document.id("my-bookmarks")) {
-			document.id("my-bookmarks").addEvents({
+		if(document.id("share")) {
+			document.id("share").addEvents({
 				"click":this.shareMyBookmarks.pass([true],this)
 			});			
 		}    
@@ -402,21 +402,15 @@ RIA.Experience = new Class({
 		
 		document.id("bookmarks").getElement("a").set({"href":RIA.shareURL, "text":RIA.shareURL});  
 		
-		if(show) {
+		if(show && this.bookmarks) { 
 			if(this.bookmarks.retrieve("viewstate") == "closed") {
-				this.bookmarks.morph({"height":"55px", "top":"60px"});
-				//this._form.morph({"top":"140px", "paddingTop":"20px"});			
-				this._form.morph({"opacity":0});			
+				   		
 				this.bookmarks.store("viewstate", "open");
+				this.bookmarks.setStyle("display","block");
 				
-				//this.content.morph({"opacity":0});
 			} else {
-				this.bookmarks.morph({"height":"0px", "top":"-20px"});
-				//this._form.morph({"top":"40px", "paddingTop":"40px"});
-				this._form.morph({"opacity":1});
-				this.bookmarks.store("viewstate", "closed"); 
-				
-				//this.content.morph({"opacity":1});
+				this.bookmarks.store("viewstate", "closed");
+				this.bookmarks.setStyle("display","none"); 
 			}
 		}
 	},

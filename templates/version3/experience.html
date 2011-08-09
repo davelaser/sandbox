@@ -43,7 +43,7 @@
 			{% include "includes/form.html" %} 
 		</header>
 		
-		{% include "includes/bookmarks.html" %}
+		
 		
 		<div id="content">
 			<section id="hotels" class="{% if not destination %}hide{% endif %}">
@@ -70,7 +70,7 @@
 				
 			</section>
 			{% include "includes/places.html" %} 
-			
+			{% include "includes/bookmarks.html" %}
 			
 			{% comment %}		    
 			<section id="weather" class="rc">
@@ -155,7 +155,7 @@
 	   	RIA.InitExperience = new RIA.Experience({
 			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
 			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
-			maptype:"{{ maptype|default:'streetview' }}",
+			maptype:"{{ maptype|default:'panorama' }}",
 			contenttype:"{{ contenttype|default:'maximized' }}"
 		});
 		RIA.InitAjaxSubmit = new RIA.AjaxSubmit();

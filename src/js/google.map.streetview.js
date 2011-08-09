@@ -394,15 +394,15 @@ RIA.MapStreetView = new Class({
 			}
 		}.bind(this));
 	},
-	dropBookmarkPin: function() {
+	dropBookmarkPin: function(hotel) {
 		/*
 		* 	@description:
 		*		Call from a Bookmark request against a Hotel
 		*	@arguments:
 		*		Hotel[Element]
 		*/ 
-		// Set local variables
-		var hotel = this.hotelCollection[this.hotelIndex];
+		// If the argument is an event, then use the current hotel index
+		if(hotel.event) var hotel = this.hotelCollection[this.hotelIndex];
 		
 		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
 		
@@ -600,12 +600,11 @@ RIA.MapStreetView = new Class({
 	}, 
 	setBookmarkMarkers: function(hotels) {
 		var counter = 500, delay, geo;
-		hotels.each(function(hotel, index) {
-			if(this.options.bookmarks.contains(hotel.get("data-locationid"))) {
+		hotels.each(function(hotel, index) {   
+			if(this.options.bookmarks.contains(hotel.get("data-locationid"))) { 
 				geo = hotel.retrieve("geolocation");
 				if(geo == null) {  
 					delay = counter+=500;              
-					//Log.info(hotel.get("data-name")+" : "+delay);
 					this.getGeocodeByAddress.delay(delay, this, [hotel, this.addBookmarkMarker.bind(this)]);				
 				} else { 
 					Log.info("setHotelMarker() : retrieved gelocation for Hotel");
@@ -621,7 +620,7 @@ RIA.MapStreetView = new Class({
 					if(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV != null) {
 						this.removeMarker(RIA.hotelMarkers[hotel.get("data-locationid")].hotelMarkerSV);
 					}						
-				}  				
+				}   	
 			}
 		},this);
 	},  
