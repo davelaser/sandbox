@@ -248,21 +248,13 @@ article section {
 }
 #loading #loading-message {    
 	position:absolute;
-	left:35%;
+	left:38%;
 	top:20%;
 	width:400px;
 	height:100px;
-	background:#EC008C;
 	font-size:1em;
-	color:#fff;
-
 	opacity:1;
 	z-index:60;
-	border-radius:10px;
-	-webkit-border-radius:10px;
-	-moz-border-radius:10px;
-	-o-border-radius:10px; 
-	-ms-border-radius:10px;
 } 
 
 #loading #loading-message h3 {
