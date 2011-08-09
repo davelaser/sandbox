@@ -237,7 +237,8 @@ def get_hotels_in_europe_by_price(price):
 	queryDestinationList.append('madrid')
 	queryDestinationList.append('barcelona')
 	queryDestinationList.append('amsterdam')
-	queryDestinationList.append('rome')
+	queryDestinationList.append('rome') 
+	queryDestinationList.append('london') 
 	queryString = "WHERE destination IN :1"
 	if price is not None and len(str(price)) > 0:
 		queryString += " AND price <= "+str(price)

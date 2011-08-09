@@ -120,7 +120,7 @@ nav#hotel-list a.active {
 .hotel h3 .count {
 	display:block;
 	float:right;
-	margin:0 50px 0 0;
+	margin:10px 115px 0 0;
 	font-size:0.7em;	
 }
 
@@ -134,50 +134,19 @@ nav#hotel-list a.active {
 *	Minimized
 */
 #hotels.minimized {
-	height:45px;
+	height:100px;
 }
 
-#hotels.minimized .hotel {
-	padding:0 20px; 
-}             
-#hotels.minimized .hotel header {
-	margin:5px 0 0 0;
-}
-#hotels.minimized h2,
 #hotels.minimized .rating,
 #hotels.minimized .photos,
 #hotels.minimized .nearby
 #hotels.minimized .room-and-rates,
+#hotels.minimized .room-and-rates button,
 #hotels.minimized .details,
 #hotels.minimized nav#hotel-list {
 	display:none;
 }  
 
-
-#hotels.minimized button {
-	display:none;
-	float:right;
-	margin:8px 0 0 0;
-} 
-
-#hotels.minimized #horizontal a {
-    top:8px;
-}
-#hotels .drop-pin {
-	float:right;
-}
-
-
-
-#background.new-york {
-	background:url(../img/backgrounds/new-york.jpg) no-repeat top center;
-	background-attachment:fixed;
-}        
-
-#background.paris {
-	background:url(../img/backgrounds/paris.jpg) no-repeat top center;
-	background-attachment:fixed;
-}
 
 h3.no-results {
 	display:block;

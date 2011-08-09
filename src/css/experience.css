@@ -340,7 +340,7 @@ article section {
 }
 
 .previous {
-	right:65px;	
+	right:70px;	
 	background-position:0 0;
 }
 
@@ -365,8 +365,9 @@ article section {
 	text-shadow: #fff 1px 1px 0px;
 	-webkit-border-radius:3px;    
 	position:absolute;
-	top:35px;
+	top:33px;
 	left:19px;	
+	width:20px;
 }
 
 .price {
