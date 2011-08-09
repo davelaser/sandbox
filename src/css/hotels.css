@@ -158,3 +158,13 @@ h3.no-results {
 .hotel-booking-form button {
 	font-size:1.3em;
 }
+
+#save-share-places {
+	padding:5px;
+}                   
+
+#hotels.minimized #save-share-places {
+	position:absolute;
+	bottom:9px;
+	left:9px;
+}

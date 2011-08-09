@@ -1254,7 +1254,7 @@ RIA.MapStreetView = new Class({
 			}
 		}.bind(this));
 	},
-	dropBookmarkPin: function(hotel) {
+	dropBookmarkPin: function() {
 		/*
 		* 	@description:
 		*		Call from a Bookmark request against a Hotel
@@ -1262,12 +1262,12 @@ RIA.MapStreetView = new Class({
 		*		Hotel[Element]
 		*/ 
 		// Set local variables
+		var hotel = this.hotelCollection[this.hotelIndex];
+		
 		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
 		
 		if(hotel.bookmark == null && RIA.bookmarks[LMLocationId] == undefined) {
-			// Hide the Bookmark button
-			hotel.getElement(".drop-pin").setStyle("display", "none");
-		
+			
 			// If we have a Hotel Marker...
 			if(RIA.hotelMarkers[LMLocationId] != undefined) {
 				// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
@@ -1644,6 +1644,8 @@ RIA.Experience = new Class({
 		this.twitterNews = document.id("twitter-news");
 		this.fbDialogSendButton = document.id("fb-dialog-send");
 		
+		this.save = document.id("save");
+		
 		this.places = document.id("places");
 		this.places.store("viewstate", "closed");
 		   
@@ -1766,11 +1768,17 @@ RIA.Experience = new Class({
 		this.hotelNavigationBind = this.hotelNavigation.bind(this)
 		
 		this.dropBookmarkPinBind = this.dropBookmarkPin.bind(this);
+		/*
 		document.getElements(".drop-pin").each(function(dropPinButton) {
 			dropPinButton.addEvents({
 				"click":this.dropBookmarkPinBind.pass([dropPinButton.getParent(".hotel")], this)
 			});
 		},this);
+		*/ 
+		
+		this.save.addEvents({
+			"click":this.dropBookmarkPinBind
+		});
 		
 		document.getElements(".previous, .next").each(function(link) {
 			link.addEvents({
@@ -1788,11 +1796,18 @@ RIA.Experience = new Class({
 			});
 		},this);
 		
+		/*
 		document.getElements(".drop-pin").each(function(dropPinButton) {
 			dropPinButton.removeEvents({
 				"click":this.dropBookmarkPinBind
 			});
-		},this)
+		},this);
+		*/
+		
+		this.save.removeEvents({
+			"click":this.dropBookmarkPinBind
+		});
+		
 	},      
 	fbDialogSend: function() {
 		FB.ui({

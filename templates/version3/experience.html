@@ -45,19 +45,19 @@
 		
 		{% include "includes/bookmarks.html" %}
 		
-		
-		
 		<div id="content">
 			<section id="hotels" class="{% if not destination %}hide{% endif %}">
-				<header>
-					<h2>Hotels</h2>
-				</header>
 				<div class="results-wrapper rc">
 					<div class="results">
 				
 					</div>
 					<nav id="hotel-list">
 
+					</nav>
+					<nav id="save-share-places">
+						<button id="save" class="button">Save</button>
+						<button id="share" class="button">Share</button>
+						<button id="nearby" class="button">What's nearby?</button>
 					</nav>
 				</div>
 				
@@ -66,6 +66,8 @@
 					<a href="#" class="previous"><span>Previous</span></a>
 					<a href="#" class="next"><span>Next</span></a>
 				</nav>
+				
+				
 			</section>
 			{% include "includes/places.html" %} 
 			

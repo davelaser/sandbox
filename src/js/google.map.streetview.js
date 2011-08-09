@@ -391,7 +391,7 @@ RIA.MapStreetView = new Class({
 			}
 		}.bind(this));
 	},
-	dropBookmarkPin: function(hotel) {
+	dropBookmarkPin: function() {
 		/*
 		* 	@description:
 		*		Call from a Bookmark request against a Hotel
@@ -399,12 +399,12 @@ RIA.MapStreetView = new Class({
 		*		Hotel[Element]
 		*/ 
 		// Set local variables
+		var hotel = this.hotelCollection[this.hotelIndex];
+		
 		var title = hotel.get("data-name"), price = hotel.get("data-price"), counter = hotel.get("data-counter"), marker, infowindow, LMLocationId = hotel.get("data-locationid"), icon;
 		
 		if(hotel.bookmark == null && RIA.bookmarks[LMLocationId] == undefined) {
-			// Hide the Bookmark button
-			hotel.getElement(".drop-pin").setStyle("display", "none");
-		
+			
 			// If we have a Hotel Marker...
 			if(RIA.hotelMarkers[LMLocationId] != undefined) {
 				// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
