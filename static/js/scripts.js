@@ -553,7 +553,7 @@ RIA.GooglePlaces = new Class({
 				book_store:"Book store",
 				/*bowling_alley*/
 				bus_station:"Bus station",
-				cafe:"Cafe",
+				cafe:"Caf&eacute;",
 				/*campground
 				car_dealer*/
 				car_rental:"Car rental",

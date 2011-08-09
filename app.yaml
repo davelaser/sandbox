@@ -1,7 +1,9 @@
 application: rf-lm-poc
 version: 1-6
 runtime: python
-api_version: 1
+api_version: 1  
+
+default_expiration: "10d"
 
 handlers:
 - url: /static
