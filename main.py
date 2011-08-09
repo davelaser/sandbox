@@ -141,8 +141,8 @@ class DBHotel(db.Model):
 	propertyids = db.StringProperty()
 	name = db.StringProperty(required=True)
 	price = db.FloatProperty(required=True)
-	startdate = db.DateProperty()
-	enddate = db.DateProperty()
+	startdate = db.DateTimeProperty()
+	enddate = db.DateTimeProperty()
 	address = db.PostalAddressProperty(required=True)
 	phone = db.PhoneNumberProperty()
 	category = db.CategoryProperty()
@@ -172,8 +172,8 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 		- destination
 		- startDate
 		- endDate (?)
-	""" 
-	hotels = get_hotels_by_destination(destination)
+	"""    
+	hotels = get_hotels_by_destination_and_price(destination, None, startDate)
 	
 	if hotels.get() is None:
 		counter = 1
@@ -221,16 +221,25 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 		Use a batch .put(list) operation here!
 		"""
 		db.put(hotelList)
-		return hotelList                                                                                                                                               
-			
+		return hotelList
+	else:
+		logging.info("put_hotels_by_destination - apparently we have results already?")
+		if hotels.get() is not None:
+			for hotel in data:
+				logging.info(hotel)
 
-def get_hotels_by_destination_and_price(destination, price):
+def get_hotels_by_destination_and_price(destination, price, startDate):
 	queryString = ""
-	logging.info("get_hotels_by_destination_and_price")
+	logging.info("get_hotels_by_destination_and_price and startDate")
+	logging.info(startDate)
 	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"
+		if startDate is not None:              
+			queryString += " AND startdate = :1"
+			
 		if price is not None and len(str(price)) > 0:
 			queryString += " AND price <= "+str(price)+" ORDER BY price, index"
+			
 		else:
 			queryString += " ORDER BY index"
 	else:
@@ -238,8 +247,8 @@ def get_hotels_by_destination_and_price(destination, price):
 			queryString += "WHERE price <= "+str(price)+" ORDER BY price, index"
 		
 
-	logging.info(queryString)
-	resultset = DBHotel.gql(queryString)
+	#logging.info(queryString)
+	resultset = DBHotel.gql(queryString, startDate)
 	return resultset
 
 def get_hotels_in_europe_by_price(price):
@@ -342,7 +351,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			if hotel_booking_dest_names.has_key(destination):
 				bookingData['dest'] = hotel_booking_dest_names[destination]
 		
-			hotelsData = get_hotels_by_destination_and_price(destination, price)
+			hotelsData = get_hotels_by_destination_and_price(destination, price, startDate)
 		
 			if hotelsData.get() is not None:
 				logging.info("Retrieving from datastore")
@@ -351,10 +360,14 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 					hotel.bookingData = bookingData
 					hotelsList.append(hotel)
 				global_mashup['hotels'] = hotelsList
-            
+			else:
+				logging.info("handle_result_ajax_v3 - hotelsData is None") 
+				for hotel in hotelsData:
+					logging.info(hotel)
+				
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			response.out.write(template.render(path, global_mashup))                                
-			logging.info("Still working after response")
+			#logging.info("Still working after response")
 		elif result.status_code == 400:
 			logging.info("RPC response ERROR code: 400")
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
@@ -383,8 +396,8 @@ def get_hotels(destination, startDate, endDate):
 	hotelsArgs['r.username'] = config_properties.get('Kapow', 'kapow_r_username')
 	hotelsArgs['r.password'] = config_properties.get('Kapow', 'kapow_r_password')
 	if startDate is not None:
-		hotelsArgs[config_properties.get('Hotels', 'hotels_service_v4_startDate')] = startDate
-		hotelsArgs[config_properties.get('Hotels', 'hotels_service_v4_endDate')] = endDate
+		hotelsArgs[config_properties.get('Hotels', 'hotels_service_v4_startDate')] = startDate.date().isoformat()
+		hotelsArgs[config_properties.get('Hotels', 'hotels_service_v4_endDate')] = endDate.date().isoformat()
 	hotelsArgsEncoded = urllib.urlencode(hotelsArgs)
 	hotelsURL += hotelsArgsEncoded
 	return hotelsURL
@@ -407,7 +420,7 @@ def kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, respon
 	    url = get_hotels(destination, startDate, endDate)
 	if info_type == "city-break":
 	    url = get_citybreak(destination)
-	rpc = urlfetch.create_rpc(10)
+	rpc = urlfetch.create_rpc(100)
 	rpc.callback = create_callback_ajax_v3(rpc, destination, price, startDate, endDate, response)
 	urlfetch.make_fetch_call(rpc, url, "GET")
 	rpc.wait()
@@ -452,6 +465,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
+		startDate = self.request.get("startDate")
+		
 		if len(price) > 0:
 			price = float(price)
 			
@@ -467,7 +482,7 @@ class ExperienceHandler(webapp.RequestHandler):
 			tripAdvisorDestination = tripadvisor_image_paths[destination]
 		
 		facebookAppId = config_properties.get('Facebook', 'app_id')
-		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, tripAdvisorDestination=tripAdvisorDestination)
+		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -488,7 +503,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	startDateRaw = self.request.POST.get("startDate")
 	
 	startDate = startDateRaw.split('-')
-	dateTime = datetime.date(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+	dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 	startDate = dateTime       
 	
 	numberOfNightsRaw = self.request.POST.get("numberOfNights")
@@ -532,7 +547,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			hotelsData = get_hotels_in_europe_by_price(price)		
 		else:
 			#hotelsData = get_hotels_by_destination(destination)
-		    hotelsData = get_hotels_by_destination_and_price(destination, price)
+		    hotelsData = get_hotels_by_destination_and_price(destination, price, startDate)
 		
 		bookingData = get_hotel_booking_form_data(destination)
 		bookingData['city'] = destination

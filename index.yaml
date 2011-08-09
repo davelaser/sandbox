@@ -31,3 +31,9 @@ indexes:
   - name: destination
   - name: price
   - name: index
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: startdate
+  - name: index
