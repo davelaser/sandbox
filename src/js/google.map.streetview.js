@@ -186,7 +186,7 @@ RIA.MapStreetView = new Class({
 		if(e) {
 			
 			
-			if(this.mapCanvas.retrieve("view:state") == "map") {
+			if(this.mapCanvas.retrieve("view:state") == "map" && (e.target.get("id") == "toggle-streetview" && !e.target.hasClass("active"))) {
 				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
 				google.maps.event.trigger(RIA.panorama, "resize"); 
 				this.options.maptype = "panorama";
@@ -197,7 +197,7 @@ RIA.MapStreetView = new Class({
 				document.id("toggle-map").removeClass("active");
 				
 			}
-			else {
+			else if(e.target.get("id") == "toggle-map" && !e.target.hasClass("active")){
 				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});
 				google.maps.event.trigger(RIA.panorama, "resize"); 
 				

@@ -1,11 +1,11 @@
 {% for hotel in hotels %}
-<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid|safe }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}" data-price="&#163;{{hotel.price|safe}}" data-latlng="{{ hotel.latlng }}">
+<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid|safe }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}" data-price="&#163;{{hotel.price|floatformat:2}}" data-latlng="{{ hotel.latlng }}">
 	<header>
 		<h3>
 			<span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.destination }}){% endif %}</span> 
 			<span class="stars">{{ hotel.rating }} star,</span>
 			<span class="from">from</span>
-			<span class="price">&#163;{{ hotel.price|safe }}<sup>*</sup></span>
+			<span class="price">&#163;{{ hotel.price|floatformat:2 }}<sup>*</sup></span>
 			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
 		</h3>
 		{% comment %}

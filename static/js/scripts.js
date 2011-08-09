@@ -1049,7 +1049,7 @@ RIA.MapStreetView = new Class({
 		if(e) {
 			
 			
-			if(this.mapCanvas.retrieve("view:state") == "map") {
+			if(this.mapCanvas.retrieve("view:state") == "map" && (e.target.get("id") == "toggle-streetview" && !e.target.hasClass("active"))) {
 				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
 				google.maps.event.trigger(RIA.panorama, "resize"); 
 				this.options.maptype = "panorama";
@@ -1060,7 +1060,7 @@ RIA.MapStreetView = new Class({
 				document.id("toggle-map").removeClass("active");
 				
 			}
-			else {
+			else if(e.target.get("id") == "toggle-map" && !e.target.hasClass("active")){
 				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});
 				google.maps.event.trigger(RIA.panorama, "resize"); 
 				
@@ -1627,6 +1627,7 @@ RIA.Experience = new Class({
 		this.bookmarks = document.id("bookmarks");
 		this.bookmarks.store("viewstate", "closed");
 		
+		this.toggleContent = document.id("toggle-content");
 		this.content = document.id("content");
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
@@ -1850,8 +1851,10 @@ RIA.Experience = new Class({
 		hotelIndex = hotelCounter-1, 
 		resultMarginLeft = -1*(hotelCounter*this.hotelWidth)+this.hotelWidth;
 		
-		this.hotelsNav.getElements("a").removeClass("active");
-		this.hotelsNav.getElements("a")[hotelIndex].addClass("active");
+		if(this.hotelsNav) {
+			this.hotelsNav.getElements("a").removeClass("active");
+			this.hotelsNav.getElements("a")[hotelIndex].addClass("active");
+		}
 		this.hotelIndex = hotelIndex; 
 		return {index:this.hotelIndex, marginLeft:resultMarginLeft};
 	},
@@ -1864,7 +1867,7 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
-		this.hotelsNav.empty();
+		if(this.hotelsNav) this.hotelsNav.empty();
 		this.removeHotelMarkers(); 
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").setStyles({"marginLeft":"0px"});
@@ -1906,7 +1909,7 @@ RIA.Experience = new Class({
             
 			this.setHotelMarkers(this.hotelCollection);   
 			
-			this.createHotelNav();                                                                               
+			if(this.hotelsNav) this.createHotelNav();                                                                               
 			
 			this.addHotelNavEventListeners();
 			

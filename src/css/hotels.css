@@ -18,12 +18,9 @@
 
 #hotels .results-wrapper {
 	background:#fff;
-	width:845px;
+	width:955px;
 	height:100%;
-	
-	margin-left:55px;
-	overflow:hidden;  
-	
+	overflow:hidden;  	
 	-moz-box-shadow:0px 3px 8px white inset;
 	-webkit-box-shadow:40px 40px 40px #fff inset;
 	
@@ -67,10 +64,10 @@ nav#hotel-list a.active {
 	display:none;
 }	
 .hotel {
-	width:815px;
+	width:915px;
 	display:block;
 	float:left; 
-	padding:20px; 
+	padding:20px 20px 20px 40px; 
 }
                         
 .hotel header {
@@ -122,7 +119,7 @@ nav#hotel-list a.active {
 }
 .hotel h3 .count {
 	display:block;
-	float:right;  
+	float:right;
 	margin:0 50px 0 0;
 	font-size:0.7em;	
 }

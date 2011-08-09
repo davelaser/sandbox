@@ -12,6 +12,7 @@ RIA.Experience = new Class({
 		this.bookmarks = document.id("bookmarks");
 		this.bookmarks.store("viewstate", "closed");
 		
+		this.toggleContent = document.id("toggle-content");
 		this.content = document.id("content");
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
@@ -235,8 +236,10 @@ RIA.Experience = new Class({
 		hotelIndex = hotelCounter-1, 
 		resultMarginLeft = -1*(hotelCounter*this.hotelWidth)+this.hotelWidth;
 		
-		this.hotelsNav.getElements("a").removeClass("active");
-		this.hotelsNav.getElements("a")[hotelIndex].addClass("active");
+		if(this.hotelsNav) {
+			this.hotelsNav.getElements("a").removeClass("active");
+			this.hotelsNav.getElements("a")[hotelIndex].addClass("active");
+		}
 		this.hotelIndex = hotelIndex; 
 		return {index:this.hotelIndex, marginLeft:resultMarginLeft};
 	},
@@ -249,7 +252,7 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
-		this.hotelsNav.empty();
+		if(this.hotelsNav) this.hotelsNav.empty();
 		this.removeHotelMarkers(); 
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").setStyles({"marginLeft":"0px"});
@@ -291,7 +294,7 @@ RIA.Experience = new Class({
             
 			this.setHotelMarkers(this.hotelCollection);   
 			
-			this.createHotelNav();                                                                               
+			if(this.hotelsNav) this.createHotelNav();                                                                               
 			
 			this.addHotelNavEventListeners();
 			

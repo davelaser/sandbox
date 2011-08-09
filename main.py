@@ -28,7 +28,7 @@ requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
 
 # TODO: remove the memcache flush
-#memcache.flush_all()
+memcache.flush_all()
 
 #logging.info(memcache.get_stats())
 
@@ -157,7 +157,7 @@ class DBHotel(db.Model):
 	hotelrequestid = db.StringProperty()
 	
 def get_hotels_by_destination(destination):
-	resultset = DBHotel.gql("WHERE destination = '"+destination+"' ORDER BY price")
+	resultset = DBHotel.gql("WHERE destination = '"+destination+"'")# ORDER BY price")
 	return resultset
 			
 def put_hotels_by_destination(destination, data, startDate, endDate):
@@ -226,7 +226,7 @@ def get_hotels_by_destination_and_price(destination, price):
 		if price is not None and len(str(price)) > 0:
 			queryString += "WHERE price <= "+str(price)
 		
-	queryString += " ORDER BY price"
+	#queryString += " ORDER BY price"
 	logging.info(queryString)
 	resultset = DBHotel.gql(queryString)
 	return resultset
@@ -241,7 +241,7 @@ def get_hotels_in_europe_by_price(price):
 	queryString = "WHERE destination IN :1"
 	if price is not None and len(str(price)) > 0:
 		queryString += " AND price <= "+str(price)
-	queryString += " ORDER BY price"
+	#queryString += " ORDER BY price"
 	logging.info(queryString)
 	resultset = DBHotel.gql(queryString, queryDestinationList)
 	return resultset

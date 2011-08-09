@@ -2,7 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://ogp.me/ns#" xmlns:fb="http://www.facebook.com/2008/fbml">
 <head>
 	<meta charset="utf-8">
-	<title>Lastminute.com Hotels</title>
+	<title>lastminute.com Hotels</title>
 	<link rel="stylesheet" href="/static/css/styles.css"/>
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
 	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
@@ -28,7 +28,7 @@
 			{% comment %}<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button>{% endcomment %} 
 			
 			<nav id="map-controls" class="">
-				<button id="toggle-streetview" class="map-control {% if maptype == "panorama" or maptype == "" %}active{% endif %}">Streeview</button>
+				<button id="toggle-streetview" class="map-control {% if maptype == "panorama" or maptype == "" %}active{% endif %}">Streetview</button>
 				<button id="toggle-map" class="map-control {% if maptype == "map" %}active{% endif %}">Map</button>
 				
 				{% comment %}
@@ -39,11 +39,13 @@
 				{% endcomment %}
 				{% comment %}<button id="fb-dialog-send" class="button">Share</button>{% endcomment %}
 			</nav>
+			
+			{% include "includes/form.html" %} 
 		</header>
 		
 		{% include "includes/bookmarks.html" %}
 		
-		{% include "includes/form.html" %}
+		
 		
 		<div id="content">
 			<section id="hotels" class="{% if not destination %}hide{% endif %}">
@@ -54,12 +56,15 @@
 					<div class="results">
 				
 					</div>
+					{% comment %}
 					<nav id="hotel-list">
 
 					</nav>
+					{% endcomment %}
 				</div>
 				
 				<nav id="horizontal">
+					<button id="toggle-content" data-default="+">+</button>
 					<a href="#" class="previous"><span>Previous</span></a>
 					<a href="#" class="next"><span>Next</span></a>
 				</nav>
