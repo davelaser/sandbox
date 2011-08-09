@@ -253,7 +253,7 @@ def get_hotels_in_europe_by_price(price):
 	queryString = "WHERE destination IN :1"
 	if price is not None and len(str(price)) > 0:
 		queryString += " AND price <= "+str(price)
-	queryString += " ORDER BY index"#, price
+	queryString += " ORDER BY price, index"
 	logging.info(queryString)
 	resultset = DBHotel.gql(queryString, queryDestinationList)
 	return resultset
