@@ -32,7 +32,7 @@
 		</p>
 		<dl>
 			<dt class="address">Address: {{hotel.address|safe}}<dt>
-			<dt>Phone: {{hotel.phone}}<dt>
+			{% if hotel.phone %}<dt>Phone: {{hotel.phone}}<dt>{% endif %}
 		</dl>		
 	</div>
 	<div class="room-and-rates">

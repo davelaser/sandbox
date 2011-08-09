@@ -195,7 +195,7 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 					for param in hotelLinkSplit:
 						if param.startswith("propertyIds"):        
 							propertyIdValue = param.split("=")[1]
-							dbHotel.locationid = propertyIdValue
+							dbHotel.locationid = propertyIdValue.split('-',1)[0]
 							dbHotel.propertyids = propertyIdValue.split('-',1)[0]
 							if len(dbHotel.propertyids) == 3:
 								dbHotel.propertyids = "000"+dbHotel.propertyids
@@ -283,7 +283,7 @@ def get_hotel_by_locationid_and_destination(locationid, destination):
 def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng):
 	hotelRequest = get_hotel_by_locationid_and_destination(locationid, destination)   
 	if hotelRequest.get() is not None: 
-		logging.info("Found hotel locationid "+locationid+" now assigning latlng")
+		logging.info("Found NEW hotel locationid "+locationid+" now assigning latlng")
 		for data in hotelRequest:
 			"""
 			This only returns 1 entity, so no need for a batch .put() operation here
@@ -292,6 +292,7 @@ def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat,
 			db.put(data)
 		return "true"
 	else:
+		logging.info("Hotel at locationid "+locationid+" NOT FOUND!")
 		return "false"
 
 

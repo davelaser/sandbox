@@ -172,11 +172,9 @@ RIA.MapStreetView = new Class({
 		if(!e) {
 			if(this.mapCanvas.retrieve("view:state") == "map") {
 				this.mapCanvas.setStyles({"zIndex":1, "width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
-				document.id("map-streetview").set("text", "Panorama");
 				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});  
 			} else if(this.mapCanvas.retrieve("view:state") == "panorama") {
 				this.mapCanvas.setStyles({"zIndex":3, "width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
-				document.id("map-streetview").set("text", "Map");
 				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
 			}
 		}
@@ -650,7 +648,7 @@ RIA.MapStreetView = new Class({
 				var latLng = results[0].geometry.location; 
 				                        
 				// [ST]TODO: Check why this is firing even when we have stored hotels in the datastore
-				//this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
+				this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
 				
 				// Store the LatLng against the Hotel Element
 				hotel.store("geolocation", latLng);
@@ -717,7 +715,6 @@ RIA.MapStreetView = new Class({
 
 
 		this.hotelsByPriceRange = this.hotelsByPriceRange.sort(this.sortByPrice.bind(this));
-		Log.info(this.hotelsByPriceRange);
 		
 		this.gradientArray = new Array();
 		                                                                                                                                 
