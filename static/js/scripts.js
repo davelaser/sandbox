@@ -1225,7 +1225,7 @@ RIA.MapStreetView = new Class({
 		// Check whether Streetview Panorama data exists for this LatLng, within a 150 metre radius (argument #2 below) 
 		Log.info("setPanoramaPosition("+latLng+")");
 		
-		RIA.sv.getPanoramaByLocation(latLng, 150, function(svData, svStatus) {  
+		RIA.sv.getPanoramaByLocation(latLng, 50, function(svData, svStatus) {  
             // If Streetview Panorama data exists...
 			if (svStatus == google.maps.StreetViewStatus.OK) {
 				if(!RIA.panorama.getVisible()) RIA.panorama.setVisible(true);
@@ -1505,9 +1505,8 @@ RIA.MapStreetView = new Class({
 		*		Address[String]
 		*/  
 		
-		//Log.info("getGeocodeByAddress")
         var address = hotel.get("data-address");
-		//Log.info("Requesting Geocode for address "+address);
+
 		RIA.geocoder.geocode({ 'address': address}, function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
