@@ -31,6 +31,7 @@ RIA.Experience = new Class({
 		this.placesDistanceRange = document.id("places-distance-range");
 		this.placesDistanceOutput = document.id("places-distance-output");
 		
+		this.filters = document.id("filters");
 		
 		this.travelPartners = document.id("travel-partners");
 		this.hotels = document.id("hotels"); 
@@ -61,6 +62,13 @@ RIA.Experience = new Class({
 		
 	},                          
 	addEventListeners: function() {
+		
+		
+		if(this.filters) {
+			document.id("sort-by-rating").addEvents({
+				"change":this.sortByRatingEvent.bind(this)
+			});
+		}
 		
 		window.addEvents({
 			"resize": this.onWindowResize.bind(this)
@@ -431,5 +439,35 @@ RIA.Experience = new Class({
 			this.places.morph({"display":"none"}); 
 		}
 		
+	},
+	sortByRatingEvent: function(e) {
+		try { 
+			Log.info("sortByRatingEvent");
+			if(e) e.preventDefault();
+		    
+			if(e.target.get("value") == "high") {
+				this.hotelCollection = this.hotelCollection.sort(this.sortByRatingHighLow.bind(this));
+				this.hotelIndex = 0;
+
+				this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
+			} else if(e.target.get("value") == "low") {
+				this.hotelCollection = this.hotelCollection.sort(this.sortByRatingLowHigh.bind(this));
+				this.hotelIndex = 0;
+
+				this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
+			}  
+			
+			Log.info(this.hotelCollection);
+			
+		} catch(e) {
+			Log.error({method:"sortByRatingEvent()", error:e});
+		}
+		
+	},
+	sortByRatingHighLow: function(a, b){
+		return b.get("data-rating") - a.get("data-rating");
+	},
+	sortByRatingLowHigh: function(a, b){
+		return a.get("data-rating") - b.get("data-rating");
 	}
 });

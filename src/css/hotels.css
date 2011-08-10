@@ -162,10 +162,23 @@ h3.no-results {
 
 #save-share-places {
 	padding:5px;
-}                   
+} 
 
+#filters {
+	padding:5px;
+	position:absolute;
+	bottom:9px;
+	right:14px;
+}                  
+                
 #hotels.minimized #save-share-places {
 	position:absolute;
 	bottom:9px;
 	left:9px;
+} 
+
+#hotels.minimized #filters {
+	position:absolute;
+	bottom:9px;
+	right:14px;
 }

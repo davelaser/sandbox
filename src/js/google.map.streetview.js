@@ -730,7 +730,7 @@ RIA.MapStreetView = new Class({
 	},
 	sortByPrice: function(a,b) {        
 		return a.priceData - b.priceData; 
-	},
+	}, 
 	addPanoramioPhotos: function(e) {
 		if(e && e.target) {
 			if(e.target.checked) {

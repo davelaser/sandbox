@@ -185,7 +185,7 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 				price = price.replace(',','')
 				price = float(price)                                           
 				
-				dbHotel = DBHotel(productdetailsurl = hotel['url'], name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
+				dbHotel = DBHotel(name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
 
 				if hotel['rating'] is not None:
 					ratingURL = hotel['rating']
@@ -201,18 +201,21 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 						if param.startswith("propertyIds"):        
 							propertyIdValue = param.split("=")[1]
 							
-							dbHotel.propertyids = propertyIdValue.split('-',1)[0]
-							if len(dbHotel.propertyids) == 3:
-								dbHotel.propertyids = "000"+dbHotel.propertyids
-							if len(dbHotel.propertyids) == 4:
-								dbHotel.propertyids = "00"+dbHotel.propertyids
-							if len(dbHotel.propertyids) == 5:
-								dbHotel.propertyids = "0"+dbHotel.propertyids
+							dbHotel.locationid = propertyIdValue.split('-',1)[0]
+							if len(dbHotel.locationid) == 3:
+								dbHotel.locationid = "000"+dbHotel.locationid
+							if len(dbHotel.locationid) == 4:
+								dbHotel.locationid = "00"+dbHotel.locationid
+							if len(dbHotel.locationid) == 5:
+								dbHotel.locationid = "0"+dbHotel.locationid
 							
-							dbHotel.locationid = dbHotel.propertyids
-							logging.info("dbHotel.locationid: "+dbHotel.locationid)
+							dbHotel.propertyids = propertyIdValue
+							logging.info("dbHotel.locationid: "+dbHotel.locationid) 
+							logging.info("dbHotel.propertyids: "+dbHotel.propertyids)
 						if param.startswith("hotelRequestId"):
 							dbHotel.hotelrequestid = param.split("=")[1]
+					hotelLinkManipulated = str(hotelLink).replace('tabId=information','tabId=rooms')
+					dbHotel.productdetailsurl = hotelLinkManipulated
 				else:
 					dbHotel.locationid = destination+str(counter)
 				counter += 1
@@ -553,8 +556,8 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		
 		bookingData = get_hotel_booking_form_data(destination)
 		bookingData['city'] = destination
-		bookingData['checkindate'] = startDate.isoformat()
-		bookingData['checkoutdate'] = endDate.isoformat()
+		bookingData['checkindate'] = startDate.date().isoformat()
+		bookingData['checkoutdate'] = endDate.date().isoformat()
 		
 		if hotel_booking_dest_names.has_key(destination):
 			bookingData['dest'] = hotel_booking_dest_names[destination]
