@@ -188,9 +188,7 @@ RIA.Experience = new Class({
 	fbDialogSend: function() {
 		FB.ui({
 			app_id:RIA.fbAppId,
-			/*redirect_uri:window.location.href,*/
-			//access_token:"107619156000640|2.AQAsT1KSroPXcIZ4.3600.1312941600.0-100002195041453|NpFzHXADL_6UnRT7TNsiOTnlPqA",
-			access_token:"147307178684773|2.AQCvUcyULNfvTdq7.3600.1312941600.0-100002195041453|2DzQZIN2OsWawedZG5u--7V9YYc",
+			access_token:RIA.fbAccessToken,
 			method: 'send',
 			display:'iframe',
           	name: 'Your saved lastminute.com Hotels',

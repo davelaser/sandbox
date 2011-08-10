@@ -482,7 +482,9 @@ class ExperienceHandler(webapp.RequestHandler):
 			tripAdvisorDestination = tripadvisor_image_paths[destination]
 		
 		facebookAppId = config_properties.get('Facebook', 'app_id')
-		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
+		facebookAccessToken = config_properties.get('Facebook', 'access_token')
+		
+		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
