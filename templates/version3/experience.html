@@ -3,6 +3,13 @@
 <head>
 	<meta charset="utf-8">
 	<title>lastminute.com Hotels</title>
+	<meta property="fb:app_id" content="{{facebookAppId}}"/>
+	<meta property="og:site_name" content="lastminute.com Hotels"/>
+	<meta property="og:type" content="website"/>
+	<meta property="og:title" content="lastminute.com Hotels"/>
+	{% comment %}<meta property="og:url" content="http://rf-lm-poc.appspot.com/hotels"/>{% endcomment %}
+	<meta property="og:image" content="http://rf-lm-poc.appspot.com/static/img/logo.png"/>
+	<meta property="og:description" content="Search, browse and book hotels online."/>
 	<link rel="stylesheet" href="/static/css/styles.css"/>
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
 	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
@@ -175,7 +182,6 @@
 				cookie: true,
 				xfbml: true			
 			});	
- 			
 		};	
         
 		function loadScript() {

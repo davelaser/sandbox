@@ -1643,7 +1643,6 @@ RIA.Experience = new Class({
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
 		this.twitterNews = document.id("twitter-news");
-		this.fbDialogSendButton = document.id("fb-dialog-send");
 		
 		this.save = document.id("save");
 		
@@ -1679,19 +1678,15 @@ RIA.Experience = new Class({
 		
 		this.toggleInformation(null);
 		
-	},                            
+		
+		
+	},                          
 	addEventListeners: function() {
 		
 		window.addEvents({
 			"resize": this.onWindowResize.bind(this)
 		});
 
-		if(this.fbDialogSendButton) {
-			this.fbDialogSendButton.addEvents({
-				"click":this.fbDialogSend.bind(this)
-			});
-		}  
-		
 		if(document.id("map-controls")) {
 			document.id("map-controls").addEvents({
 				"click":this.toggleMapFullScreen.bind(this)
@@ -1715,9 +1710,12 @@ RIA.Experience = new Class({
 			});
 		}
 		if(document.id("share")) {
+			
 			document.id("share").addEvents({
 				"click":this.shareMyBookmarks.pass([true],this)
-			});			
+			});
+
+		
 		}    
 		
 		if(this.places) {
@@ -1814,10 +1812,11 @@ RIA.Experience = new Class({
 		FB.ui({
 			app_id:RIA.fbAppId,
 			/*redirect_uri:window.location.href,*/
-			access_token:"147307178684773|2.AQCTvZXmKvdYGpvo.3600.1312552800.0-100002195041453|kXWfcjveg1hot1dkyEigL3VIVbs",
+			//access_token:"107619156000640|2.AQAsT1KSroPXcIZ4.3600.1312941600.0-100002195041453|NpFzHXADL_6UnRT7TNsiOTnlPqA",
+			access_token:"147307178684773|2.AQCvUcyULNfvTdq7.3600.1312941600.0-100002195041453|2DzQZIN2OsWawedZG5u--7V9YYc",
 			method: 'send',
 			display:'iframe',
-          	name: 'Your Lastminute.com Hotel Bookmarks',
+          	name: 'Your saved lastminute.com Hotels',
 			link: RIA.shareURL,
 		});
 	},
@@ -1911,7 +1910,7 @@ RIA.Experience = new Class({
 		this.hotels.removeClass("waiting");
 		
 		RIA.bookmarks = new Object();                                         
-		this.shareMyBookmarks(false);
+		
 		RIA.hotelMarkers = new Object();
 		
 		if(this.hotelCollection.length > 0) {
@@ -2007,7 +2006,6 @@ RIA.Experience = new Class({
 		}
 	},
 	shareMyBookmarks: function(show) {   
-		
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
 		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
@@ -2020,11 +2018,14 @@ RIA.Experience = new Class({
             index++;
 		},this);    
 		
-		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype;
+		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&fb_ref=message";
 		
 		
 		document.id("bookmarks").getElement("a").set({"href":RIA.shareURL, "text":RIA.shareURL});  
 		
+		
+		this.fbDialogSend();
+		/*
 		if(show && this.bookmarks) { 
 			if(this.bookmarks.retrieve("viewstate") == "closed") {
 				   		
@@ -2036,6 +2037,7 @@ RIA.Experience = new Class({
 				this.bookmarks.setStyle("display","none"); 
 			}
 		}
+		*/
 	},
 	showPlaces: function(e) {
 		e.preventDefault();
