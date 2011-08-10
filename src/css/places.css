@@ -3,14 +3,28 @@
 * 	Places
 */
 #places {
+	background:none;
 	display:none;     
 	overflow:none;
 	position:absolute;
 	top:302px;
-	left:165px;
+	left:165px; 
+	
+	padding:10px;
+	margin:0 0 10px 0;
+	background:rgba(0,0,0,0.2);
+	border-radius:20px;
+	-moz-border-radius:20px;
+	-webkit-border-radius:10px;
+	-o-border-radius:20px;
+	-ms-border-radius:20px;
 }  
 
-
+#places div {
+	background:#fff;
+	-webkit-border-radius:5px;
+	padding:20px;
+}
 #places h2 {
 	display:inline;
 	cursor:pointer;
@@ -54,4 +68,21 @@
 	position:absolute;
 	bottom:14px;
 	left:122px;
+}
+
+
+#toggle-places {
+	border:none;    
+	background-image:none;
+	background-color:#ccc;
+	color:#000;
+	font-size:1.5em;
+	text-align:center;
+	padding:0px 2px 2px 3px;
+	text-shadow: #fff 1px 1px 0px;
+	-webkit-border-radius:3px;    
+	position:absolute;
+	top:20px;
+	right:20px;	
+	width:20px;
 }

@@ -12,7 +12,9 @@ RIA.Experience = new Class({
 		this.bookmarks = document.id("bookmarks");
 		if(this.bookmarks) this.bookmarks.store("viewstate", "closed");
 		
-		this.toggleContent = document.id("toggle-content");
+		this.toggleContent = document.id("toggle-content"); 
+		this.togglePlaces = document.id("toggle-places");
+		
 		this.content = document.id("content");
 		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
@@ -79,7 +81,12 @@ RIA.Experience = new Class({
 				"click":this.toggleInformation.bind(this) 
 			});			
 		}
-		     
+		 
+		if(this.togglePlaces) {
+			this.togglePlaces.addEvents({
+				"click":this.showPlaces.bind(this) 
+			});
+		}    
 		
 		if(document.id("nearby")) {
 			document.id("nearby").addEvents({
