@@ -495,8 +495,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		
 		facebookAppId = config_properties.get('Facebook', 'app_id')
 		facebookAccessToken = config_properties.get('Facebook', 'access_token')
-		
-		args = dict(viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
+		analytics_key = config_properties.get('Google', 'analytics_key')
+		args = dict(analytics_key=analytics_key, viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
