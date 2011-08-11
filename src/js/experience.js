@@ -122,7 +122,7 @@ RIA.Experience = new Class({
 							this.removePlacesMarkers(places);
 							if(target.getNext("label")) {
 								target.getNext("label").set("text", target.getNext("label").get("data-text"));
-							}
+							}	
 						}
 					}  
 					
@@ -131,12 +131,19 @@ RIA.Experience = new Class({
 					}
 					
 				}.bind(this)
+			}); 
+			
+			this.placesDrag = new Drag(this.places, {
+				handle:this.places.getElement("h2"),
+			    snap: 0,
+			    onSnap: function(el){
+			        el.addClass('dragging');
+			    },
+			    onComplete: function(el){
+			        el.removeClass('dragging');
+			    }
 			});
-			this.places.getElement("h2").addEvents({
-				"click": function(e) {
-					this.places.getElement("form").toggleClass("hide");
-				}.bind(this)
-			});
+			
 		} 
 		
 		if(this.placesDistanceRange) {

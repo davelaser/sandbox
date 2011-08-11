@@ -8,8 +8,8 @@
 	overflow:none;
 	position:absolute;
 	top:302px;
-	left:165px; 
-	
+	left:165px; 	                       
+	z-index:12;
 	padding:10px;
 	margin:0 0 10px 0;
 	background:rgba(0,0,0,0.2);
@@ -31,13 +31,12 @@
 }
 #places h2 {
 	display:inline;
-	cursor:pointer;
+	cursor:move;
 }
 #places fieldset {        
 	margin:0 0 10px 0; 
 }
 #places h3 { 
-	color:#EC008C;
 	display:block;
 	font-size:1.2em;
 	margin:0 0 5px 0;
@@ -60,7 +59,7 @@
 
 #places #places-distance-output,
 .hotel-name {
-	color:#EC008C;
+	/* See brand CSS */
 }
 #places #place-radius .min {
 	position:absolute;

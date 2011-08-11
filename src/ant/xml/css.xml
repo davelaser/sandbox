@@ -26,6 +26,12 @@
 			<fileset dir="${src.css.dir}">
 				<include name="ios/ipad.css"/>
 			</fileset>
+		</concat>
+		
+		<concat destfile="${build.css.dir}/lastminute.com.concat.css" fixlastline="yes">
+			<fileset dir="${src.css.dir}">
+				<include name="brand/lastminute.com.css"/>
+			</fileset>
 		</concat>		
 	</target>
 

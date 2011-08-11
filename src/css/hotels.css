@@ -48,8 +48,7 @@ nav#hotel-list a {
 }
 
 nav#hotel-list a.active {
-	background:#EC008C;
-	color:#fff;
+	/* See brand CSS */
 }      
 
 #hotels .details {
@@ -80,10 +79,7 @@ nav#hotel-list a.active {
 } 
 .hotel nav li {
 	display:inline-block;
-	background:#EC008C;
 	padding:10px;
-	color:#fff;
-	
 	border-top-left-radius:10px;
 	border-top-right-radius:10px;
 	-webkit-border-top-left-radius:10px;

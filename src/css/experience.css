@@ -25,9 +25,6 @@ a:visited {
 	text-decoration:underline;
 } 
 
-a {
-	color:#EC008C;
-}
 strong {
 	font-weight:bold;
 }   
@@ -92,8 +89,6 @@ header#main {
 h1 {     	
 	width:955px; 
 	height:64px; 
-	background:#EC008C; 
-	color:#fff;
 	font-size:2.5em;
 } 
 
@@ -119,9 +114,7 @@ h2 {
 
 .button {
 	cursor:pointer;
-	background:#EC008C;
 	padding:10px;
-	color:#fff;
 	border:none;
 	border-radius:5px;
 	-webkit-border-radius:5px;
@@ -338,7 +331,6 @@ article section {
 #horizontal a {
 	position:absolute;
 	top:19px;
-	background-image:url(../img/arrows.png);
 	background-repeat:none;
 	width:49px;
 	height:49px;
@@ -377,8 +369,4 @@ article section {
 	top:33px;
 	left:19px;	
 	width:20px;
-}
-
-.price {
-	color:#EC008C;
 }
