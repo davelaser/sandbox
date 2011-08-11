@@ -207,7 +207,7 @@ RIA.Experience = new Class({
 			method: 'send',
 			display:'iframe',
           	name: 'Your saved lastminute.com Hotels',
-			link: RIA.shareURL,
+			link: RIA.shareURL
 		});
 	},
 	hotelNavigation: function(e) { 
