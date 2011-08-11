@@ -5,11 +5,11 @@
 	padding:10px;
 	margin:0 0 10px 0;
 	background:rgba(0,0,0,0.2);
-	border-radius:20px;
-	-moz-border-radius:20px;
+	border-radius:10px;
+	-moz-border-radius:10px;
 	-webkit-border-radius:10px;
-	-o-border-radius:20px;
-	-ms-border-radius:20px;
+	-o-border-radius:10px;
+	-ms-border-radius:10px;
 	top:172px;
 }    
 
@@ -112,7 +112,11 @@ nav#hotel-list a.active {
 
 .hotel .room-and-rates {
 	margin:20px 0 0 0;
-} 
+}                     
+
+.hotel .room-and-rates button {
+	font-size:1.3em;
+}
 
 .hotel h3 .from,
 .hotel h3 .stars {

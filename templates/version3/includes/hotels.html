@@ -35,7 +35,7 @@
 	</div>
 	<div class="room-and-rates">
 		      
-		{% if hotel.propertyids == "9129-0-1-TRA00141%24v1v%24" %}
+		{% comment %}
 		<form class="hotel-booking-form" name="roomselection" method="get" action="http://globaltrips.lastminute.com/trips/productDetails/addToCart">
 			<input type="hidden" name="pTxId" value="1965941" />{{ hotel.bookingData.pTxId }}
 			<input type="hidden" name="checkInDate" value="{{ hotel.bookingData.checkindate }}" />
@@ -55,9 +55,9 @@
 			<input type="hidden" name="room1" checked="checked" value="G1309805305" class="radio" id="room1">
 			<button class="button" value="submit">book now</button>
 		</form>
-		{% else %}
-			<a href="{{ hotel.productdetailsurl|safe }}" target="_blank" rel="external"><button class="button" value="submit">book now</button></a>
-		{% endif %}
+		{% endcomment %}
+		<a href="{{ hotel.productdetailsurl|safe }}" target="_blank" rel="external"><button class="button" value="submit">book now</button></a>
+
 	</div>
 </div>      
 {% endfor %}

@@ -1,10 +1,12 @@
-#social {    
+#social { 
+	display:none;   
 	background:#fff;
 	width:auto;
 	position:fixed;
 	left:20%;
 	bottom:0px;
-	padding:10px 10px 0;
+	padding:10px 10px 0; 
+	z-index:0;
 }
 
 #social div { 

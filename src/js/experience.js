@@ -336,6 +336,7 @@ RIA.Experience = new Class({
 	}, 
 	createHotelNav: function() {
 		
+		Log.info("Re-writing hotel nav");
 		
 		this.hotelCollection.each(function(hotel, index) {
 			this.hotelsNav.adopt(new Element("a", {
@@ -351,7 +352,7 @@ RIA.Experience = new Class({
 					}.bind(this)
 				}
 			}))
-		},this)
+		},this);
 	},
 	onWindowResize: function(e) {
 		this.viewport = window.getSize(); 
@@ -408,7 +409,7 @@ RIA.Experience = new Class({
             index++;
 		},this);    
 		
-		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&fb_ref=message";
+		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&viewType="+this.options.viewType+"&fb_ref=message";
 		
 		
 		document.id("bookmarks").getElement("a").set({"href":RIA.shareURL, "text":RIA.shareURL});  
@@ -443,21 +444,38 @@ RIA.Experience = new Class({
 	sortByRatingEvent: function(e) {
 		try { 
 			Log.info("sortByRatingEvent");
+			/*
+			this.getHotels();
+			
+			
+			Log.info("sortByRatingEvent");
 			if(e) e.preventDefault();
 		    
 			if(e.target.get("value") == "high") {
 				this.hotelCollection = this.hotelCollection.sort(this.sortByRatingHighLow.bind(this));
-				this.hotelIndex = 0;
 
 				this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
 			} else if(e.target.get("value") == "low") {
 				this.hotelCollection = this.hotelCollection.sort(this.sortByRatingLowHigh.bind(this));
-				this.hotelIndex = 0;
 
 				this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
 			}  
 			
-			Log.info(this.hotelCollection);
+			this.hotels.getElement(".results").empty();
+			this.hotelCollection.inject(this.hotels.getElement(".results"));
+			this.gotHotels(RIA.currentDestination);
+			*/
+			
+			this.requestHotelsByRating = new Request.HTML({
+				method:"POST",
+				url:"/ajax",
+				evalScripts:true,
+				update:this.hotels.getElement(".results"),
+				data:'destination='+RIA.currentDestination+'&priceMax='+RIA.InitAjaxSubmit.price.get("value")+'&info_type=hotels&startDate='+RIA.InitAjaxSubmit.arrivalDate.get("value")+"&numberOfNights="+RIA.InitAjaxSubmit.numberOfNights.get("value")+"&rating=true",
+				onRequest: RIA.InitAjaxSubmit.requestStart.pass([this.hotels]),
+				onSuccess: RIA.InitAjaxSubmit.requestSuccess.pass([this.hotels, RIA.currentDestination]),
+				onFailure: RIA.InitAjaxSubmit.requestFailure
+			}).send()	;
 			
 		} catch(e) {
 			Log.error({method:"sortByRatingEvent()", error:e});

@@ -44,3 +44,36 @@ indexes:
   - name: startdate
   - name: price
   - name: index
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: startdate
+  - name: rating
+  - name: index
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: startdate
+  - name: rating
+  - name: index
+    direction: desc
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: startdate
+  - name: rating
+    direction: desc
+  - name: index
+
+- kind: DBHotel
+  properties:
+  - name: destination
+  - name: startdate
+  - name: rating
+    direction: desc
+  - name: price
+    direction: desc
+  - name: index

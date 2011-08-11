@@ -8,7 +8,11 @@ form#search {
 	overflow:hidden;
 	background:#fff;
 	padding:20px 23px 10px 23px;
+	border-radius: 0 0 5px 5px;
 	-webkit-border-radius: 0 0 5px 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	-o-border-radius: 0 0 5px 5px;
+	-ms-border-radius: 0 0 5px 5px;
 }
 
 form#search #search-options a {
@@ -20,11 +24,16 @@ form#search input {
 	margin:0;
 	font-size:1.8em;
 	border:none;
-	border-radius:3px;
+	border-radius:3px;        
 	-webkit-border-radius:3px;
 	-moz-border-radius:3px;
+	-o-border-radius:3px;
+	-ms-border-radius:3px;
+	box-shadow: 0 0 3px gray inset;
 	-webkit-box-shadow: 0 0 3px gray inset;
 	-moz-box-shadow: 0 0 3px gray inset;
+	-o-box-shadow: 0 0 3px gray inset;
+	-ms-box-shadow: 0 0 3px gray inset;	
 }
 
 form#search label {

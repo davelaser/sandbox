@@ -13,8 +13,12 @@
 #hotels.coverflow .results-wrapper {
 	background:none;
 	width:10000em;
-	overflow:auto;
+	overflow:auto;            
+	box-shadow:none;  
 	-webkit-box-shadow:none;  
+	-moz-box-shadow:none;  
+	-o-box-shadow:none;  
+	-ms-box-shadow:none;  
 }
 
 #hotels.coverflow .hotel {

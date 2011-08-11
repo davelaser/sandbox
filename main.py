@@ -173,7 +173,7 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 		- startDate
 		- endDate (?)
 	"""    
-	hotels = get_hotels_by_destination_and_price(destination, None, startDate)
+	hotels = get_hotels_by_destination_and_price(destination, None, startDate, None)
 	
 	if hotels.get() is None:
 		counter = 1
@@ -231,26 +231,33 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 			for hotel in data:
 				logging.info(hotel)
 
-def get_hotels_by_destination_and_price(destination, price, startDate):
+def get_hotels_by_destination_and_price(destination, price, startDate, rating):
 	queryString = ""
 	logging.info("get_hotels_by_destination_and_price and startDate")
 	logging.info(startDate)
+	logging.info(len(str(price)))
+	logging.info("rating: "+str(rating))
 	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"
 		if startDate is not None:              
 			queryString += " AND startdate = :1"
+		if price is not None and len(str(price)) > 0:  
 			
-		if price is not None and len(str(price)) > 0:
-			queryString += " AND price <= "+str(price)+" ORDER BY price, index"
-			
-		else:
+			if rating is not None:
+				queryString += " AND price <= "+str(price)+" ORDER BY rating DESC, price DESC, index"
+			else:
+				queryString += " AND price <= "+str(price)+" ORDER BY price, index"
+		if rating is not None and len(str(price)) == 0:
+			queryString += " ORDER BY rating DESC, price DESC, index"
+        
+		if rating is None and len(str(price)) == 0:	
 			queryString += " ORDER BY index"
 	else:
 		if price is not None and len(str(price)) > 0:
-			queryString += "WHERE price <= "+str(price)+" ORDER BY price, index"
+			queryString += "WHERE price <= "+str(price)+" ORDER BY price, rating, index"
 		
 
-	#logging.info(queryString)
+	logging.info(queryString)
 	resultset = DBHotel.gql(queryString, startDate)
 	return resultset
 
@@ -354,7 +361,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			if hotel_booking_dest_names.has_key(destination):
 				bookingData['dest'] = hotel_booking_dest_names[destination]
 		
-			hotelsData = get_hotels_by_destination_and_price(destination, price, startDate)
+			hotelsData = get_hotels_by_destination_and_price(destination, price, startDate, None)
 		
 			if hotelsData.get() is not None:
 				logging.info("Retrieving from datastore")
@@ -465,6 +472,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		Get the config properties
 		"""
 		config_properties = loadConfigProperties()
+		widescreen = 'true'
+		viewType = self.request.get("viewType")
 		
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
@@ -487,7 +496,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		facebookAppId = config_properties.get('Facebook', 'app_id')
 		facebookAccessToken = config_properties.get('Facebook', 'access_token')
 		
-		args = dict(destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
+		args = dict(viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -506,7 +515,10 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	
 	destination = self.request.POST.get("destination")
 	startDateRaw = self.request.POST.get("startDate")
-	
+	ratingRaw = self.request.POST.get("rating")
+	rating = None
+	if ratingRaw is not None:
+		rating = True
 	startDate = startDateRaw.split('-')
 	dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 	startDate = dateTime       
@@ -552,7 +564,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			hotelsData = get_hotels_in_europe_by_price(price)		
 		else:
 			#hotelsData = get_hotels_by_destination(destination)
-		    hotelsData = get_hotels_by_destination_and_price(destination, price, startDate)
+		    hotelsData = get_hotels_by_destination_and_price(destination, price, startDate, rating)
 		
 		bookingData = get_hotel_booking_form_data(destination)
 		bookingData['city'] = destination
@@ -639,7 +651,7 @@ class GeoCodeHandler(webapp.RequestHandler):
 
 application = webapp.WSGIApplication([
 		(requestExperience, ExperienceHandler),
-		(requestHome, HomeHandler),
+		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, GooglePlacesHandler),
 		(requestGeoCode, GeoCodeHandler),

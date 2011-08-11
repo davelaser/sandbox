@@ -10,13 +10,16 @@
 	{% comment %}<meta property="og:url" content="http://rf-lm-poc.appspot.com/hotels"/>{% endcomment %}
 	<meta property="og:image" content="http://rf-lm-poc.appspot.com/static/img/logo.png"/>
 	<meta property="og:description" content="Search, browse and book hotels online."/>
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
 	<link rel="stylesheet" href="/static/css/styles.css"/>
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
 	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
 	<link rel="stylesheet" media="only screen and (min-device-width: 768px) and (max-device-width: 1024px)" href="/static/css/ipad.css" type="text/css" />
 	<script src="http://widgets.twimg.com/j/2/widget.js"></script>
 </head>
-<body class="state-default">
+<body class="state-default {{ viewType }}">
 	{% comment %}
 	<!-- ClickTale Top part -->
 	<script type="text/javascript">
@@ -66,20 +69,15 @@
 						<button id="share" class="button">Share</button>
 						<button id="nearby" class="button">What's nearby?</button>
 					</nav>
+					{% comment %}
 					<nav id="filters">
-						<label for="sort-by-price">Sort by price</label>
-						<select id="sort-by-price">                
-							<option value="" selected="selected">Select</option>
-							<option value="low">low-high</option>
-							<option value="high">high-low</option>
-						</select>
 						<label for="sort-by-rating">Sort by rating</label>
 						<select id="sort-by-rating">                
 							<option value="" selected="selected">Select</option>
 							<option value="high">high-low</option>
-							<option value="low">low-high</option>							
 						</select>
-					</nav>
+					</nav>  
+					{% endcomment %}
 				</div>
 				
 				<nav id="horizontal">
@@ -183,7 +181,8 @@
 			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
 			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
 			maptype:"{{ maptype|default:'panorama' }}",
-			contenttype:"{{ contenttype|default:'maximized' }}"
+			contenttype:"{{ contenttype|default:'maximized' }}",
+			viewType:'{{ viewType }}'
 		});
 		RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
 		
