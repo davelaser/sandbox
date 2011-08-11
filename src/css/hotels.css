@@ -114,10 +114,13 @@ nav#hotel-list a.active {
 	margin:20px 0 0 0;
 }                     
 
-.hotel .room-and-rates button {
-	font-size:1.3em;
+.hotel .room-and-rates a {
+	font-size:1.3em;    
+	text-decoration:none;
 }
-
+.hotel .room-and-rates a:hover {
+	text-decoration:none;
+}
 .hotel h3 .from,
 .hotel h3 .stars {
 	font-size:0.7em;
@@ -146,7 +149,7 @@ nav#hotel-list a.active {
 #hotels.minimized .photos,
 #hotels.minimized .nearby
 #hotels.minimized .room-and-rates,
-#hotels.minimized .room-and-rates button,
+#hotels.minimized .room-and-rates a,
 #hotels.minimized .details,
 #hotels.minimized nav#hotel-list {
 	display:none;

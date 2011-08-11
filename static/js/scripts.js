@@ -784,7 +784,7 @@ RIA.GooglePlaces = new Class({
 	},
 	removePlacesMarkers: function(type) {
 
-		if(type && this.hotelCollection[this.hotelIndex].places[type]) {
+		if(type && this.hotelCollection[this.hotelIndex].places && this.hotelCollection[this.hotelIndex].places[type]) {
 			Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
 				this.removePlacesMarker(place);
 			},this);
@@ -1743,7 +1743,9 @@ RIA.Experience = new Class({
 						}
 						else {            
 							this.removePlacesMarkers(places);
-							target.getNext("label").set("text", target.getNext("label").get("data-text"));
+							if(target.getNext("label")) {
+								target.getNext("label").set("text", target.getNext("label").get("data-text"));
+							}
 						}
 					}  
 					

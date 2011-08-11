@@ -57,7 +57,9 @@ form#search label {
 /*
 * 	Search Form submit button
 */
-#submit-search { 
+#submit-search {
+	width:100px;
+	height:43px; 
 	position:absolute;
 	bottom:35px;
 	right:33px;    

@@ -250,7 +250,7 @@ RIA.GooglePlaces = new Class({
 	},
 	removePlacesMarkers: function(type) {
 
-		if(type && this.hotelCollection[this.hotelIndex].places[type]) {
+		if(type && this.hotelCollection[this.hotelIndex].places && this.hotelCollection[this.hotelIndex].places[type]) {
 			Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
 				this.removePlacesMarker(place);
 			},this);

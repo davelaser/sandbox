@@ -120,7 +120,9 @@ RIA.Experience = new Class({
 						}
 						else {            
 							this.removePlacesMarkers(places);
-							target.getNext("label").set("text", target.getNext("label").get("data-text"));
+							if(target.getNext("label")) {
+								target.getNext("label").set("text", target.getNext("label").get("data-text"));
+							}
 						}
 					}  
 					
