@@ -24,8 +24,8 @@ RIA.Article = new Class({
         this.scpt = document.createElement('script');
         this.scpt.src = this.feed+'&callback='+this.id;
         document.body.appendChild(this.scpt);
-    };
-})
+    }
+});
 
 /*
 (function() {
