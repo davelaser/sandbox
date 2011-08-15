@@ -222,10 +222,6 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 
 def get_hotels_by_destination_and_price(destination, price, startDate, rating):
 	queryString = ""
-	logging.info("get_hotels_by_destination_and_price and startDate")
-	logging.info(startDate)
-	logging.info(len(str(price)))
-	logging.info("rating: "+str(rating))
 	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"
 		if startDate is not None:              
