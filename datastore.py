@@ -154,3 +154,9 @@ def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 def get_places_by_hotellocationid_types_radius(locationid, types, radius):
 	resultset = datamodel.DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
 	return resultset
+	
+	
+def delete_all_hotels():
+	resultset = datamodel.DBHotel.gql("ORDER BY index")
+	db.delete(resultset);
+	logging.info("delete_all_hotels : Deleted all hotels")

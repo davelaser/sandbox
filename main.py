@@ -41,8 +41,11 @@ requestGeoCode = "/geocode"
 
 # TODO: remove the memcache flush
 #memcache.flush_all()
-
 #logging.info(memcache.get_stats())
+
+# DELETE ALL HOTELS
+#datastore.delete_all_hotels()
+
 
 feeds = {
     'bbc'      : 'http://news.bbc.co.uk/weather/forecast/',
@@ -236,6 +239,8 @@ class HomeHandler(webapp.RequestHandler):
 
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
+		
+		
 		"""
 		Get the config properties
 		"""
