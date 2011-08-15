@@ -17,7 +17,10 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
+from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 from google.appengine.api import memcache
+from google.appengine.api import taskqueue
+from google.appengine.ext import deferred
 
 requestExperience = "/hotels"                  
 requestHome = "/"
@@ -28,7 +31,7 @@ requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 
 #logging.info(memcache.get_stats())
 
@@ -113,26 +116,6 @@ class DBCityDestination(db.Model):
 	name = db.StringProperty(required=True)
 	hotels = db.ListProperty(str, required=True)
 	
-"""
-Get destination content to the datastore
-"""
-def get_datastore_by_destination(destination):
-	resultset = DBCityDestination.gql("WHERE name = '"+destination+"'")
-	return resultset
-	
-"""
-Write to datastore by destination
-"""	                             
-def put_datastore_by_destination(destination, data):
-	hotelsData = get_datastore_by_destination(destination)
-	if hotelsData.get() is None:
-		dbDestination = DBCityDestination(name = destination, hotels = data)
-		dbDestination.put()
-	
-	
-def kapowAPI(request):
-	return codecs.open(os.path.join(os.path.dirname(__file__), request))
-
 
 """
 Save Hotel data
@@ -176,6 +159,8 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 		- endDate (?)
 	"""    
 	hotels = get_hotels_by_destination_and_price(destination, None, startDate, None)
+	
+	hotelList = None
 	
 	if hotels.get() is None:
 		counter = 1
@@ -224,14 +209,16 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 				hotelList.append(dbHotel)
 		"""
 		Use a batch .put(list) operation here!
-		"""
-		db.put(hotelList)
-		return hotelList
-	else:
-		logging.info("put_hotels_by_destination - apparently we have results already?")
-		if hotels.get() is not None:
-			for hotel in data:
-				logging.info(hotel)
+		"""		
+		try:
+			db.put(hotelList)
+		except CapabilityDisabledError:
+			log.error("put_hotels_by_destination : CapabilityDisabledError")
+			# fail gracefully here
+			pass
+		
+	return hotelList
+
 
 def get_hotels_by_destination_and_price(destination, price, startDate, rating):
 	queryString = ""
@@ -301,7 +288,12 @@ def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 		dbPlace.types = types
 		dbPlace.radius = int(radius)
 		dbPlace.places = db.Text(places, encoding='utf-8')
-		dbPlace.put()
+		try:
+			dbPlace.put()
+		except CapabilityDisabledError:
+			log.error("put_places_by_hotellocationid_and_types : CapabilityDisabledError")
+			# fail gracefully here
+			pass
 
 """
 Save LatLng against a Hotel
@@ -319,7 +311,12 @@ def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat,
 			This only returns 1 entity, so no need for a batch .put() operation here
 			"""
 			data.latlng = db.GeoPt(lat,lng)
-			db.put(data)
+			try:
+				db.put(data)
+			except CapabilityDisabledError:
+				log.error("put_latlng_by_hotel_locationid_and_destination : CapabilityDisabledError")
+				# fail gracefully here
+				pass
 		return "true"
 	else:
 		logging.info("Hotel at locationid "+locationid+" NOT FOUND!")
@@ -643,14 +640,20 @@ class GooglePlacesHandler(webapp.RequestHandler):
 				logging.error("GooglePlacesHandler : urllib2 error") 
 				logging.error(e)
 	def post(self):		
+		logging.info("POSTing to Places request handler")
 		logging.info(self.request.POST.get("hotelname")) 
 		logging.info(self.request.POST.get("types"))
 		logging.info(self.request.POST.get("places"))
-		put_places_by_hotel_and_types(self.request.POST.get("hotelname"), self.request.POST.get("types"), self.request.POST.get("places"))
+		deferred.defer(put_places_by_hotellocationid_and_types, self.request.POST.get("hotelname"), self.request.POST.get("types"), self.request.POST.get("places"), _countdown=10)
+
 
 class GeoCodeHandler(webapp.RequestHandler):
 	def post(self):
+		logging.info("POSTing to Geocode request handler")
 		result = put_latlng_by_hotel_locationid_and_destination(self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
+		
+		#deferred.defer(put_latlng_by_hotel_locationid_and_destination, self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"),  _countdown=10)
+		
 		return result
 				
 # Tiny URL API
