@@ -90,7 +90,9 @@ tripadvisor_image_paths = {
 	'madrid':'madrid',
 	'amsterdam':'amsterdam',
 	'rome':'rome',
-	'losangeles':'los_angeles'
+	'losangeles':'los_angeles',
+	'amalfi':'amalfi',
+	'positano':'positano'
 }                   
 
 def loadConfigProperties():
@@ -520,7 +522,11 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	if ratingRaw is not None:
 		rating = True
 	startDate = startDateRaw.split('-')
-	dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+	try:
+		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+	except ValueError, e:
+		logging.error(e)
+		logging.error("AjaxAPIHandler_v3 : Invalid date values or date format")
 	startDate = dateTime       
 	
 	numberOfNightsRaw = self.request.POST.get("numberOfNights")
@@ -634,7 +640,8 @@ class GooglePlacesHandler(webapp.RequestHandler):
 				put_places_by_hotellocationid_and_types(locationid, types, jsonResponse, radius)
 				self.response.out.write(jsonResponse)
 			except urllib2.URLError, e:
-				logging.info("GooglePlacesHandler : urllib2 error") 
+				logging.error("GooglePlacesHandler : urllib2 error") 
+				logging.error(e)
 	def post(self):		
 		logging.info(self.request.POST.get("hotelname")) 
 		logging.info(self.request.POST.get("types"))
