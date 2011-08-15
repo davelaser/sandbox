@@ -27,6 +27,8 @@ Import local scripts
 """
 import datamodel    
 import configparsers
+import datastore
+import utils
 
 requestExperience = "/hotels"                  
 requestHome = "/"
@@ -104,66 +106,7 @@ tripadvisor_image_paths = {
 	'positano':'positano'
 }                   
 
-def get_hotels_by_destination(destination):
-	resultset = datamodel.DBHotel.gql("WHERE destination = '"+destination+"' ORDER BY index")# ORDER BY price")
-	return resultset
 			
-def put_hotels_by_destination(destination, data, startDate, endDate):
-	counter = 1
-	hotelList = list()
-	for hotel in data:
-		
-		if hotel['address'] is not None:
-			price = hotel['price'].replace('&#163;','')
-			price = price.replace(',','')
-			price = float(price)                                           
-			
-			dbHotel = datamodel.DBHotel(name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
-
-			if hotel['rating'] is not None:
-				ratingURL = hotel['rating']
-				ratingURL = ratingURL.split("/").pop()
-				rating = ratingURL.split('-')[1]
-				logging.info("rating is "+rating)
-				dbHotel.rating = int(rating)
-				 
-			if hotel['url'] is not None:
-				hotelLink = hotel['url']
-				hotelLinkSplit = hotelLink.split("&amp;")
-				for param in hotelLinkSplit:
-					if param.startswith("propertyIds"):        
-						propertyIdValue = param.split("=")[1]
-						
-						dbHotel.locationid = propertyIdValue.split('-',1)[0]
-						if len(dbHotel.locationid) == 3:
-							dbHotel.locationid = "000"+dbHotel.locationid
-						if len(dbHotel.locationid) == 4:
-							dbHotel.locationid = "00"+dbHotel.locationid
-						if len(dbHotel.locationid) == 5:
-							dbHotel.locationid = "0"+dbHotel.locationid
-						
-						dbHotel.propertyids = propertyIdValue
-						logging.info("dbHotel.locationid: "+dbHotel.locationid) 
-						logging.info("dbHotel.propertyids: "+dbHotel.propertyids)
-					if param.startswith("hotelRequestId"):
-						dbHotel.hotelrequestid = param.split("=")[1]
-				hotelLinkManipulated = str(hotelLink).replace('tabId=information','tabId=rooms')
-				dbHotel.productdetailsurl = hotelLinkManipulated
-			else:
-				dbHotel.locationid = destination+str(counter)
-			counter += 1
-			hotelList.append(dbHotel)
-	"""
-	Use a batch .put(list) operation here!
-	"""		
-	try:
-		db.put(hotelList)
-	except CapabilityDisabledError:
-		log.error("put_hotels_by_destination : CapabilityDisabledError")
-		# fail gracefully here
-		pass  
-		
-	return hotelList
 
 
 def get_hotels_by_destination_and_price(destination, price, startDate, rating):
@@ -285,7 +228,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			"""       
 			[ST] TODO: This might be processor intensive, so just return the result and do not put in datastore until we figure this out
 	   		"""
-			put_hotels_by_destination(destination, f, startDate, endDate)
+			datastore.put_hotels_by_destination(destination, f, startDate, endDate)
 		
 			bookingData = get_hotel_booking_form_data(destination)
 			bookingData['city'] = destination
@@ -373,27 +316,18 @@ def kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, respon
 def parseXMLLive(xmlStringContent):
 	results = [] 
 	tree = et.XML(xmlStringContent)
-	for items in all(tree, 'object'):
+	for items in utils.all(tree, 'object'):
 		i = {}
-		for item in all(items, 'attribute'):
+		for item in utils.all(items, 'attribute'):
 			text = item.text      
 			name = item.attrib.get('name')
 			i[name] = text
-		if i.has_key('Address'):
-			if i['Address'] is not None:
+		if i.has_key('address'):
+			if i['address'] is not None:
 				results.append(i)
 		else:
 			results.append(i)
 	return results
-	
-def split_path(path):
-    p = re.compile('\W+')
-    return p.split(path)
-
-def all(element, nodename):
-    path = './/%s' % nodename
-    result = element.findall(path)
-    return result
 
 class HomeHandler(webapp.RequestHandler):
     def get(self):
@@ -501,7 +435,6 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		if destination == "europe":
 			hotelsData = get_hotels_in_europe_by_price(price)		
 		else:
-			#hotelsData = get_hotels_by_destination(destination)
 		    hotelsData = get_hotels_by_destination_and_price(destination, price, startDate, rating)
 		
 		bookingData = get_hotel_booking_form_data(destination)
