@@ -589,7 +589,10 @@ RIA.MapStreetView = new Class({
 	},
 	removeHotelMarkers: function() {
 		Object.each(RIA.hotelMarkers, function(value, key) {
+			// Remove the Map marker
 			this.removeMarker(value.hotelMarker);
+			// Remove the Streetview Panorama marker
+			this.removeMarker(value.hotelMarkerSV);
 		},this);
 		
 	},
