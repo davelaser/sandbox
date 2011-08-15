@@ -137,8 +137,6 @@ RIA.GooglePlaces = new Class({
 	requestPlaces: function(locationLatLng, radiusInMeters, types, name) { 
 		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {  
 			           
-			this.setHtmlAttributions(null);
-			
 			this.requestPlacesSearch = new Request.JSON({
 				method:"GET",
 				secure:true,
@@ -165,11 +163,6 @@ RIA.GooglePlaces = new Class({
 		if(responseJSON.status == "OK" && responseJSON.results.length > 0) {
 			this.hotelCollection[this.hotelIndex].places[types] = responseJSON;
 			this.setPlacesMarkers(types); 
-			 
-			if(responseJSON.html_attributions && responseJSON.html_attributions.length > 0) {
-				this.setHtmlAttributions(responseJSON.html_attributions);
-			}
-			
 			
 		} else {
 			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}});
@@ -184,13 +177,12 @@ RIA.GooglePlaces = new Class({
 		}
 	},
 	setPlacesMarkers: function(type) {
-		// [ST] TODO: Added Places HTML Attributions here as well. We are doing this on new searches, but need to check locally stored Plces
 		Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
 			this.addPlacesMarker(place, type);
 		},this);
 		                                      
+		this.setHtmlAttributions(type);
 		
-		Log.info("Got new places so recounting")
 		this.updateLabelCount(type);
 	},
 	jsonRequestFailure: function(text, error) {
@@ -336,19 +328,21 @@ RIA.GooglePlaces = new Class({
 		}).send();
 		
 	},
-	setHtmlAttributions: function(attributions) {
+	setHtmlAttributions: function(type) {
 		// Remove any existing HTML Attributions from Google Places results
 		this.places.getElement(".attributions").empty();
-		
-		if(attributions && attributions != null) {
-			
-			Array.each(attributions, function(attribution, index){
-				this.places.getElement(".attributions").adopt(
-					new Element("p", {"html":attribution})
-				);
-				Log.info("Added Google Places HTML Attribution(s)");
-			},this);
-		}
-		
+        
+		this.places.getElements("input").each(function(place, index) {
+			if(place.checked) { 
+				if(this.hotelCollection[this.hotelIndex].places && this.hotelCollection[this.hotelIndex].places[place.get("value")]) {
+					Array.each(this.hotelCollection[this.hotelIndex].places[place.get("value")].html_attributions, function(attribution, index){
+						this.places.getElement(".attributions").adopt(
+							new Element("p", {"html":place.getNext("label").get("data-text")+" "+attribution})
+						);  
+						Log.info("Adding html attributions for "+place.get("value"));
+					},this);
+				}
+			}
+		},this);
 	}   
 });
