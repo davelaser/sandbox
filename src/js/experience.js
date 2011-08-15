@@ -420,24 +420,8 @@ RIA.Experience = new Class({
 		
 		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&viewType="+this.options.viewType+"&fb_ref=message";
 		
-		
-		document.id("bookmarks").getElement("a").set({"href":RIA.shareURL, "text":RIA.shareURL});  
-		
-		
 		this.fbDialogSend();
-		/*
-		if(show && this.bookmarks) { 
-			if(this.bookmarks.retrieve("viewstate") == "closed") {
-				   		
-				this.bookmarks.store("viewstate", "open");
-				this.bookmarks.setStyle("display","block");
-				
-			} else {
-				this.bookmarks.store("viewstate", "closed");
-				this.bookmarks.setStyle("display","none"); 
-			}
-		}
-		*/
+		
 	},
 	showPlaces: function(e) {
 		e.preventDefault();
