@@ -135,7 +135,10 @@ RIA.GooglePlaces = new Class({
 		}		
 	},
 	requestPlaces: function(locationLatLng, radiusInMeters, types, name) { 
-		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {
+		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {  
+			           
+			this.setHtmlAttributions(null);
+			
 			this.requestPlacesSearch = new Request.JSON({
 				method:"GET",
 				secure:true,
@@ -161,7 +164,13 @@ RIA.GooglePlaces = new Class({
 		
 		if(responseJSON.status == "OK" && responseJSON.results.length > 0) {
 			this.hotelCollection[this.hotelIndex].places[types] = responseJSON;
-			this.setPlacesMarkers(types);
+			this.setPlacesMarkers(types); 
+			 
+			if(responseJSON.html_attributions && responseJSON.html_attributions.length > 0) {
+				this.setHtmlAttributions(responseJSON.html_attributions);
+			}
+			
+			
 		} else {
 			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}});
 			this.updateLabelCount(types);
@@ -175,6 +184,7 @@ RIA.GooglePlaces = new Class({
 		}
 	},
 	setPlacesMarkers: function(type) {
+		// [ST] TODO: Added Places HTML Attributions here as well. We are doing this on new searches, but need to check locally stored Plces
 		Object.each(this.hotelCollection[this.hotelIndex].places[type].results, function(place) {
 			this.addPlacesMarker(place, type);
 		},this);
@@ -324,6 +334,21 @@ RIA.GooglePlaces = new Class({
 				Log.info(e)
 			}
 		}).send();
+		
+	},
+	setHtmlAttributions: function(attributions) {
+		// Remove any existing HTML Attributions from Google Places results
+		this.places.getElement(".attributions").empty();
+		
+		if(attributions && attributions != null) {
+			
+			Array.each(attributions, function(attribution, index){
+				this.places.getElement(".attributions").adopt(
+					new Element("p", {"html":attribution})
+				);
+				Log.info("Added Google Places HTML Attribution(s)");
+			},this);
+		}
 		
 	}   
 });
