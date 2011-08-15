@@ -228,7 +228,7 @@ RIA.MapStreetView = new Class({
 		*		Hotel[Element]
 		*/ 
 		// Get the Hotel address     
-		var address = hotel.get("data-address"), latLng, savedLatLng;
+		var address = hotel.get("data-address"), latLng, savedLatLng = true;
 		if(!address || address == "None") {
 			address = "No address found";			
 			return this.notGotGeolocation(hotel);
@@ -237,7 +237,11 @@ RIA.MapStreetView = new Class({
 		// If we haven't stored locally the hotel LatLng, then attempt to store it...
 		if(!hotel.retrieve("geolocation")) {
 			savedLatLng = this.saveLatLngToHotel(hotel);
-		}
+		}        
+		
+		Log.info("setStreetview : savedLatLng: "+savedLatLng);
+		Log.info("setStreetview : retrieved geolocation: "+hotel.retrieve("geolocation"));
+		
 		
 		// If we have successfully stored the LatLng against the hotel
 		if(savedLatLng) {
@@ -245,7 +249,7 @@ RIA.MapStreetView = new Class({
 		} 
 		// Else request the LatLng data from Google, using the Hotel's address
 		else { 
-			this.getGeocodeByAddress(hotel, this.gotGeolocation.bind(this));
+			this.getGeocodeByAddress(hotel, this.gotGeolocation.bind(this), "setStreetview");
 		}   	
 	},
 	gotGeolocation: function(hotel, latLng) {
@@ -281,7 +285,7 @@ RIA.MapStreetView = new Class({
         var counter = this.requestCounter + 500;
 		this.requestCounter += 500
 		if(hotel.retrieve("geolocation:error") != google.maps.GeocoderStatus.ZERO_RESULTS) {
-			this.getGeocodeByAddress.delay(this.requestCounter, this, [hotel, this.addHotelMarker.bind(this)]);
+			this.getGeocodeByAddress.delay(this.requestCounter, this, [hotel, this.addHotelMarker.bind(this), "notGotGeolocation"]);
         } else {
 			//RIA.panorama.setVisible(false);
 		}						
@@ -516,7 +520,7 @@ RIA.MapStreetView = new Class({
 			// Only attempt to get a gelocation if we haven't already tried and failed
 			if(geo == null && error != "NO_RESULTS") {
 				delay = counter+=500;              
-				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
+				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this), "setHotelMarkers"]);
 			} else {
 				//Log.info("setHotelMarkers() : retrieved gelocation for Hotel : "+hotel.get("data-name")+" : "+geo);
 				// If the hotel does not have a bookmark in place
@@ -604,7 +608,7 @@ RIA.MapStreetView = new Class({
 				geo = hotel.retrieve("geolocation");
 				if(geo == null) {  
 					delay = counter+=500;              
-					this.getGeocodeByAddress.delay(delay, this, [hotel, this.addBookmarkMarker.bind(this)]);				
+					this.getGeocodeByAddress.delay(delay, this, [hotel, this.addBookmarkMarker.bind(this), "setBookmarkMarkers"]);
 				} else { 
 					Log.info("setHotelMarker() : retrieved gelocation for Hotel");
 					this.dropBookmarkPin(hotel);
@@ -632,7 +636,7 @@ RIA.MapStreetView = new Class({
 		// Create a new Marker     
 		this.dropBookmarkPin(hotel);
 	},
-	getGeocodeByAddress: function(hotel, callback) {
+	getGeocodeByAddress: function(hotel, callback, caller) {
 		/*
 		* 	@description:
 		*		Make a Geocode Request sending an address.
@@ -640,6 +644,7 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		Address[String]
 		*/  
+		Log.info("getGeocodeByAddress - calling argument is "+caller);
 		
         var address = hotel.get("data-address");
 
