@@ -91,3 +91,66 @@ def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat,
 	else:
 		logging.info("Hotel at locationid "+locationid+" NOT FOUND!")
 		return "false"
+
+def get_hotels_by_destination_and_price(destination, price, startDate, rating):
+	logging.debug("get_hotels_by_destination_and_price : looking for hotels in "+destination)
+	queryString = ""
+	if destination is not None and len(destination) > 0:
+		queryString += "WHERE destination = '"+destination+"'"
+		if startDate is not None:              
+			queryString += " AND startdate = :1"
+		if price is not None and len(str(price)) > 0:  
+
+			if rating is not None:
+				queryString += " AND price <= "+str(price)+" ORDER BY rating DESC, price DESC, index"
+			else:
+				queryString += " AND price <= "+str(price)+" ORDER BY price, index"
+		if rating is not None and len(str(price)) == 0:
+			queryString += " ORDER BY rating DESC, price DESC, index"
+
+		if rating is None and len(str(price)) == 0:	
+			queryString += " ORDER BY index"
+	else:
+		if price is not None and len(str(price)) > 0:
+			queryString += "WHERE price <= "+str(price)+" ORDER BY price, rating, index"
+
+
+	logging.info(queryString)
+	resultset = datamodel.DBHotel.gql(queryString, startDate)
+	return resultset
+	
+
+def get_hotels_in_europe_by_price(price):
+	queryDestinationList = list()
+	queryDestinationList.append('paris')
+	queryDestinationList.append('madrid')
+	queryDestinationList.append('barcelona')
+	queryDestinationList.append('amsterdam')
+	queryDestinationList.append('rome') 
+	queryDestinationList.append('london') 
+	queryString = "WHERE destination IN :1"
+	if price is not None and len(str(price)) > 0:
+		queryString += " AND price <= "+str(price)
+	queryString += " ORDER BY price, index"
+	logging.info(queryString)
+	resultset = datamodel.DBHotel.gql(queryString, queryDestinationList)
+	return resultset
+
+def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
+	placesRequest = get_places_by_hotellocationid_types_radius(locationid, types, radius)
+	if placesRequest.get() is None:
+		dbPlace = datamodel.DBPlace()
+		dbPlace.locationid = locationid
+		dbPlace.types = types
+		dbPlace.radius = int(radius)
+		dbPlace.places = db.Text(places, encoding='utf-8')
+		try:
+			dbPlace.put()
+		except CapabilityDisabledError:
+			log.error("put_places_by_hotellocationid_and_types : CapabilityDisabledError")
+			# fail gracefully here
+			pass
+
+def get_places_by_hotellocationid_types_radius(locationid, types, radius):
+	resultset = datamodel.DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
+	return resultset

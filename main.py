@@ -50,17 +50,6 @@ feeds = {
     'yahoo'    : 'http://query.yahooapis.com/v1/public/yql?format=json&q='
 }
 
-ny_hotels_feed = 'data/xml/LM-hotels.xml'
-ny_city_breaks_feed = 'data/xml/LM-city-breaks.xml'
-ny_flights_feed = 'data/xml/lastminute.xml'
-
-ny_mashup = {
-    'name'     : 'New York',
-    'bbc'      : '101',
-    'news'     : feeds['guardian']+'travel/newyork',
-    'weather'  : feeds['yahoo']+'select * from weather.forecast where location='
-}
-#new york weather = 10118
 
 """
 This data object will be used by the Mashup Handler and Ajax Handler
@@ -107,71 +96,9 @@ tripadvisor_image_paths = {
 	'positano':'positano'
 }                   
 
-			
-
-
-def get_hotels_by_destination_and_price(destination, price, startDate, rating):
-	logging.debug("get_hotels_by_destination_and_price : looking for hotels in "+destination)
-	queryString = ""
-	if destination is not None and len(destination) > 0:
-		queryString += "WHERE destination = '"+destination+"'"
-		if startDate is not None:              
-			queryString += " AND startdate = :1"
-		if price is not None and len(str(price)) > 0:  
-			
-			if rating is not None:
-				queryString += " AND price <= "+str(price)+" ORDER BY rating DESC, price DESC, index"
-			else:
-				queryString += " AND price <= "+str(price)+" ORDER BY price, index"
-		if rating is not None and len(str(price)) == 0:
-			queryString += " ORDER BY rating DESC, price DESC, index"
-        
-		if rating is None and len(str(price)) == 0:	
-			queryString += " ORDER BY index"
-	else:
-		if price is not None and len(str(price)) > 0:
-			queryString += "WHERE price <= "+str(price)+" ORDER BY price, rating, index"
-		
-
-	logging.info(queryString)
-	resultset = datamodel.DBHotel.gql(queryString, startDate)
-	return resultset
-
-def get_hotels_in_europe_by_price(price):
-	queryDestinationList = list()
-	queryDestinationList.append('paris')
-	queryDestinationList.append('madrid')
-	queryDestinationList.append('barcelona')
-	queryDestinationList.append('amsterdam')
-	queryDestinationList.append('rome') 
-	queryDestinationList.append('london') 
-	queryString = "WHERE destination IN :1"
-	if price is not None and len(str(price)) > 0:
-		queryString += " AND price <= "+str(price)
-	queryString += " ORDER BY price, index"
-	logging.info(queryString)
-	resultset = datamodel.DBHotel.gql(queryString, queryDestinationList)
-	return resultset
+	
 
 	
-def get_places_by_hotellocationid_types_radius(locationid, types, radius):
-	resultset = datamodel.DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
-	return resultset
-	
-def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
-	placesRequest = get_places_by_hotellocationid_types_radius(locationid, types, radius)
-	if placesRequest.get() is None:
-		dbPlace = datamodel.DBPlace()
-		dbPlace.locationid = locationid
-		dbPlace.types = types
-		dbPlace.radius = int(radius)
-		dbPlace.places = db.Text(places, encoding='utf-8')
-		try:
-			dbPlace.put()
-		except CapabilityDisabledError:
-			log.error("put_places_by_hotellocationid_and_types : CapabilityDisabledError")
-			# fail gracefully here
-			pass
 
 """
 Get Hotel Booking Form Data
@@ -211,7 +138,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			if hotel_booking_dest_names.has_key(destination):
 				bookingData['dest'] = hotel_booking_dest_names[destination]
 		
-			hotelsData = get_hotels_by_destination_and_price(destination, price, startDate, None)
+			hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, None)
 		
 			if hotelsData.get() is not None:
 				logging.info("Retrieving from datastore")
@@ -406,9 +333,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:		
 		if destination == "europe":
-			hotelsData = get_hotels_in_europe_by_price(price)		
+			hotelsData = datastore.get_hotels_in_europe_by_price(price)		
 		else:
-		    hotelsData = get_hotels_by_destination_and_price(destination, price, startDate, rating)
+		    hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, rating)
 		
 		bookingData = get_hotel_booking_form_data(destination)
 		bookingData['city'] = destination
@@ -439,72 +366,12 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
    	
 	return True
 
-class GooglePlacesHandler(webapp.RequestHandler):
-	def get(self):
-		"""
-		Get the config properties
-		"""
-		config_properties = configparsers.loadConfigProperties()
-		
-		placesURL = "https://maps.googleapis.com/maps/api/place/search/json?%s"
-		
-		types = self.request.get('types')
-		radius = self.request.get('radius')
-		
-		urlArgs = dict()
-		urlArgs['location'] = self.request.get('location')
-		urlArgs['radius'] = radius
-		urlArgs['types'] = types
-		urlArgs['name'] = self.request.get('name')
-		urlArgs['key'] = config_properties.get('Google', 'places_api_key')
-		urlArgs['sensor'] = config_properties.get('Google', 'places_sensor')
-		
-		urlAgrsEncoded = urllib.urlencode(urlArgs)
-		
-		locationid = self.request.get('locationid')
-		
-		placesData = get_places_by_hotellocationid_types_radius(locationid, types, radius)
-		if placesData.get() is not None:
-			logging.info("Retrieving PLACES from datastore")
-			jsonResponse = None
-			for data in placesData:				
-				jsonResponse = data.places
-			self.response.out.write(jsonResponse)
-		else:
-			logging.info("REQUESTING PLACES from Google")   	
-			try:
-				result = urllib.urlopen(placesURL % urlAgrsEncoded)
-				jsonResponse = result.read()
-				put_places_by_hotellocationid_and_types(locationid, types, jsonResponse, radius)
-				self.response.out.write(jsonResponse)
-			except urllib2.URLError, e:
-				logging.error("GooglePlacesHandler : urllib2 error") 
-				logging.error(e)
-	def post(self):		
-		logging.info("POSTing to Places request handler")
-		logging.info(self.request.POST.get("hotelname")) 
-		logging.info(self.request.POST.get("types"))
-		logging.info(self.request.POST.get("places"))
-		deferred.defer(put_places_by_hotellocationid_and_types, self.request.POST.get("hotelname"), self.request.POST.get("types"), self.request.POST.get("places"), _countdown=10)
-
-"""
-class GeoCodeHandler(webapp.RequestHandler):
-	def post(self):
-		logging.info("POSTing to Geocode request handler")
-		result = put_latlng_by_hotel_locationid_and_destination(self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
-		
-		#deferred.defer(put_latlng_by_hotel_locationid_and_destination, self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"),  _countdown=10)
-		
-		return result
-"""				
-# Tiny URL API
-#http://tinyurl.com/api-create.php?url=http://scripting.com/ 		
 
 application = webapp.WSGIApplication([
 		(requestExperience, ExperienceHandler),
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
-		(requestGooglePlaces, GooglePlacesHandler),
+		(requestGooglePlaces, handlers.GooglePlacesHandler),
 		(requestGeoCode, handlers.GeoCodeHandler),
 		(requestDestination, ExperienceHandler)		
     ],debug=True)
