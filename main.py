@@ -9,10 +9,10 @@ import xml.etree.ElementTree as et
 import xml.dom.minidom as md
 import urllib
 import urllib2
-import datetime 
+import datetime
+ 
 from google.appengine.api import urlfetch
 from django.utils import simplejson as json
-from ConfigParser import ConfigParser
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -21,6 +21,12 @@ from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import deferred
+
+"""
+Import local scripts
+"""
+import datamodel    
+import configparsers
 
 requestExperience = "/hotels"                  
 requestHome = "/"
@@ -98,56 +104,8 @@ tripadvisor_image_paths = {
 	'positano':'positano'
 }                   
 
-def loadConfigProperties():
-	configProperties = memcache.get("config.properties")
-	if configProperties is not None:
-		#logging.info("Got configProperties from memcache")
-		return configProperties
-	else:
-		#logging.info("NOT Got configProperties from memcache")
-		configPropertyLocation = "properties/config.properties"
-		configProperties = ConfigParser()
-		configProperties.read(configPropertyLocation)
-		memcache.add("config.properties", configProperties)
-		return configProperties	   
-
-class DBCityDestination(db.Model):
-	timestamp = db.DateTimeProperty(auto_now_add=True)
-	name = db.StringProperty(required=True)
-	hotels = db.ListProperty(str, required=True)
-	
-
-"""
-Save Hotel data
-"""
-class DBHotel(db.Model):
-	timestamp = db.DateTimeProperty(auto_now_add=True)
-	locationid = db.StringProperty()
-	propertyids = db.StringProperty()
-	name = db.StringProperty(required=True)
-	price = db.FloatProperty(required=True)
-	startdate = db.DateTimeProperty()
-	enddate = db.DateTimeProperty()
-	address = db.PostalAddressProperty(required=True)
-	phone = db.PhoneNumberProperty()
-	category = db.CategoryProperty()
-	latlng = db.GeoPtProperty()
-	index = db.IntegerProperty(required=True)
-	destination = db.StringProperty(required=True)
-	thumbnailurl = db.StringProperty()
-	mainimageurl = db.StringProperty()
-	photo1url = db.StringProperty()
-	photo2url = db.StringProperty()
-	photo3url = db.StringProperty()
-	photo4url = db.StringProperty()
-	reviewurl = db.TextProperty()
-	bookingurl = db.TextProperty()
-	productdetailsurl = db.TextProperty()
-	rating = db.IntegerProperty()
-	hotelrequestid = db.StringProperty()
-	
 def get_hotels_by_destination(destination):
-	resultset = DBHotel.gql("WHERE destination = '"+destination+"' ORDER BY index")# ORDER BY price")
+	resultset = datamodel.DBHotel.gql("WHERE destination = '"+destination+"' ORDER BY index")# ORDER BY price")
 	return resultset
 			
 def put_hotels_by_destination(destination, data, startDate, endDate):
@@ -160,7 +118,7 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 			price = price.replace(',','')
 			price = float(price)                                           
 			
-			dbHotel = DBHotel(name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
+			dbHotel = datamodel.DBHotel(name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
 
 			if hotel['rating'] is not None:
 				ratingURL = hotel['rating']
@@ -232,7 +190,7 @@ def get_hotels_by_destination_and_price(destination, price, startDate, rating):
 		
 
 	logging.info(queryString)
-	resultset = DBHotel.gql(queryString, startDate)
+	resultset = datamodel.DBHotel.gql(queryString, startDate)
 	return resultset
 
 def get_hotels_in_europe_by_price(price):
@@ -248,27 +206,18 @@ def get_hotels_in_europe_by_price(price):
 		queryString += " AND price <= "+str(price)
 	queryString += " ORDER BY price, index"
 	logging.info(queryString)
-	resultset = DBHotel.gql(queryString, queryDestinationList)
+	resultset = datamodel.DBHotel.gql(queryString, queryDestinationList)
 	return resultset
 
 	
-"""
-Save Places data by hotel and types
-"""
-class DBPlace(db.Model):
-	locationid = db.StringProperty()
-	types = db.StringProperty()
-	places = db.TextProperty()
-	radius = db.IntegerProperty()
-	
 def get_places_by_hotellocationid_types_radius(locationid, types, radius):
-	resultset = DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
+	resultset = datamodel.DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
 	return resultset
 	
 def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 	placesRequest = get_places_by_hotellocationid_types_radius(locationid, types, radius)
 	if placesRequest.get() is None:
-		dbPlace = DBPlace()
+		dbPlace = datamodel.DBPlace()
 		dbPlace.locationid = locationid
 		dbPlace.types = types
 		dbPlace.radius = int(radius)
@@ -284,7 +233,7 @@ def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 Save LatLng against a Hotel
 """                        
 def get_hotel_by_locationid_and_destination(locationid, destination):
-	resultset = DBHotel.gql("WHERE locationid = '"+locationid+"' AND destination = '"+destination+"'")
+	resultset = datamodel.DBHotel.gql("WHERE locationid = '"+locationid+"' AND destination = '"+destination+"'")
 	return resultset                                  
 	
 def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng):
@@ -316,7 +265,7 @@ def get_hotel_booking_form_data(destination):
 	"""
 	Get the config properties
 	"""
-	config_properties = loadConfigProperties()
+	config_properties = configparsers.loadConfigProperties()
 	
 	bookingData = dict()
 	configItems = config_properties.items('HotelBookingForm')
@@ -381,7 +330,7 @@ def get_hotels(destination, startDate, endDate):
 	"""
 	Get the config properties
 	"""
-	config_properties = loadConfigProperties()
+	config_properties = configparsers.loadConfigProperties()
 	
 	hotelsURL = config_properties.get('Hotels', 'hotels_service_v4_url')
 	hotelsArgs = dict()
@@ -456,7 +405,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		"""
 		Get the config properties
 		"""
-		config_properties = loadConfigProperties()
+		config_properties = configparsers.loadConfigProperties()
 		widescreen = 'true'
 		viewType = self.request.get("viewType")
 		
@@ -496,7 +445,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	"""
 	Get the config properties
 	"""
-	config_properties = loadConfigProperties()
+	config_properties = configparsers.loadConfigProperties()
 	
 	destination = self.request.POST.get("destination")
 	startDateRaw = self.request.POST.get("startDate")
@@ -589,7 +538,7 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		"""
 		Get the config properties
 		"""
-		config_properties = loadConfigProperties()
+		config_properties = configparsers.loadConfigProperties()
 		
 		placesURL = "https://maps.googleapis.com/maps/api/place/search/json?%s"
 		

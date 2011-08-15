@@ -1,0 +1,33 @@
+from google.appengine.ext import db
+
+class DBHotel(db.Model):
+	timestamp = db.DateTimeProperty(auto_now_add=True)
+	locationid = db.StringProperty()
+	propertyids = db.StringProperty()
+	name = db.StringProperty(required=True)
+	price = db.FloatProperty(required=True)
+	startdate = db.DateTimeProperty()
+	enddate = db.DateTimeProperty()
+	address = db.PostalAddressProperty(required=True)
+	phone = db.PhoneNumberProperty()
+	category = db.CategoryProperty()
+	latlng = db.GeoPtProperty()
+	index = db.IntegerProperty(required=True)
+	destination = db.StringProperty(required=True)
+	thumbnailurl = db.StringProperty()
+	mainimageurl = db.StringProperty()
+	photo1url = db.StringProperty()
+	photo2url = db.StringProperty()
+	photo3url = db.StringProperty()
+	photo4url = db.StringProperty()
+	reviewurl = db.TextProperty()
+	bookingurl = db.TextProperty()
+	productdetailsurl = db.TextProperty()
+	rating = db.IntegerProperty()
+	hotelrequestid = db.StringProperty()
+
+class DBPlace(db.Model):
+	locationid = db.StringProperty()
+	types = db.StringProperty()
+	places = db.TextProperty()
+	radius = db.IntegerProperty()
