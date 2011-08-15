@@ -647,7 +647,6 @@ RIA.MapStreetView = new Class({
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
 				                        
-				// [ST]TODO: Check why this is firing even when we have stored hotels in the datastore
 				this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
 				
 				// Store the LatLng against the Hotel Element
@@ -664,9 +663,6 @@ RIA.MapStreetView = new Class({
 				hotel.store("geolocation:error", status);
 				this.notGotGeolocation(hotel);
 			}                      
-			
-			// null local variables
-			address = null;
 		}.bind(this));
 		
 	},
