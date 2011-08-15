@@ -165,7 +165,7 @@ RIA.GooglePlaces = new Class({
 			this.setPlacesMarkers(types); 
 			
 		} else {
-			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"JSON Response error"}});
+			Log.error({method:"RIA.GooglePlaces : jsonRequestSuccess", error:{message:"bad status or no results"}});
 			this.updateLabelCount(types);
 		}
 	}, 
