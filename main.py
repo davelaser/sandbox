@@ -29,6 +29,7 @@ import datamodel
 import configparsers
 import datastore
 import utils
+import handlers
 
 requestExperience = "/hotels"                  
 requestHome = "/"
@@ -171,34 +172,6 @@ def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 			log.error("put_places_by_hotellocationid_and_types : CapabilityDisabledError")
 			# fail gracefully here
 			pass
-
-"""
-Save LatLng against a Hotel
-"""                        
-def get_hotel_by_locationid_and_destination(locationid, destination):
-	resultset = datamodel.DBHotel.gql("WHERE locationid = '"+locationid+"' AND destination = '"+destination+"'")
-	return resultset                                  
-	
-def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng):
-	hotelRequest = get_hotel_by_locationid_and_destination(locationid, destination)   
-	if hotelRequest.get() is not None: 
-		logging.info("Found NEW hotel locationid "+locationid+" now assigning latlng")
-		for data in hotelRequest:
-			"""
-			This only returns 1 entity, so no need for a batch .put() operation here
-			"""
-			data.latlng = db.GeoPt(lat,lng)
-			try:
-				db.put(data)
-			except CapabilityDisabledError:
-				log.error("put_latlng_by_hotel_locationid_and_destination : CapabilityDisabledError")
-				# fail gracefully here
-				pass
-		return "true"
-	else:
-		logging.info("Hotel at locationid "+locationid+" NOT FOUND!")
-		return "false"
-
 
 """
 Get Hotel Booking Form Data
@@ -514,7 +487,7 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		logging.info(self.request.POST.get("places"))
 		deferred.defer(put_places_by_hotellocationid_and_types, self.request.POST.get("hotelname"), self.request.POST.get("types"), self.request.POST.get("places"), _countdown=10)
 
-
+"""
 class GeoCodeHandler(webapp.RequestHandler):
 	def post(self):
 		logging.info("POSTing to Geocode request handler")
@@ -523,7 +496,7 @@ class GeoCodeHandler(webapp.RequestHandler):
 		#deferred.defer(put_latlng_by_hotel_locationid_and_destination, self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"),  _countdown=10)
 		
 		return result
-				
+"""				
 # Tiny URL API
 #http://tinyurl.com/api-create.php?url=http://scripting.com/ 		
 
@@ -532,7 +505,7 @@ application = webapp.WSGIApplication([
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, GooglePlacesHandler),
-		(requestGeoCode, GeoCodeHandler),
+		(requestGeoCode, handlers.GeoCodeHandler),
 		(requestDestination, ExperienceHandler)		
     ],debug=True)
 

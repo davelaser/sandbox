@@ -63,3 +63,31 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 		pass  
 		
 	return hotelList
+
+
+"""
+Save LatLng against a Hotel
+"""                        
+def get_hotel_by_locationid_and_destination(locationid, destination):
+	resultset = datamodel.DBHotel.gql("WHERE locationid = '"+locationid+"' AND destination = '"+destination+"'")
+	return resultset
+		
+def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng):
+	hotelRequest = get_hotel_by_locationid_and_destination(locationid, destination)   
+	if hotelRequest.get() is not None: 
+		logging.info("Found NEW hotel locationid "+locationid+" now assigning latlng")
+		for data in hotelRequest:
+			"""
+			This only returns 1 entity, so no need for a batch .put() operation here
+			"""
+			data.latlng = db.GeoPt(lat,lng)
+			try:
+				db.put(data)
+			except CapabilityDisabledError:
+				log.error("put_latlng_by_hotel_locationid_and_destination : CapabilityDisabledError")
+				# fail gracefully here
+				pass
+		return "true"
+	else:
+		logging.info("Hotel at locationid "+locationid+" NOT FOUND!")
+		return "false"
