@@ -5,7 +5,8 @@ RIA.MapStreetView = new Class({
 		geolocation:null, 
 		bookmarks:null,
 		maptype:"panorama",
-		spectrum:["00FF00", "FFFF00", "FF0000"]
+		spectrum:["00FF00", "FFFF00", "FF0000"],
+		panoramaServiceRadius:50
 	},
 	mapInitialize: function() {
 		
@@ -227,25 +228,20 @@ RIA.MapStreetView = new Class({
 		*		Hotel[Element]
 		*/ 
 		// Get the Hotel address     
-		var address = hotel.get("data-address"), latLng;
+		var address = hotel.get("data-address"), latLng, savedLatLng;
 		if(!address || address == "None") {
 			address = "No address found";			
 			return this.notGotGeolocation(hotel);
 		}                       
-		
-		//this.setMapZoom(13);
-		
-		
-		if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
-			dataLatLng = hotel.get("data-latlng").split(",");
-			latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
-			Log.info("setStreetview() : got latLng from hotel attribute");
-			hotel.store("geolocation", latLng); 
+		                                                
+		// If we haven't stored locally the hotel LatLng, then attempt to store it...
+		if(!hotel.retrieve("geolocation")) {
+			savedLatLng = this.saveLatLngToHotel(hotel);
 		}
-		// Check to see if we have already requested the LatLng data from Google and stored it against the Hotel
-		if(hotel.retrieve("geolocation")) {
+		
+		// If we have successfully stored the LatLng against the hotel
+		if(savedLatLng) {
 			this.gotGeolocation(hotel, hotel.retrieve("geolocation"));
-			Log.info("Retrieved geolocation for hotel");
 		} 
 		// Else request the LatLng data from Google, using the Hotel's address
 		else { 
@@ -359,10 +355,10 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		latLng[Object(LatLng)]
 		*/ 
-		// Check whether Streetview Panorama data exists for this LatLng, within a 150 metre radius (argument #2 below) 
-		Log.info("setPanoramaPosition("+latLng+")");
+		// Check whether Streetview Panorama data exists for this LatLng, within a predefined metre radius (argument #2 below) 
+		var heading;
 		
-		RIA.sv.getPanoramaByLocation(latLng, 50, function(svData, svStatus) {  
+		RIA.sv.getPanoramaByLocation(latLng, this.options.panoramaServiceRadius, function(svData, svStatus) {  
             // If Streetview Panorama data exists...
 			if (svStatus == google.maps.StreetViewStatus.OK) {
 				if(!RIA.panorama.getVisible()) RIA.panorama.setVisible(true);
@@ -371,7 +367,7 @@ RIA.MapStreetView = new Class({
 				// Set the Point Of View of the Panorama to match the 'current heading' data returned. Set pitch and zoom to zero, so that we are horizontal and zoomed out
 				
 				// Now calculate the heading using the Panorama LatLng to the Hotel's LatLng (visually, the Marker)
-				var heading = this.getHeading(svData.location.latLng, latLng);
+				heading = this.getHeading(svData.location.latLng, latLng);
 				
 				// Set the Panorama heading, pitch and zoom 
 				RIA.panorama.setPov({
@@ -413,6 +409,8 @@ RIA.MapStreetView = new Class({
 				// If the Hotel Marker instance has a hotelMarker MapMarker Object, then remove it
 				if(RIA.hotelMarkers[LMLocationId].hotelMarker != null) {    
 					this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarker);
+				} 
+				if(RIA.hotelMarkers[LMLocationId].hotelMarkerSV != null) {    
 					this.removeMarker(RIA.hotelMarkers[LMLocationId].hotelMarkerSV); 
 				}
 			}  
@@ -456,7 +454,7 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	createInfoWindow: function(hotel, marker) {
-		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), marker, infowindow;
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), infowindow;
 		// Create a new InfoWindow, for the Marker
 		         
 		var ytPlayer = "<object id=\"yt-player\" width=\"425\" height=\"349\"><param name=\"movie\" value=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\"/><param name=\"allowFullScreen\" value=\"true\"/><param name=\"allowscriptaccess\" value=\"always\"/><embed src=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\" type=\"application/x-shockwave-flash\" width=\"425\" height=\"349\" allowscriptaccess=\"always\" allowfullscreen=\"true\"/></object>";
@@ -504,16 +502,12 @@ RIA.MapStreetView = new Class({
 		*/ 
 		
 		this.createHotelMarkerColors();
-		
-		//Log.info(RIA.hotelMarkers)
-		 
-		var counter = 500, delay, geo, latLng, dataLatLng;
+		var counter = 500, delay, geo, latLng, dataLatLng, savedLatLng;
 		hotels.each(function(hotel, index) {
-			
-			if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
-				dataLatLng = hotel.get("data-latlng").split(",");
-				latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
-				hotel.store("geolocation", latLng); 
+			                                    
+			// If we haven't stored locally the hotel LatLng, then attempt to store it...
+			if(!hotel.retrieve("geolocation")) {
+				savedLatLng = this.saveLatLngToHotel(hotel);
 			}
 			
 			geo = hotel.retrieve("geolocation");
@@ -593,6 +587,8 @@ RIA.MapStreetView = new Class({
 			this.removeMarker(value.hotelMarker);
 			// Remove the Streetview Panorama marker
 			this.removeMarker(value.hotelMarkerSV);
+			// Remove any bookmarks
+			this.removeMarker(value.bookmark);
 		},this);
 		
 	},
@@ -696,16 +692,6 @@ RIA.MapStreetView = new Class({
 	setCurrentLocation: function(latLng) {
 		RIA.currentLocation = latLng;
 	},
-	showMyBookmarks: function() {
-		/*
-		* 	@description:
-		*		Remove all Hotel Markers and just show Bookmark Markers
-		*	@arguments:
-		*		
-		*/
-		this.removeHotelMarkers();
-		this.addBookmarkMarkers();
-	},
 	getHeading: function(latLng1, latLng2) {
 		var path = [latLng1, latLng2], heading = google.maps.geometry.spherical.computeHeading(path[0], path[1]);
 	    return heading;
@@ -759,5 +745,16 @@ RIA.MapStreetView = new Class({
 				Log.info("storeGeocodeByHotel : onFailure");
 			}
 		}).send();
+	},
+	saveLatLngToHotel: function(hotel) {
+		if(hotel.get("data-latlng") && hotel.get("data-latlng") != "None") {
+			dataLatLng = hotel.get("data-latlng").split(",");
+			latLng = new google.maps.LatLng(dataLatLng[0], dataLatLng[1]);
+			hotel.store("geolocation", latLng);
+			Log.info("Successfully saved LatLng against hotel");
+			return true;
+		} else {
+			return false;
+		}		
 	}
 });

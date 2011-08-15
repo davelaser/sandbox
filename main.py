@@ -343,6 +343,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 		if result.status_code == 200:
 			logging.info("RPC response SUCCESS code: 200")
 			f = parseXMLLive(result.content.replace('|', ''))
+			logging.info(f)
 			"""       
 			[ST] TODO: This might be processor intensive, so just return the result and do not keep in datastore until we figure this out
 	   		"""
@@ -365,13 +366,13 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 					hotel.bookingData = bookingData
 					hotelsList.append(hotel)
 				global_mashup['hotels'] = hotelsList
+				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
+				response.out.write(template.render(path, global_mashup))
 			else:
-				logging.info("handle_result_ajax_v3 - hotelsData is None") 
-				for hotel in hotelsData:
-					logging.info(hotel)
-				
-			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
-			response.out.write(template.render(path, global_mashup))                                
+				logging.info("handle_result_ajax_v3 - hotelsData is None or we have no results") 
+				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+				response.out.write(template.render(path, global_mashup))
+			                                
 			#logging.info("Still working after response")
 		elif result.status_code == 400:
 			logging.info("RPC response ERROR code: 400")
