@@ -363,7 +363,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	If the Destination provided matches a nice display name we have stored locally, then use this.
 	WARNING: Otherwise the Destination will be set to whatever the User provided!
 	"""
-	"""
+
 	if destination_display_names.has_key(destination):
 		global_mashup['name'] = destination_display_names[destination]
 		
@@ -379,40 +379,22 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:
-		#[ST]TODO: Store datastore gets into memcache and check there first. This is less CPU expensive than getting from the datastore each time	
 		if destination == "europe":
 			hotelsData = datastore.get_hotels_in_europe_by_price(price)		
 		else:
 		    hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, rating)
-		
-		bookingData = get_hotel_booking_form_data(destination)
-		bookingData['city'] = destination
-		bookingData['checkindate'] = startDate.date().isoformat()
-		bookingData['checkoutdate'] = endDate.date().isoformat()
-		
-		if hotel_booking_dest_names.has_key(destination):
-			bookingData['dest'] = hotel_booking_dest_names[destination]
+
 						
 		if hotelsData.get() is not None:
-			logging.info("Retrieving from datastore")
-			hotelsList = list()
-			for hotel in hotelsData:
-				hotel.bookingData = bookingData
-				hotelsList.append(hotel)
-
-			replaced = memcache.replace(destination,hotelsList)
-			
-			if replaced is False:
-				memcache.add(destination,hotelsList)     
-				
+			logging.info("AjaxAPIHandler_v3() : Retrieving Hotels from datastore for destination "+destination)
+			hotelsList = hotelsData.fetch(25)
 			global_mashup['hotels'] = hotelsList
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
 			self.response.out.write(template.render(path, global_mashup))
 		else:
 			logging.info("NOT Got hotels from datastore")
 			mashup = kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, self.response)
-   	"""
-	mashup = kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, self.response)
+
 	endAjaxRequestQuota = quota.get_request_cpu_usage()
 	logging.info("AjaxAPIHandler_v3() : POST : cost %d megacycles." % (endAjaxRequestQuota - startAjaxRequestQuota))
 	return True
