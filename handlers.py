@@ -12,16 +12,6 @@ Import local scripts
 import datastore
 import configparsers
 
-class GeoCodeHandler(webapp.RequestHandler):
-	def post(self):
-		logging.info("POSTing to Geocode request handler")
-		#result = datastore.put_latlng_by_hotel_locationid_and_destination(self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
-		
-		#deferred.defer(put_latlng_by_hotel_locationid_and_destination, self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"),  _countdown=10)
-		
-		#return result
-		
-		return
 		
 class GooglePlacesHandler(webapp.RequestHandler):
 	def get(self):
@@ -79,7 +69,7 @@ class GeocodeStoreTaskHandler(webapp.RequestHandler):
 		lat = self.request.get("lat")
 		lng = self.request.get("lng")
 	    # Add the task to the queue.
-		taskqueue.add(url='/geocodeworker', params={'locationid':locationid, 'destination':destination, 'lat':lat, 'lng':lng})
+		taskqueue.add(queue_name='geocodequeue', url='/geocodeworker', params={'locationid':locationid, 'destination':destination, 'lat':lat, 'lng':lng})
 
 class GeocodeStoreTaskWorker(webapp.RequestHandler):
     def post(self):
@@ -92,7 +82,7 @@ class HotelStoreTaskHandler(webapp.RequestHandler):
 		startDate = self.request.get("startDate")
 		endDate = self.request.get("endDate")
 		# Add the task to the queue.
-		taskqueue.add(url='/hotelsworker', params={'destination':destination, 'data':data, 'startDate':startDate, 'endDate':endDate})
+		taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':data, 'startDate':startDate, 'endDate':endDate})
 
 class HotelStoreTaskWorker(webapp.RequestHandler):
     def post(self):

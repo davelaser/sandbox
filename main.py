@@ -180,38 +180,18 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 					counter += 1
 					hotelList.append(hotelDict)
 			
-					
+			# [ST] WARNING: With this execution we cannot filter by price on the first search of a destion, startdate and enddate		
 			global_mashup['hotels'] = hotelList		
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			response.out.write(template.render(path, global_mashup))
 			
 			# After sending the response, add the datastore write to the taskqueue
-			# WARNING: db.put(list) batch dtastore writes are extremely expensive on CPU/s. Consider a taskqueue that writes 1 hotel at a time
+			# [ST] WARNING: db.put(list) batch dtastore writes are extremely expensive on CPU/s. Use a taskqueue that writes 1 hotel at a time
 			logging.info("handle_result_ajax_v3 : after response, handing hotel datastore write to taskqueue")
 			
 			for hotel in hotelList:
-				taskqueue.add(url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel), 'startDate':startDate, 'endDate':endDate})
-			
-
-			
-			"""
-			#[ST] TODO: This might be processor intensive, so just return the result and do not put in datastore until we figure this out
-	   		datastore.put_hotels_by_destination(destination, f, startDate, endDate)
-			hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, None)
-		
-			if hotelsData.get() is not None:
-				logging.info("handle_result_ajax_v3() : Retrieving from datastore")
-				#[ST] NOTE: We are using .fetch(limit=n) here because this returns a list() result. This does mean we have to specify the maximum amounht of results (currently limit=50)
-				global_mashup['hotels'] = hotelsData.fetch(50)
-				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
-				response.out.write(template.render(path, global_mashup))
-			else:
-				logging.info("handle_result_ajax_v3 : hotelsData is None or we have no results") 
-				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
-				response.out.write(template.render(path, global_mashup))
-			                                
-			#logging.info("Still working after response")
-			"""
+				taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel), 'startDate':startDate, 'endDate':endDate})
+            
 			
 		elif result.status_code == 400:
 			logging.info("RPC response ERROR code: 400")
