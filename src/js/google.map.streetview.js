@@ -510,9 +510,9 @@ RIA.MapStreetView = new Class({
 			
 			geo = hotel.retrieve("geolocation");
 			error = hotel.retrieve("geolocation:error");
-			
+
 			// Only attempt to get a gelocation if we haven't already tried and failed
-			if(geo == null && error != "NO_RESULTS") {
+			if((geo == null || geo == "None") && error != "NO_RESULTS") {
 				delay = counter+=500;              
 				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
 			} else {

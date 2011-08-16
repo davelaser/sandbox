@@ -126,7 +126,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 	try:
 		result = rpc.get_result()
 		if result.status_code == 200:
-			logging.info("RPC response SUCCESS code: 200")
+			logging.info("handle_result_ajax_v3() : RPC response SUCCESS code: 200")
 			f = parseXMLLive(result.content.replace('|', ''))
 			
 			"""       
@@ -145,7 +145,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, None)
 		
 			if hotelsData.get() is not None:
-				logging.info("Retrieving from datastore")
+				logging.info("handle_result_ajax_v3() : Retrieving from datastore")
 				hotelsList = list()
 				for hotel in hotelsData:
 					hotel.bookingData = bookingData
@@ -154,7 +154,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 				response.out.write(template.render(path, global_mashup))
 			else:
-				logging.info("handle_result_ajax_v3 - hotelsData is None or we have no results") 
+				logging.info("handle_result_ajax_v3 : hotelsData is None or we have no results") 
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 				response.out.write(template.render(path, global_mashup))
 			                                
@@ -326,6 +326,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	If the Destination provided matches a nice display name we have stored locally, then use this.
 	WARNING: Otherwise the Destination will be set to whatever the User provided!
 	"""
+	"""
 	if destination_display_names.has_key(destination):
 		global_mashup['name'] = destination_display_names[destination]
 		
@@ -341,14 +342,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:
-		"""
-		[ST]TODO: Store datastore gets into memcache and check there first. This is less CPU expensive than getting from the datastore each time
-		Need to check how to store in memcache by:
-		- destination
-		- startDate
-		- endDate
-		- numberOfRooms
-		"""		
+		#[ST]TODO: Store datastore gets into memcache and check there first. This is less CPU expensive than getting from the datastore each time	
 		if destination == "europe":
 			hotelsData = datastore.get_hotels_in_europe_by_price(price)		
 		else:
@@ -380,7 +374,8 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		else:
 			logging.info("NOT Got hotels from datastore")
 			mashup = kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, self.response)
-   	
+   	"""
+	mashup = kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, self.response)
 	endAjaxRequestQuota = quota.get_request_cpu_usage()
 	logging.info("AjaxAPIHandler_v3() : POST : cost %d megacycles." % (endAjaxRequestQuota - startAjaxRequestQuota))
 	return True
