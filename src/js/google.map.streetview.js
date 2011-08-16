@@ -648,7 +648,7 @@ RIA.MapStreetView = new Class({
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
 				                        
-				this.storeGeocodeByHotel(hotel.get("data-locationid"), latLng);
+				this.storeGeocodeByHotel(hotel, results[0]);
 				
 				// Store the LatLng against the Hotel Element
 				hotel.store("geolocation", latLng);
@@ -726,12 +726,21 @@ RIA.MapStreetView = new Class({
 			}
 		}		
 	},
-	storeGeocodeByHotel: function(hotelLocationid, latLng) {
+	storeGeocodeByHotel: function(hotel, geocodeResults) {
+		var latLng = geocodeResults.geometry.location, hotelLocationid = hotel.get("data-locationid"), countrycode = "", countryname = "";
+		
+		// Extract Country code and country name
+		Array.each(geocodeResults.address_components, function(addressComponent) {
+			if(addressComponent.types && addressComponent.types.length > 0 && addressComponent.types.contains("country")) {
+				countrycode = addressComponent.short_name||"";
+				countryname = addressComponent.long_name||"";
+			}
+		},this);
 		
 		this.requestGeocodePost = new Request({
 			method:"POST",
 			url:this.options.geocodeURL,
-			data:'locationid='+hotelLocationid+'&destination='+RIA.currentDestination+'&lat='+latLng.lat()+'&lng='+latLng.lng(),
+			data:'locationid='+hotelLocationid+'&destination='+RIA.currentDestination+'&lat='+latLng.lat()+'&lng='+latLng.lng()+"&countrycode="+countrycode+"&countryname="+countryname,
 			onRequest: function(e) {
 				//Log.info("storeGeocodeByHotel : onRequest");
 			},
