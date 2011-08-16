@@ -457,8 +457,6 @@ RIA.MapStreetView = new Class({
 		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), infowindow;
 		// Create a new InfoWindow, for the Marker
 		         
-		var ytPlayer = "<object id=\"yt-player\" width=\"425\" height=\"349\"><param name=\"movie\" value=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\"/><param name=\"allowFullScreen\" value=\"true\"/><param name=\"allowscriptaccess\" value=\"always\"/><embed src=\"http://www.youtube.com/v/-hyZL4YLmXA?version=3&amp;hl=en_US\" type=\"application/x-shockwave-flash\" width=\"425\" height=\"349\" allowscriptaccess=\"always\" allowfullscreen=\"true\"/></object>";
-
 		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" height=\"75\" width\"100\" /><p>"+price+"</p>";
 		
 		infowindow = new google.maps.InfoWindow({
@@ -581,16 +579,19 @@ RIA.MapStreetView = new Class({
 			Log.info("Do we already have a hotelMarker or a bookmark for "+hotel.get("data-name")+" ?");
 		}	
 	},
-	removeHotelMarkers: function() {
+	removeAllMarkers: function() {
 		Object.each(RIA.hotelMarkers, function(value, key) {
 			// Remove the Map marker
 			this.removeMarker(value.hotelMarker);
 			// Remove the Streetview Panorama marker
 			this.removeMarker(value.hotelMarkerSV);
-			// Remove any bookmarks
-			this.removeMarker(value.bookmark);
 		},this);
 		
+		Object.each(RIA.bookmarks, function(value, key) {
+			// Remove any bookmarks
+			this.removeMarker(value.bookmark); 			
+			this.removeMarker(value.bookmarkSV); 
+		},this);
 	},
 	removeMarker: function(marker) {
 		if(marker) {
@@ -606,7 +607,7 @@ RIA.MapStreetView = new Class({
 					delay = counter+=500;              
 					this.getGeocodeByAddress.delay(delay, this, [hotel, this.addBookmarkMarker.bind(this)]);
 				} else { 
-					Log.info("setHotelMarker() : retrieved gelocation for Hotel");
+					Log.info("setBookmarkMarkers() : retrieved gelocation for Hotel");
 					this.dropBookmarkPin(hotel);
 				}
 				

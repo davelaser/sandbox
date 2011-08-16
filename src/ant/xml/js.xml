@@ -32,6 +32,7 @@
 				files="
 				namespace.js,
 				log.js,
+				utils.js,
 				gradient.js,
 				google.places.js,
 				google.map.streetview.js,

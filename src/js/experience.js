@@ -1,5 +1,5 @@
 RIA.Experience = new Class({
-	Implements:[Options, RIA.MapStreetView, RIA.GooglePlaces],
+	Implements:[Options, RIA.Utils, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
 		contenttype:"maximized"
 	},
@@ -9,16 +9,13 @@ RIA.Experience = new Class({
 		RIA.places = new Object();
 		
 		this._form = document.id("search");
-		this.bookmarks = document.id("bookmarks");
-		if(this.bookmarks) this.bookmarks.store("viewstate", "closed");
 		
 		this.toggleContent = document.id("toggle-content"); 
 		this.togglePlaces = document.id("toggle-places");
 		
 		this.content = document.id("content");
-		this.sections = document.getElements("section");
 		this.destination = document.id("destination");
-		this.destination.store("styles:width:orig", this.destination.getStyle("width").toInt());
+		
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
 		this.twitterNews = document.id("twitter-news");
@@ -33,7 +30,6 @@ RIA.Experience = new Class({
 		
 		this.filters = document.id("filters");
 		
-		this.travelPartners = document.id("travel-partners");
 		this.hotels = document.id("hotels"); 
 		this.hotelsNav = document.id("hotel-list");
 		           
@@ -80,10 +76,6 @@ RIA.Experience = new Class({
 			});			
 		}
                                             
-		document.getElements(".less").addEvents({
-			"click":this.toggleInformation.bind(this) 
-		});
-        
 		if(this.toggleContent) {
 			this.toggleContent.addEvents({
 				"click":this.toggleInformation.bind(this) 
@@ -168,14 +160,7 @@ RIA.Experience = new Class({
 		this.hotelNavigationBind = this.hotelNavigation.bind(this)
 		
 		this.dropBookmarkPinBind = this.dropBookmarkPin.bind(this);
-		/*
-		document.getElements(".drop-pin").each(function(dropPinButton) {
-			dropPinButton.addEvents({
-				"click":this.dropBookmarkPinBind.pass([dropPinButton.getParent(".hotel")], this)
-			});
-		},this);
-		*/ 
-		
+
 		this.save.addEvents({
 			"click":this.dropBookmarkPinBind
 		});
@@ -195,15 +180,7 @@ RIA.Experience = new Class({
 				"click":this.hotelNavigationBind 
 			});
 		},this);
-		
-		/*
-		document.getElements(".drop-pin").each(function(dropPinButton) {
-			dropPinButton.removeEvents({
-				"click":this.dropBookmarkPinBind
-			});
-		},this);
-		*/
-		
+
 		this.save.removeEvents({
 			"click":this.dropBookmarkPinBind
 		});
@@ -292,7 +269,7 @@ RIA.Experience = new Class({
 	},
 	getHotels: function() {
 		if(this.hotelsNav) this.hotelsNav.empty();
-		this.removeHotelMarkers(); 
+		this.removeAllMarkers(); 
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").empty();
 		this.hotels.getElement(".results").setStyles({"width":"100%", "margin-left":"0px"});
@@ -437,28 +414,21 @@ RIA.Experience = new Class({
 	sortByRatingEvent: function(e) {
 		try { 
 			Log.info("sortByRatingEvent");
-			/*
-			this.getHotels();
-			
-			
 			Log.info("sortByRatingEvent");
 			if(e) e.preventDefault();
 		    
-			if(e.target.get("value") == "high") {
-				this.hotelCollection = this.hotelCollection.sort(this.sortByRatingHighLow.bind(this));
-
-				this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
+			if(e.target.get("value") == "high") {  
+				this.hotelCollection = this.hotelCollection.sort(this.sortHighLow.bind(this));
 			} else if(e.target.get("value") == "low") {
-				this.hotelCollection = this.hotelCollection.sort(this.sortByRatingLowHigh.bind(this));
-
-				this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
+				this.hotelCollection = this.hotelCollection.sort(this.sortLowHigh.bind(this));
 			}  
-			
+			/*  
+			this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
 			this.hotels.getElement(".results").empty();
 			this.hotelCollection.inject(this.hotels.getElement(".results"));
 			this.gotHotels(RIA.currentDestination);
 			*/
-			
+			/*
 			this.requestHotelsByRating = new Request.HTML({
 				method:"POST",
 				url:"/ajax",
@@ -468,8 +438,8 @@ RIA.Experience = new Class({
 				onRequest: RIA.InitAjaxSubmit.requestStart.pass([this.hotels]),
 				onSuccess: RIA.InitAjaxSubmit.requestSuccess.pass([this.hotels, RIA.currentDestination]),
 				onFailure: RIA.InitAjaxSubmit.requestFailure
-			}).send()	;
-			
+			}).send();
+			*/
 		} catch(e) {
 			Log.error({method:"sortByRatingEvent()", error:e});
 		}
