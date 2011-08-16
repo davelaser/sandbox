@@ -41,7 +41,7 @@ requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
 requestGeoCodeWorker = "/geocodeworker"
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 #logging.info(memcache.get_stats())
 
 # DELETE ALL HOTELS
@@ -393,7 +393,6 @@ application = webapp.WSGIApplication([
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, handlers.GooglePlacesHandler),
-		#(requestGeoCode, handlers.GeoCodeHandler),
 		(requestDestination, ExperienceHandler)		
     ],debug=True)
 
