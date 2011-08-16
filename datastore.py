@@ -1,4 +1,6 @@
 import logging
+import datetime
+from django.utils import simplejson as json
 from google.appengine.ext import db
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 from google.appengine.api import quota
@@ -7,6 +9,7 @@ Import local sripts
 """
 import datamodel
 
+""" ORIGINAL:
 def put_hotels_by_destination(destination, data, startDate, endDate):
 	counter = 1
 	hotelList = list()
@@ -51,9 +54,6 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 				dbHotel.locationid = destination+str(counter)
 			counter += 1
 			hotelList.append(dbHotel)
-	"""
-	Use a batch .put(list) operation here!
-	"""
 	try:
 		db.put(hotelList)
 	except CapabilityDisabledError:
@@ -62,8 +62,46 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 		pass  
 
 	return hotelList
+"""
+def put_hotels_by_destination(destination, data, startDate, endDate):  
+	try:         
+		logging.info("put_hotels_by_destination()")
+		hotel = json.loads(data)
+		dbHotel = datamodel.DBHotel()
+		dbHotel.locationid = hotel['locationid']
+		dbHotel.propertyids = hotel['propertyids']
+		dbHotel.name = hotel['name']
+		dbHotel.price = hotel['price']
 
+		rawDate = hotel['startdate'].split('-') 
+		dateTime = None
+		try:
+			dateTime = datetime.datetime(int(rawDate[0]), int(rawDate[1]), int(rawDate[2]))
+		except ValueError, e:
+			logging.error("put_hotels_by_destination : invalid startdate")
+		dbHotel.startdate = dateTime
+		rawDate = hotel['enddate'].split('-')
+		dateTime = None
+		try:
+			dateTime = datetime.datetime(int(rawDate[0]), int(rawDate[1]), int(rawDate[2]))
+		except ValueError, e:
+			logging.error("put_hotels_by_destination : invalid enddate")
+		dbHotel.enddate = dateTime
+		dbHotel.address = hotel['address']
+		dbHotel.index = int(hotel['index'])
+		dbHotel.destination = hotel['destination']
+		dbHotel.productdetailsurl = hotel['productdetailsurl']
+		dbHotel.rating = int(hotel['rating'])
+		dbHotel.hotelrequestid = hotel['hotelrequestid']
+		
 
+		db.put(dbHotel)
+	except CapabilityDisabledError:
+		log.error("put_hotels_by_destination : CapabilityDisabledError, data may not have been saved for "+destination)
+		# fail gracefully here
+		pass
+	
+	
 """
 Save LatLng against a Hotel
 """                        

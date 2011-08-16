@@ -14,6 +14,11 @@ builtins:
 handlers:
 - url: /static
   static_dir: static
-    
+- url: /geocodeworker
+  script: main.py
+  login: admin
+- url: /hotelsworker
+  script: main.py
+  login: admin
 - url: /.*
   script: main.py

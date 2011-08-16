@@ -85,3 +85,15 @@ class GeocodeStoreTaskWorker(webapp.RequestHandler):
     def post(self):
         result = datastore.put_latlng_by_hotel_locationid_and_destination(self.request.get("locationid"), self.request.get("destination"), self.request.get("lat"), self.request.get("lng"))
         
+class HotelStoreTaskHandler(webapp.RequestHandler):
+    def post(self):
+		destination = self.request.get("destination")
+		data = self.request.get("data")
+		startDate = self.request.get("startDate")
+		endDate = self.request.get("endDate")
+		# Add the task to the queue.
+		taskqueue.add(url='/hotelsworker', params={'destination':destination, 'data':data, 'startDate':startDate, 'endDate':endDate})
+
+class HotelStoreTaskWorker(webapp.RequestHandler):
+    def post(self):
+        result = datastore.put_hotels_by_destination(self.request.get("destination"), self.request.get("data"), self.request.get("startDate"), self.request.get("endDate"))

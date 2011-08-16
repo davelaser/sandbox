@@ -40,6 +40,7 @@ requestAjaxAPI = "/ajax"
 requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
 requestGeoCodeWorker = "/geocodeworker"
+requestHotelsWorker = "/hotelsworker"
 # TODO: remove the memcache flush
 #memcache.flush_all()
 #logging.info(memcache.get_stats())
@@ -111,17 +112,96 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 		if result.status_code == 200:
 			logging.info("handle_result_ajax_v3() : RPC response SUCCESS code: 200")
 			f = parseXMLLive(result.content.replace('|', ''))
-			"""       
-			[ST] TODO: This might be processor intensive, so just return the result and do not put in datastore until we figure this out
-	   		"""
-			datastore.put_hotels_by_destination(destination, f, startDate, endDate)
+			
+			
+			counter = 1
+			hotelList = list()
+			for hotel in f:				
+				if hotel['address'] is not None:
+					hotelDict = dict()
+					price = hotel['price'].replace('&#163;','')
+					price = price.replace(',','')
+					price = float(price)                                           
+
+					#dbHotel = datamodel.DBHotel(name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
+					hotelDict['name'] = hotel['name']
+					hotelDict['startdate'] = startDate.date().isoformat()
+					hotelDict['enddate'] = endDate.date().isoformat()
+					hotelDict['price'] = price
+					hotelDict['address'] = hotel['address']
+					hotelDict['destination'] = destination
+					hotelDict['index'] = counter
+					
+					if hotel['rating'] is not None:
+						ratingURL = hotel['rating']
+						ratingURL = ratingURL.split("/").pop()
+						rating = ratingURL.split('-')[1]
+						#dbHotel.rating = int(rating)
+						hotelDict['rating'] = rating
+
+					if hotel['url'] is not None:
+						hotelLink = hotel['url']
+						hotelLinkSplit = hotelLink.split("&amp;")
+						for param in hotelLinkSplit:
+							if param.startswith("propertyIds"):        
+								propertyIdValue = param.split("=")[1]
+                                
+								"""
+								dbHotel.locationid = propertyIdValue.split('-',1)[0]
+								if len(dbHotel.locationid) == 3:
+									dbHotel.locationid = "000"+dbHotel.locationid
+								if len(dbHotel.locationid) == 4:
+									dbHotel.locationid = "00"+dbHotel.locationid
+								if len(dbHotel.locationid) == 5:
+									dbHotel.locationid = "0"+dbHotel.locationid
+                                """
+								hotelDict['locationid'] = propertyIdValue.split('-',1)[0]
+								if len(hotelDict['locationid']) == 3:
+									hotelDict['locationid'] = "000"+hotelDict['locationid']
+								if len(hotelDict['locationid']) == 4:
+									hotelDict['locationid'] = "00"+hotelDict['locationid']
+								if len(hotelDict['locationid']) == 5:
+									hotelDict['locationid'] = "0"+hotelDict['locationid']
+									
+								#dbHotel.propertyids = propertyIdValue
+								
+								hotelDict['propertyids'] = propertyIdValue
+								
+							if param.startswith("hotelRequestId"):
+								#dbHotel.hotelrequestid = param.split("=")[1]
+								hotelDict['hotelrequestid'] = param.split("=")[1]
+								
+						hotelLinkManipulated = str(hotelLink).replace('tabId=information','tabId=rooms')
+						#dbHotel.productdetailsurl = hotelLinkManipulated
+						hotelDict['productdetailsurl'] = hotelLinkManipulated
+					else:
+						#dbHotel.locationid = destination+str(counter)
+						hotelDict['locationid'] = destination+str(counter)
+					counter += 1
+					hotelList.append(hotelDict)
+			
+					
+			global_mashup['hotels'] = hotelList		
+			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
+			response.out.write(template.render(path, global_mashup))
+			
+			# After sending the response, add the datastore write to the taskqueue
+			# WARNING: db.put(list) batch dtastore writes are extremely expensive on CPU/s. Consider a taskqueue that writes 1 hotel at a time
+			logging.info("handle_result_ajax_v3 : after response, handing hotel datastore write to taskqueue")
+			
+			for hotel in hotelList:
+				taskqueue.add(url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel), 'startDate':startDate, 'endDate':endDate})
+			
+
+			
+			"""
+			#[ST] TODO: This might be processor intensive, so just return the result and do not put in datastore until we figure this out
+	   		datastore.put_hotels_by_destination(destination, f, startDate, endDate)
 			hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, None)
 		
 			if hotelsData.get() is not None:
 				logging.info("handle_result_ajax_v3() : Retrieving from datastore")
-				"""
-				[ST] NOTE: We are using .fetch(limit=n) here because this returns a list() result. This does mean we have to specify the maximum amounht of results (currently limit=50)
-				"""
+				#[ST] NOTE: We are using .fetch(limit=n) here because this returns a list() result. This does mean we have to specify the maximum amounht of results (currently limit=50)
 				global_mashup['hotels'] = hotelsData.fetch(50)
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 				response.out.write(template.render(path, global_mashup))
@@ -131,6 +211,8 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 				response.out.write(template.render(path, global_mashup))
 			                                
 			#logging.info("Still working after response")
+			"""
+			
 		elif result.status_code == 400:
 			logging.info("RPC response ERROR code: 400")
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
@@ -359,6 +441,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 application = webapp.WSGIApplication([         
 		(requestGeoCode, handlers.GeocodeStoreTaskHandler),
         (requestGeoCodeWorker, handlers.GeocodeStoreTaskWorker),
+		(requestHotelsWorker, handlers.HotelStoreTaskWorker),
 		(requestExperience, ExperienceHandler),
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),

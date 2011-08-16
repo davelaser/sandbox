@@ -4,7 +4,15 @@ queue:
   rate: 5/s
   bucket_size: 5
   retry_parameters:
-      task_retry_limit: 5
+      task_retry_limit: 1
       task_age_limit: 1m
       min_backoff_seconds: 1
       max_backoff_seconds: 5
+- name: hotelsworker
+  rate: 1/m
+  bucket_size: 5
+  retry_parameters:
+      task_retry_limit: 1
+      task_age_limit: 1m
+      min_backoff_seconds: 2
+      max_backoff_seconds: 10
