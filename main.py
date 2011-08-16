@@ -12,6 +12,7 @@ import urllib2
 import datetime
  
 from google.appengine.api import urlfetch
+from google.appengine.api import quota
 from django.utils import simplejson as json
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -38,9 +39,9 @@ requestDestination = r"/(.*)"
 requestAjaxAPI = "/ajax"
 requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
-
+requestGeoCodeWorker = "/geocodeworker"
 # TODO: remove the memcache flush
-#memcache.flush_all()
+memcache.flush_all()
 #logging.info(memcache.get_stats())
 
 # DELETE ALL HOTELS
@@ -281,6 +282,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	self.response.error = 500
 	return True
   def post(self):
+	
+	startAjaxRequestQuota = quota.get_request_cpu_usage()
+	
 	"""
 	Get the config properties
 	"""
@@ -336,7 +340,15 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		get_guardian(destination)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
 		self.response.out.write(template.render(path, global_mashup))		   	
-	else:		
+	else:
+		"""
+		[ST]TODO: Store datastore gets into memcache and check there first. This is less CPU expensive than getting from the datastore each time
+		Need to check how to store in memcache by:
+		- destination
+		- startDate
+		- endDate
+		- numberOfRooms
+		"""		
 		if destination == "europe":
 			hotelsData = datastore.get_hotels_in_europe_by_price(price)		
 		else:
@@ -369,15 +381,19 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			logging.info("NOT Got hotels from datastore")
 			mashup = kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, self.response)
    	
+	endAjaxRequestQuota = quota.get_request_cpu_usage()
+	logging.info("AjaxAPIHandler_v3() : POST : cost %d megacycles." % (endAjaxRequestQuota - startAjaxRequestQuota))
 	return True
 
 
-application = webapp.WSGIApplication([
+application = webapp.WSGIApplication([         
+		(requestGeoCode, handlers.GeocodeStoreTaskHandler),
+        (requestGeoCodeWorker, handlers.GeocodeStoreTaskWorker),
 		(requestExperience, ExperienceHandler),
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, handlers.GooglePlacesHandler),
-		(requestGeoCode, handlers.GeoCodeHandler),
+		#(requestGeoCode, handlers.GeoCodeHandler),
 		(requestDestination, ExperienceHandler)		
     ],debug=True)
 

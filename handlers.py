@@ -3,6 +3,7 @@ import urllib2
 import logging
 from google.appengine.ext import webapp
 from google.appengine.ext import deferred
+from google.appengine.api import taskqueue
 
 """
 Import local scripts
@@ -14,11 +15,13 @@ import configparsers
 class GeoCodeHandler(webapp.RequestHandler):
 	def post(self):
 		logging.info("POSTing to Geocode request handler")
-		result = datastore.put_latlng_by_hotel_locationid_and_destination(self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
+		#result = datastore.put_latlng_by_hotel_locationid_and_destination(self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"))
 		
 		#deferred.defer(put_latlng_by_hotel_locationid_and_destination, self.request.POST.get("locationid"), self.request.POST.get("destination"), self.request.POST.get("lat"), self.request.POST.get("lng"),  _countdown=10)
 		
-		return result
+		#return result
+		
+		return
 		
 class GooglePlacesHandler(webapp.RequestHandler):
 	def get(self):
@@ -67,3 +70,18 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		logging.info(self.request.POST.get("types"))
 		logging.info(self.request.POST.get("places"))
 		deferred.defer(put_places_by_hotellocationid_and_types, self.request.POST.get("hotelname"), self.request.POST.get("types"), self.request.POST.get("places"), _countdown=10)
+
+
+class GeocodeStoreTaskHandler(webapp.RequestHandler):
+    def post(self):
+		locationid = self.request.get("locationid")
+		destination = self.request.get("destination")
+		lat = self.request.get("lat")
+		lng = self.request.get("lng")
+	    # Add the task to the queue.
+		taskqueue.add(url='/geocodeworker', params={'locationid':locationid, 'destination':destination, 'lat':lat, 'lng':lng})
+
+class GeocodeStoreTaskWorker(webapp.RequestHandler):
+    def post(self):
+        result = datastore.put_latlng_by_hotel_locationid_and_destination(self.request.get("locationid"), self.request.get("destination"), self.request.get("lat"), self.request.get("lng"))
+        

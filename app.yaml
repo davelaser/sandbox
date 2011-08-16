@@ -9,6 +9,7 @@ default_expiration: "10d"
 
 builtins:
 - deferred: on
+- datastore_admin: on
 
 handlers:
 - url: /static
