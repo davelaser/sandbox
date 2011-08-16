@@ -1,7 +1,7 @@
 import logging
 from google.appengine.ext import db
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
-
+from google.appengine.api import quota
 """
 Import local sripts
 """
@@ -11,7 +11,6 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 	counter = 1
 	hotelList = list()
 	for hotel in data:
-		
 		if hotel['address'] is not None:
 			price = hotel['price'].replace('&#163;','')
 			price = price.replace(',','')
@@ -54,14 +53,14 @@ def put_hotels_by_destination(destination, data, startDate, endDate):
 			hotelList.append(dbHotel)
 	"""
 	Use a batch .put(list) operation here!
-	"""		
+	"""
 	try:
 		db.put(hotelList)
 	except CapabilityDisabledError:
 		log.error("put_hotels_by_destination : CapabilityDisabledError")
 		# fail gracefully here
 		pass  
-		
+
 	return hotelList
 
 
@@ -93,7 +92,6 @@ def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat,
 		return "false"
 
 def get_hotels_by_destination_and_price(destination, price, startDate, rating):
-	logging.debug("get_hotels_by_destination_and_price : looking for hotels in "+destination)
 	queryString = ""
 	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"

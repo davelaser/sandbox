@@ -100,57 +100,29 @@ tripadvisor_image_paths = {
 	'positano':'positano'
 }                   
 
-	
 
-	
-
-"""
-Get Hotel Booking Form Data
-"""		
-
-def get_hotel_booking_form_data(destination):
-	"""
-	Get the config properties
-	"""
-	config_properties = configparsers.loadConfigProperties()
-	
-	bookingData = dict()
-	configItems = config_properties.items('HotelBookingForm')
-	for item in configItems:
-		bookingData[item[0]] = item[1]
-	return bookingData
 	
 		
 """ Use with Live Kapow Service - Handle an RPC result instance, for Flights """
 def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response):
+	starthandle_result_ajax_v3 = quota.get_request_cpu_usage()
 	try:
 		result = rpc.get_result()
 		if result.status_code == 200:
 			logging.info("handle_result_ajax_v3() : RPC response SUCCESS code: 200")
 			f = parseXMLLive(result.content.replace('|', ''))
-			
 			"""       
 			[ST] TODO: This might be processor intensive, so just return the result and do not put in datastore until we figure this out
 	   		"""
 			datastore.put_hotels_by_destination(destination, f, startDate, endDate)
-		
-			bookingData = get_hotel_booking_form_data(destination)
-			bookingData['city'] = destination
-			bookingData['checkindate'] = startDate.isoformat()
-			bookingData['checkoutdate'] = endDate.isoformat()
-					
-			if hotel_booking_dest_names.has_key(destination):
-				bookingData['dest'] = hotel_booking_dest_names[destination]
-		
 			hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, None)
 		
 			if hotelsData.get() is not None:
 				logging.info("handle_result_ajax_v3() : Retrieving from datastore")
-				hotelsList = list()
-				for hotel in hotelsData:
-					hotel.bookingData = bookingData
-					hotelsList.append(hotel)
-				global_mashup['hotels'] = hotelsList
+				"""
+				[ST] NOTE: We are using .fetch(limit=n) here because this returns a list() result. This does mean we have to specify the maximum amounht of results (currently limit=50)
+				"""
+				global_mashup['hotels'] = hotelsData.fetch(50)
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 				response.out.write(template.render(path, global_mashup))
 			else:
@@ -204,6 +176,7 @@ def get_guardian(destination):
 
 """ Use with Live Kapow Service - Asynchronous mutliple RPC Requests """
 def kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, response):
+	startkapowAPILiveRPC_v3 = quota.get_request_cpu_usage()
 	url = None
 	if info_type == "flights":
 		url = get_flights(destination)
@@ -215,6 +188,8 @@ def kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, respon
 	rpc.callback = create_callback_ajax_v3(rpc, destination, price, startDate, endDate, response)
 	urlfetch.make_fetch_call(rpc, url, "GET")
 	rpc.wait()
+	endkapowAPILiveRPC_v3 = quota.get_request_cpu_usage()
+	logging.info("kapowAPILiveRPC_v3() : cost %d megacycles." % (endkapowAPILiveRPC_v3 - startkapowAPILiveRPC_v3))
 
 """ Use with Live Kapow Service """
 def parseXMLLive(xmlStringContent):
