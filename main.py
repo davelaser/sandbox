@@ -41,6 +41,8 @@ requestGooglePlaces = "/places"
 requestGeoCode = "/geocode"
 requestGeoCodeWorker = "/geocodeworker"
 requestHotelsWorker = "/hotelsworker"
+requestHotelsPriceWorker = "/hotelspriceworker"
+
 # TODO: remove the memcache flush
 #memcache.flush_all()
 #logging.info(memcache.get_stats())
@@ -123,8 +125,8 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 					price = price.replace(',','')
 					price = float(price)                                           
 
-					#dbHotel = datamodel.DBHotel(name = hotel['name'], startdate = startDate, enddate = endDate, price = price, address = hotel['address'], destination = destination, index = counter)
 					hotelDict['name'] = hotel['name']
+					# [ST]TODO: Move price, startdate and enddate to LMHotelPriceAndDate db.Model
 					hotelDict['startdate'] = startDate.date().isoformat()
 					hotelDict['enddate'] = endDate.date().isoformat()
 					hotelDict['price'] = price
@@ -133,28 +135,17 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 					hotelDict['index'] = counter
 					
 					if hotel['rating'] is not None:
-						ratingURL = hotel['rating']
-						ratingURL = ratingURL.split("/").pop()
-						rating = ratingURL.split('-')[1]
-						#dbHotel.rating = int(rating)
+						rating = hotel['rating']
+						rating = rating.split("/").pop()
+						rating = rating.split('-')[1]
 						hotelDict['rating'] = rating
 
 					if hotel['url'] is not None:
 						hotelLink = hotel['url']
-						hotelLinkSplit = hotelLink.split("&amp;")
-						for param in hotelLinkSplit:
+						hotelLinkArray = hotelLink.split("&amp;")
+						for param in hotelLinkArray:
 							if param.startswith("propertyIds"):        
 								propertyIdValue = param.split("=")[1]
-                                
-								"""
-								dbHotel.locationid = propertyIdValue.split('-',1)[0]
-								if len(dbHotel.locationid) == 3:
-									dbHotel.locationid = "000"+dbHotel.locationid
-								if len(dbHotel.locationid) == 4:
-									dbHotel.locationid = "00"+dbHotel.locationid
-								if len(dbHotel.locationid) == 5:
-									dbHotel.locationid = "0"+dbHotel.locationid
-                                """
 								hotelDict['locationid'] = propertyIdValue.split('-',1)[0]
 								if len(hotelDict['locationid']) == 3:
 									hotelDict['locationid'] = "000"+hotelDict['locationid']
@@ -163,19 +154,13 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 								if len(hotelDict['locationid']) == 5:
 									hotelDict['locationid'] = "0"+hotelDict['locationid']
 									
-								#dbHotel.propertyids = propertyIdValue
-								
 								hotelDict['propertyids'] = propertyIdValue
 								
 							if param.startswith("hotelRequestId"):
-								#dbHotel.hotelrequestid = param.split("=")[1]
 								hotelDict['hotelrequestid'] = param.split("=")[1]
 								
-						hotelLinkManipulated = str(hotelLink).replace('tabId=information','tabId=rooms')
-						#dbHotel.productdetailsurl = hotelLinkManipulated
-						hotelDict['productdetailsurl'] = hotelLinkManipulated
+						hotelDict['productdetailsurl'] = str(hotelLink).replace('tabId=information','tabId=rooms')
 					else:
-						#dbHotel.locationid = destination+str(counter)
 						hotelDict['locationid'] = destination+str(counter)
 					counter += 1
 					hotelList.append(hotelDict)
@@ -190,7 +175,8 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			logging.info("handle_result_ajax_v3 : after response, handing hotel datastore write to taskqueue")
 			
 			for hotel in hotelList:
-				taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel), 'startDate':startDate, 'endDate':endDate})
+				taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel)})
+				taskqueue.add(queue_name='hotelspricequeue', url='/hotelspriceworker', params={'destination':destination, 'locationid':hotel['locationid'], 'price':hotel['price'], 'startDate':hotel['startdate'], 'endDate':hotel['enddate']})
             
 			
 		elif result.status_code == 400:
@@ -207,7 +193,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 def create_callback_ajax_v3(rpc, destination, price, startDate, endDate, response):
 	return lambda: handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)		
 
-def get_hotels(destination, startDate, endDate):
+def get_hotels_request_url(destination, startDate, endDate):
 	"""
 	Get the config properties
 	"""
@@ -243,7 +229,7 @@ def kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, respon
 	if info_type == "flights":
 		url = get_flights(destination)
 	if info_type == "hotels":
-	    url = get_hotels(destination, startDate, endDate)
+	    url = get_hotels_request_url(destination, startDate, endDate)
 	if info_type == "city-break":
 	    url = get_citybreak(destination)
 	rpc = urlfetch.create_rpc(100)
@@ -381,14 +367,13 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	else:
 		if destination == "europe":
 			hotelsData = datastore.get_hotels_in_europe_by_price(price)		
-		else:
-		    hotelsData = datastore.get_hotels_by_destination_and_price(destination, price, startDate, rating)
-
-						
-		if hotelsData.get() is not None:
+		else:                                                                                       
+			# [ST]TODO: Reinstate arguments: rating
+		    hotelsData = datastore.get_hotels(destination, price, startDate, endDate, None)
+			
+		if hotelsData is not None:
 			logging.info("AjaxAPIHandler_v3() : Retrieving Hotels from datastore for destination "+destination)
-			hotelsList = hotelsData.fetch(25)
-			global_mashup['hotels'] = hotelsList
+			global_mashup['hotels'] = hotelsData
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
 			self.response.out.write(template.render(path, global_mashup))
 		else:
@@ -404,6 +389,7 @@ application = webapp.WSGIApplication([
 		(requestGeoCode, handlers.GeocodeStoreTaskHandler),
         (requestGeoCodeWorker, handlers.GeocodeStoreTaskWorker),
 		(requestHotelsWorker, handlers.HotelStoreTaskWorker),
+		(requestHotelsPriceWorker, handlers.HotelPriceStoreTaskWorker),
 		(requestExperience, ExperienceHandler),
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),

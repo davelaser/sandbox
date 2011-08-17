@@ -7,7 +7,7 @@
 		<input id="arrival_date" type="text" value="{{ startDate|default:'2011-09-05' }}" />
 		{% comment %}<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />{% endcomment %}
 		<label for="priceMax">for less than &#163;</label>
-		<input id="priceMax" type="text" value="{{ price }}" />
+		<input id="priceMax" type="text" value="{{ price|floatformat:0 }}" />
 		<button id="submit-search" type="submit" class="button">SEARCH</button>   		
 	</fieldset>
 	<fieldset id="search-options">

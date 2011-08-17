@@ -68,22 +68,32 @@ class GeocodeStoreTaskHandler(webapp.RequestHandler):
 		destination = self.request.get("destination")
 		lat = self.request.get("lat")
 		lng = self.request.get("lng")
+		countryname = self.request.get("countryname")
+		countrycode = self.request.get("countrycode")
 	    # Add the task to the queue.
-		taskqueue.add(queue_name='geocodequeue', url='/geocodeworker', params={'locationid':locationid, 'destination':destination, 'lat':lat, 'lng':lng})
+		taskqueue.add(queue_name='geocodequeue', url='/geocodeworker', params={'locationid':locationid, 'destination':destination, 'lat':lat, 'lng':lng, 'countryname':countryname, 'countrycode':countrycode})
 
 class GeocodeStoreTaskWorker(webapp.RequestHandler):
     def post(self):
-        result = datastore.put_latlng_by_hotel_locationid_and_destination(self.request.get("locationid"), self.request.get("destination"), self.request.get("lat"), self.request.get("lng"))
+		locationid = self.request.get("locationid")
+		destination = self.request.get("destination")
+		lat = self.request.get("lat")
+		lng = self.request.get("lng")
+		countryname = self.request.get("countryname")
+		countrycode = self.request.get("countrycode")
+		datastore.put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng, countryname, countrycode)
         
 class HotelStoreTaskHandler(webapp.RequestHandler):
     def post(self):
 		destination = self.request.get("destination")
 		data = self.request.get("data")
-		startDate = self.request.get("startDate")
-		endDate = self.request.get("endDate")
 		# Add the task to the queue.
-		taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':data, 'startDate':startDate, 'endDate':endDate})
+		taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':data})
 
 class HotelStoreTaskWorker(webapp.RequestHandler):
     def post(self):
-        result = datastore.put_hotels_by_destination(self.request.get("destination"), self.request.get("data"), self.request.get("startDate"), self.request.get("endDate"))
+        result = datastore.put_hotels_by_destination(self.request.get("destination"), self.request.get("data"))
+
+class HotelPriceStoreTaskWorker(webapp.RequestHandler):
+    def post(self):
+        result = datastore.put_hotel_by_price(self.request.get("destination"), self.request.get("locationid"), self.request.get("price"), self.request.get("startDate"), self.request.get("endDate"))
