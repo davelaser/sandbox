@@ -20,6 +20,7 @@ def ean_get_hotel_list_url(arrivalDate, departureDate, city):
 	requestXML = "<HotelListRequest><arrivalDate>"+arrivalDateFormatted+"</arrivalDate><departureDate>"+departureDateFormatted+"</departureDate><RoomGroup><Room><numberOfAdults>2</numberOfAdults></Room></RoomGroup><city>"+city+"</city><numberOfResults>25</numberOfResults></HotelListRequest>"
 
 	urlArgs = dict()
+	urlArgs['cid'] = config_properties.get('EAN', 'cid')
 	urlArgs['apiKey'] = config_properties.get('EAN', 'api_key')
 	urlArgs['locale'] = config_properties.get('EAN', 'locale')
 	urlArgs['currencyCode'] = config_properties.get('EAN', 'currency_code')
@@ -33,3 +34,23 @@ def all(element, nodename):
     path = './/%s' % nodename
     result = element.findall(path)
     return result
+
+ 
+"""
+This data object will be used by the Mashup Handler and Ajax Handler
+"""
+destination_display_names = {
+	'newyork':'New York',
+	'paris':'Paris',
+	'edinburgh':'Edinburgh',
+	'amsterdam':'Amsterdam',
+	'madrid':'Madrid',
+	'barcelona':'Barcelona',
+	'miami':'Miami',
+	'london':'London',
+	'nice':'Nice',
+	'tokyo':'Tokyo',
+	'rome':'Rome',
+	'milan':'Milan',
+	'sorrento':'Sorrento'
+}

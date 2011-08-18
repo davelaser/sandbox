@@ -65,24 +65,7 @@ This data object will be used by the Mashup Handler and Ajax Handler
 """
 global_mashup = {}
 
-"""
-This data object will be used by the Mashup Handler and Ajax Handler
-"""
-destination_display_names = {
-	'newyork':'New York',
-	'paris':'Paris',
-	'edinburgh':'Edinburgh',
-	'amsterdam':'Amsterdam',
-	'madrid':'Madrid',
-	'barcelona':'Barcelona',
-	'miami':'Miami',
-	'london':'London',
-	'nice':'Nice',
-	'tokyo':'Tokyo',
-	'rome':'Rome',
-	'milan':'Milan',
-	'sorrento':'Sorrento'
-}
+
 
 hotel_booking_dest_names = {
 	'newyork':'NYC',
@@ -297,8 +280,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		bookmarks = self.request.get("bookmarks").split(',')
 		maptype = self.request.get("maptype") 
 		contenttype = self.request.get("contenttype")
-		if destination_display_names.has_key(destination):
-			destinationDisplayName = destination_display_names[destination]
+		if utils.destination_display_names.has_key(destination):
+			destinationDisplayName = utils.destination_display_names[destination]
 		
 		if tripadvisor_image_paths.has_key(destination):
 			tripAdvisorDestination = tripadvisor_image_paths[destination]
@@ -363,8 +346,8 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	WARNING: Otherwise the Destination will be set to whatever the User provided!
 	"""
 
-	if destination_display_names.has_key(destination):
-		global_mashup['name'] = destination_display_names[destination]
+	if utils.destination_display_names.has_key(destination):
+		global_mashup['name'] = utils.destination_display_names[destination]
 		
    	if tripadvisor_image_paths.has_key(destination):
 		global_mashup['tripAdvisorDestination'] = tripadvisor_image_paths[destination]

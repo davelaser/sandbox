@@ -135,13 +135,24 @@ class EANHotelRequest(webapp.RequestHandler):
 			logging.error(e)
 		
 		jsonLoadResponse = json.loads(response)	
-		#logging.info(response)
+
+		result = None
+		global_mashup = {}
+		global_mashup['name'] = city
+		if utils.destination_display_names.has_key(city):
+			global_mashup['name'] = utils.destination_display_names[city]
+
+		if jsonLoadResponse['HotelListResponse'] is not None:
+			if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
+				if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
+					result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
 		
-		global_mashup = {}	                 
-		result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
-		logging.info(result)
-		global_mashup['hotels'] = result
+		if result is not None:
+			logging.info(result)
+			global_mashup['hotels'] = result
 		
-		path = os.path.join(os.path.dirname(__file__),'templates/expedia/hotels.html')
-		self.response.out.write(template.render(path, global_mashup))
-	    
+			path = os.path.join(os.path.dirname(__file__),'templates/expedia/hotels.html')
+			self.response.out.write(template.render(path, global_mashup))
+		else:
+			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+			self.response.out.write(template.render(path, global_mashup))			

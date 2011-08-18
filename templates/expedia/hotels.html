@@ -3,7 +3,7 @@
 	<header>
 		<h3>
 			<span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}</span> 
-			<span class="stars">{{ hotel.rating }} star,</span>
+			<span class="stars">{{ hotel.hotelRating|floatformat:1 }} star,</span>
 			<span class="from">from</span>
 			<span class="price">&#163;{{ hotel.lowRate|floatformat:2 }}<sup>*</sup></span>
 			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
@@ -14,7 +14,7 @@
     </header>
     <div class="rating">
 		{% if hotel.hotelRating %}
-		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.hotelRating }}-0.gif" />
+		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.hotelRating|floatformat:0 }}-0.gif" />
 		{% endif %}
 	</div>
 	<div class="photos" data-thumbnail="http://images.travelnow.com{{ hotel.thumbNailUrl }}">
