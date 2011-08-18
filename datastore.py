@@ -8,6 +8,7 @@ from google.appengine.api import quota
 Import local sripts
 """
 import datamodel
+import utils
 
 def get_hotels_by_destination(destination):
 	resultset = datamodel.DBHotel.gql("WHERE destination = '"+destination+"'")
@@ -233,6 +234,19 @@ def get_hotels_in_europe_by_price(price):
 	resultset = datamodel.DBHotel.gql(queryString, queryDestinationList)
 	return resultset
 
+#def get_hotels_by_country(countrycode):
+	
+	
+def get_hotels_by_region(regionName):
+	regions = utils.get_regions()
+	if regions.has_key(regionName):
+		region = regions[regionName]
+		
+		
+	else:
+		return None
+	
+	
 def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 	placesRequest = get_places_by_hotellocationid_types_radius(locationid, types, radius)
 	if placesRequest.get() is None:

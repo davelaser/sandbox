@@ -10,11 +10,12 @@ class DBHotel(db.Model):
 	latlng = db.GeoPtProperty()
 	index = db.IntegerProperty()
 	productdetailsurl = db.StringProperty()
-	rating = db.IntegerProperty()
+	rating = db.FloatProperty()
 	hotelrequestid = db.StringProperty()
 	destination = db.StringProperty()
 	countryname = db.StringProperty()
 	countrycode = db.StringProperty()
+	description = db.StringProperty()
 	
 class LMHotelPriceAndDate(db.Model):
 	hotel = db.ReferenceProperty(DBHotel)

@@ -42,6 +42,7 @@ requestGeoCode = "/geocode"
 requestGeoCodeWorker = "/geocodeworker"
 requestHotelsWorker = "/hotelsworker"
 requestHotelsPriceWorker = "/hotelspriceworker"
+requestEANHotelList = "/ean-get-hotels"
 
 # TODO: remove the memcache flush
 #memcache.flush_all()
@@ -384,8 +385,13 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	logging.info("AjaxAPIHandler_v3() : POST : cost %d megacycles." % (endAjaxRequestQuota - startAjaxRequestQuota))
 	return True
 
-
 application = webapp.WSGIApplication([         
+		(requestEANHotelList, handlers.EANHotelRequest)
+    ],debug=True)
+
+"""
+application = webapp.WSGIApplication([         
+		(requestEANHotelList, handlers.EANHotelRequest),
 		(requestGeoCode, handlers.GeocodeStoreTaskHandler),
         (requestGeoCodeWorker, handlers.GeocodeStoreTaskWorker),
 		(requestHotelsWorker, handlers.HotelStoreTaskWorker),
@@ -394,9 +400,9 @@ application = webapp.WSGIApplication([
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, handlers.GooglePlacesHandler),
-		(requestDestination, ExperienceHandler)		
+		(requestDestination, ExperienceHandler)
     ],debug=True)
-
+"""
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
     run_wsgi_app(application)

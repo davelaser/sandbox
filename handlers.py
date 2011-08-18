@@ -1,17 +1,20 @@
+import os
 import urllib
 import urllib2
 import logging
+from django.utils import simplejson as json
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
 from google.appengine.ext import deferred
 from google.appengine.api import taskqueue
-
+from google.appengine.ext import db
 """
 Import local scripts
 """
 
 import datastore
 import configparsers
-
+import utils
 		
 class GooglePlacesHandler(webapp.RequestHandler):
 	def get(self):
@@ -97,3 +100,43 @@ class HotelStoreTaskWorker(webapp.RequestHandler):
 class HotelPriceStoreTaskWorker(webapp.RequestHandler):
     def post(self):
         result = datastore.put_hotel_by_price(self.request.get("destination"), self.request.get("locationid"), self.request.get("price"), self.request.get("startDate"), self.request.get("endDate"))
+
+class EANHotelRequest(webapp.RequestHandler):
+	def get(self):
+		arrivalDate = self.request.get('arrivalDate')
+		departureDate = self.request.get('departureDate')
+		city = self.request.get('city')
+		requestUrl = utils.ean_get_hotel_list_url(arrivalDate, departureDate, city)
+		
+		try:
+			request = urllib.urlopen(requestUrl)
+			response = request.read()
+			
+		except urllib2.URLError, e:
+			logging.error("EANHotelRequest : urllib2 error") 
+			logging.error(e)
+		
+		hotelList = list()
+		jsonLoadResponse = json.loads(response)	
+		for hotelData in jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']:
+			hotel = dict()
+			logging.info(hotelData)
+			hotel['name'] = hotelData['name']
+			if hotelData.has_key('hotelId'):
+				hotel['locationid'] = hotelData['hotelId']
+			hotel['address'] = str(hotelData['address1'])+", "+str(hotelData['city'])+", "+str(hotelData['postalCode'])
+			hotel['latlng'] = db.GeoPt(hotelData['latitude'], hotelData['longitude'])
+			hotel['countrycode'] = hotelData['countryCode']
+			# Use city from request for destination
+			hotel['destination'] = city
+			hotel['description'] = hotelData['shortDescription']
+			hotel['rating'] = hotelData['hotelRating']
+			hotel['productdetailsurl'] = hotelData['deepLink']
+			hotelList.append(hotel)
+			
+		global_mashup = {}	
+		global_mashup['hotels'] = hotelList
+		
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
+		self.response.out.write(template.render(path, global_mashup))
+	
