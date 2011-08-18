@@ -66,15 +66,11 @@ body.leftaligned #shell {
 }
 #content {
 	position:relative; 
-	/*
-	margin-top:132px;
-	*/
 	height:auto;
 }                    
   
 header#main {
 	width:955px; 
-	height:162px;
 	padding:0 10px; 
 	position:fixed;
     z-index:10;
@@ -88,7 +84,6 @@ header#main {
 }
 h1 {     	
 	width:955px; 
-	height:64px; 
 	font-size:2.5em;
 } 
 

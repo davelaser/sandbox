@@ -10,7 +10,7 @@
 	-webkit-border-radius:10px;
 	-o-border-radius:10px;
 	-ms-border-radius:10px;
-	top:172px;
+	
 }    
 
 #hotels h2 {
@@ -64,7 +64,7 @@ nav#hotel-list a.active {
 	display:none;
 }	
 .hotel {
-	width:915px;
+	width:895px;
 	display:block;
 	float:left; 
 	padding:20px 20px 20px 40px; 
@@ -110,7 +110,8 @@ nav#hotel-list a.active {
 	margin:20px 0 0 0;
 }                     
 
-.hotel .room-and-rates a {
+.hotel a.button {
+	display:inline-block;
 	font-size:1.3em;    
 	text-decoration:none;
 }
@@ -145,7 +146,10 @@ nav#hotel-list a.active {
 #hotels.minimized .photos,
 #hotels.minimized .nearby
 #hotels.minimized .room-and-rates,
-#hotels.minimized .room-and-rates a,
+#hotels.minimized .room-and-rates ul,
+#hotels.minimized .room-and-rates ul li,
+#hotels.minimized .value-adds,
+#hotels.minimized a.button,
 #hotels.minimized .details,
 #hotels.minimized nav#hotel-list {
 	display:none;

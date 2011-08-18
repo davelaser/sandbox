@@ -17,7 +17,7 @@
 	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 	<link rel="stylesheet" href="/static/css/styles.css"/>
-	<link rel="stylesheet" href="/static/css/lastminute.com.css" type="text/css" />
+	<link rel="stylesheet" href="/static/css/{{ brand }}.css" type="text/css" />
 	<link rel="stylesheet" media="only screen and (min-device-width: 768px) and (max-device-width: 1024px)" href="/static/css/ipad.css" type="text/css" />
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
 	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />		
@@ -38,7 +38,7 @@
 	</div>
 	<article id="shell">
 		<header id="main">                     
-   			<h1><img src="/static/img/site_master_top_logo.gif" alt="lastminute.com" /></h1> 
+   			<h1><img src="/static/img/{{brand}}/site_master_top_logo.gif" alt="lastminute.com" /></h1> 
 			{% comment %}<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button>{% endcomment %} 
 			
 			<nav id="map-controls" class="">
@@ -162,7 +162,7 @@
 	<div id="loading">
 		<div id="mask"></div>
 		<div id="loading-message">
-			<img src="static/img/logo.png" width="329" height="86" alt="Stories start here" />
+			<img src="static/img/{{brand}}/logo.png" alt="" />
 		</div>
 	</div>
 	<script src="http://widgets.twimg.com/j/2/widget.js"></script>
@@ -185,7 +185,8 @@
 			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
 			maptype:"{{ maptype|default:'panorama' }}",
 			contenttype:"{{ contenttype|default:'maximized' }}",
-			viewType:'{{ viewType }}'
+			viewType:'{{ viewType }}',
+			brand:'{{brand}}'
 		});
 		RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
 		

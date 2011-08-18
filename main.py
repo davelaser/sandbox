@@ -32,7 +32,6 @@ import datastore
 import utils
 import handlers
 
-requestExperience = "/hotels"                  
 requestHome = "/"
 requestRestApi = r"/(.*)/(xml|json)"
 requestDestination = r"/(.*)"
@@ -43,6 +42,8 @@ requestGeoCodeWorker = "/geocodeworker"
 requestHotelsWorker = "/hotelsworker"
 requestHotelsPriceWorker = "/hotelspriceworker"
 requestEANHotelList = "/ean-get-hotels"
+requestExpedia = "/expedia"
+requestLastminute = "/lastminute"
 
 # TODO: remove the memcache flush
 #memcache.flush_all()
@@ -265,7 +266,7 @@ class HomeHandler(webapp.RequestHandler):
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		
-		
+		logging.info(self.request.path)
 		"""
 		Get the config properties
 		"""
@@ -276,6 +277,11 @@ class ExperienceHandler(webapp.RequestHandler):
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
 		startDate = self.request.get("startDate")
+		         
+		brand = "lastminute"
+		urlPath = self.request.path
+		if urlPath is not None and len(urlPath) > 1:
+			brand = urlPath.replace('/','')
 		
 		if len(price) > 0:
 			price = float(price)
@@ -294,7 +300,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		facebookAppId = config_properties.get('Facebook', 'app_id')
 		facebookAccessToken = config_properties.get('Facebook', 'access_token')
 		analytics_key = config_properties.get('Google', 'analytics_key')
-		args = dict(analytics_key=analytics_key, viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
+		args = dict(brand=brand, analytics_key=analytics_key, viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -384,25 +390,20 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	endAjaxRequestQuota = quota.get_request_cpu_usage()
 	logging.info("AjaxAPIHandler_v3() : POST : cost %d megacycles." % (endAjaxRequestQuota - startAjaxRequestQuota))
 	return True
-
+	
 application = webapp.WSGIApplication([         
-		(requestEANHotelList, handlers.EANHotelRequest)
-    ],debug=True)
-
-"""
-application = webapp.WSGIApplication([         
-		(requestEANHotelList, handlers.EANHotelRequest),
 		(requestGeoCode, handlers.GeocodeStoreTaskHandler),
         (requestGeoCodeWorker, handlers.GeocodeStoreTaskWorker),
 		(requestHotelsWorker, handlers.HotelStoreTaskWorker),
 		(requestHotelsPriceWorker, handlers.HotelPriceStoreTaskWorker),
-		(requestExperience, ExperienceHandler),
+		(requestLastminute, ExperienceHandler),
+		(requestExpedia, ExperienceHandler),
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, handlers.GooglePlacesHandler),
-		(requestDestination, ExperienceHandler)
+		(requestEANHotelList, handlers.EANHotelRequest)
     ],debug=True)
-"""
+
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
     run_wsgi_app(application)

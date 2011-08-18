@@ -1,7 +1,12 @@
 RIA.AjaxSubmit = new Class({
 	Implements:[Options],
 	options:{
-
+        lastminute:{
+	    	hotelServiceUrl:"/ajax"
+		},
+		expedia:{
+			hotelServiceUrl:"/ean-get-hotels"
+		}
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -92,18 +97,36 @@ RIA.AjaxSubmit = new Class({
 			}).send();        
 			this.requests.include(this.requestGuardian);  
 		}
-		this.requestHotels = new Request.HTML({
-			method:"POST",
-			url:"/ajax",
-			evalScripts:true,
-			update:this.hotels.getElement(".results"),
-			data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
-			onRequest: this.requestStart.pass([this.hotels],this),
-			onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
-			onFailure: this.requestFailure.bind(this)
-		});
+		   
 		
-		this.requests.include(this.requestHotels);
+		if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "lastminute") {
+			this.requestHotels = new Request.HTML({
+				method:"POST",
+				url:this.options.lastminute.hotelServiceUrl,
+				evalScripts:false,
+				update:this.hotels.getElement(".results"),
+				data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				onRequest: this.requestStart.pass([this.hotels],this),
+				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
+				onFailure: this.requestFailure.bind(this)
+			});
+			this.requests.include(this.requestHotels); 
+		}
+		else if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "expedia") {
+			this.requestHotels = new Request.HTML({
+				method:"POST",
+				url:this.options.expedia.hotelServiceUrl,
+				evalScripts:false,
+				update:this.hotels.getElement(".results"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				onRequest: this.requestStart.pass([this.hotels],this),
+				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
+				onFailure: this.requestFailure.bind(this)
+			});
+			this.requests.include(this.requestHotels);
+		}
+		
+
 			
 		/*
 		this.requestFlights = new Request.HTML({

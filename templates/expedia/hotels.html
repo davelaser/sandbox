@@ -1,0 +1,54 @@
+{% for hotel in hotels %}
+<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.hotelId }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address1}} {{hotel.city}} {{hotel.postalCode}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}" data-price="&#163;{{hotel.price|floatformat:2}}" data-latlng="{{ hotel.latitude }},{{hotel.longitude}}" data-rating="{{ hotel.hotelRating }}" data-countrycode="{{hotel.countryCode}}">
+	<header>
+		<h3>
+			<span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}</span> 
+			<span class="stars">{{ hotel.rating }} star,</span>
+			<span class="from">from</span>
+			<span class="price">&#163;{{ hotel.price|floatformat:2 }}<sup>*</sup></span>
+			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
+		</h3>
+		{% comment %}
+		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.name }}"/></a>
+		{% endcomment %}
+    </header>
+    <div class="rating">
+		{% if hotel.hotelRating %}
+		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.hotelRating }}-0.gif" />
+		{% endif %}
+	</div>
+	<div class="photos" data-thumbnail="http://images.travelnow.com{{ hotel.thumbNailUrl }}">
+		<img src="http://images.travelnow.com{{ hotel.thumbNailUrl }}" alt="{{hotel.name|safe}}" />		
+	</div>
+	<div class="details">
+		<dl>
+			<dt class="address">Address: {{hotel.address1|safe}} {{hotel.city}} {{hotel.postalCode}}<dt>
+			{% if hotel.phone %}<dt>Phone: {{hotel.phone}}<dt>{% endif %}
+		</dl>
+		<p class="description">       
+			<p>
+				{{ hotel.shortDescription|safe }}
+			</p>
+			<p>
+				{{ hotel.locationDescription }}
+			</p>
+		</p>				
+	</div>
+	<div class="room-and-rates">
+		{% comment %}
+		{{ hotel.RoomRateDetailsList }}
+		{% endcomment %}
+		<ul>    
+			<li>Room description: {{ hotel.RoomRateDetailsList.RoomRateDetails.roomDescription }}</li>
+		</ul>		
+	</div>
+	<div class="value-adds">
+    	<ul>
+			{% for valueAdd in hotel.RoomRateDetailsList.RoomRateDetails.ValueAdds.ValueAdd %}
+			<li>{{ valueAdd.description }}</li>			
+			{% endfor %}
+		</ul>
+	</div>   
+	<a href="{{ hotel.deepLink }}" target="_blank" rel="external" class="button">book now</a>
+</div>      
+{% endfor %}

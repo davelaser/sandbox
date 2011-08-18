@@ -1,22 +1,22 @@
 a {
-	color:#000;
+	color:#EC008C;
 }
 
 h1 {
-	background:#fff; 
-	color:#000;
-	height:88px;
+	background:#EC008C; 
+	color:#fff;
+	height:64px;
 }
 
 .button {
-	background:#000;
+	background:#EC008C;
 	color:#fff;	
 }
 header#main {
-    height:186px;
+    height:162px;
 }
 #horizontal a {
-	background:#000 url(../img/expedia/arrows.png) no-repeat 0 0;
+	background:#EC008C url(../img/lastminute/arrows.png) no-repeat 0 0;
 	cursor:pointer;
 	border:none;
 	border-radius:5px;
@@ -38,29 +38,29 @@ header#main {
 }
 
 .price {
-	color:#000;
+	color:#EC008C;
 }
 
 #hotels {
-	top:196px;
+	top:172px;
 }
 nav#hotel-list a.active {
-	background:#000;
+	background:#EC008C;
 	color:#fff;
 }
 
 .hotel nav li {
-    background:#000;
+    background:#EC008C;
     color:#fff;
 }
 
 #places h3 { 
-	color:#000;
+	color:#EC008C;
 }
  
 #places #places-distance-output {
-	color:#000;
+	color:#EC008C;
 }
 .hotel-name {
-	color:#000;
+	color:#EC008C;
 }

@@ -57,7 +57,7 @@ def put_hotels_by_destination(destination, data):
 			if hotel.has_key('productdetailsurl'):
 				dbHotel.productdetailsurl = hotel['productdetailsurl']
 			if hotel.has_key('rating'):
-				dbHotel.rating = int(hotel['rating'])
+				dbHotel.rating = float(hotel['rating'])
 			if hotel.has_key('hotelrequestid'):
 				dbHotel.hotelrequestid = hotel['hotelrequestid']
 			

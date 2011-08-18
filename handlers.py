@@ -2,6 +2,7 @@ import os
 import urllib
 import urllib2
 import logging
+import datetime
 from django.utils import simplejson as json
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -103,40 +104,44 @@ class HotelPriceStoreTaskWorker(webapp.RequestHandler):
 
 class EANHotelRequest(webapp.RequestHandler):
 	def get(self):
-		arrivalDate = self.request.get('arrivalDate')
-		departureDate = self.request.get('departureDate')
+		logging.info("EANHotelRequest")
+	def post(self):                    
+		logging.info("EANHotelRequest")
+		config_properties = configparsers.loadConfigProperties()
+		arrivalDateRaw = self.request.get('arrivalDate')
+		numberOfNights = self.request.get('numberOfNights')
 		city = self.request.get('city')
-		requestUrl = utils.ean_get_hotel_list_url(arrivalDate, departureDate, city)
 		
+	   	arrivalDateList = arrivalDateRaw.split('-')
+
 		try:
-			request = urllib.urlopen(requestUrl)
-			response = request.read()
+			arrivalDate = datetime.datetime(int(arrivalDateList[0]), int(arrivalDateList[1]), int(arrivalDateList[2]))
+			departureDateTimeDelta = datetime.timedelta(days=int(numberOfNights))
+			departureDate = arrivalDate + departureDateTimeDelta
+		except ValueError, e:
+			logging.error(e)
+			logging.error("EANHotelRequest : Invalid date values or date format")
+			
+		requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
+
+		try: 
+			requestServiceURL = config_properties.get('EAN', 'xml_service_url')
+			f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
+			logging.info(f)
+			response = f.read()
 			
 		except urllib2.URLError, e:
 			logging.error("EANHotelRequest : urllib2 error") 
 			logging.error(e)
 		
-		hotelList = list()
 		jsonLoadResponse = json.loads(response)	
-		for hotelData in jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']:
-			hotel = dict()
-			logging.info(hotelData)
-			hotel['name'] = hotelData['name']
-			if hotelData.has_key('hotelId'):
-				hotel['locationid'] = hotelData['hotelId']
-			hotel['address'] = str(hotelData['address1'])+", "+str(hotelData['city'])+", "+str(hotelData['postalCode'])
-			hotel['latlng'] = db.GeoPt(hotelData['latitude'], hotelData['longitude'])
-			hotel['countrycode'] = hotelData['countryCode']
-			# Use city from request for destination
-			hotel['destination'] = city
-			hotel['description'] = hotelData['shortDescription']
-			hotel['rating'] = hotelData['hotelRating']
-			hotel['productdetailsurl'] = hotelData['deepLink']
-			hotelList.append(hotel)
-			
-		global_mashup = {}	
-		global_mashup['hotels'] = hotelList
+		#logging.info(response)
 		
-		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
+		global_mashup = {}	                 
+		result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
+		logging.info(result)
+		global_mashup['hotels'] = result
+		
+		path = os.path.join(os.path.dirname(__file__),'templates/expedia/hotels.html')
 		self.response.out.write(template.render(path, global_mashup))
-	
+	    

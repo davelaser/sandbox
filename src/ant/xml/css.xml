@@ -28,9 +28,14 @@
 			</fileset>
 		</concat>
 		
-		<concat destfile="${build.css.dir}/lastminute.com.concat.css" fixlastline="yes">
+		<concat destfile="${build.css.dir}/lastminute.concat.css" fixlastline="yes">
 			<fileset dir="${src.css.dir}">
-				<include name="brand/lastminute.com.css"/>
+				<include name="brand/lastminute.css"/>
+			</fileset>
+		</concat>
+		<concat destfile="${build.css.dir}/expedia.concat.css" fixlastline="yes">
+			<fileset dir="${src.css.dir}">
+				<include name="brand/expedia.css"/>
 			</fileset>
 		</concat>		
 	</target>
