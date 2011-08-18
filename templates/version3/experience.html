@@ -2,14 +2,14 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://ogp.me/ns#" xmlns:fb="http://www.facebook.com/2008/fbml">
 <head>
 	<meta charset="utf-8">
-	<title>lastminute.com Hotels</title>
+	<title>{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels</title>
 	<meta name="robots" content="noindex, nofollow"/>
 	<meta name="googlebot" content="noindex, nofollow, noarchive"/>
 	<meta name="msnbot" content="noindex, nofollow"/>
 	<meta property="fb:app_id" content="{{facebookAppId}}"/>
-	<meta property="og:site_name" content="lastminute.com Hotels"/>
+	<meta property="og:site_name" content="{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
 	<meta property="og:type" content="website"/>
-	<meta property="og:title" content="lastminute.com Hotels"/>
+	<meta property="og:title" content="{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
 	{% comment %}<meta property="og:url" content="http://rf-lm-poc.appspot.com/hotels"/>{% endcomment %}
 	<meta property="og:image" content="http://rf-lm-poc.appspot.com/static/img/logo.png"/>
 	<meta property="og:description" content="Search, browse and book hotels online."/>
@@ -19,7 +19,13 @@
 	<link rel="stylesheet" href="/static/css/styles.css"/>
 	<link rel="stylesheet" href="/static/css/{{ brand }}.css" type="text/css" />
 	<link rel="stylesheet" media="only screen and (min-device-width: 768px) and (max-device-width: 1024px)" href="/static/css/ipad.css" type="text/css" />
+	
+	{% ifequal brand "lastminute" %}
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
+	{% endifequal %}
+	{% ifequal brand "expedia" %}
+	<link rel="shortcut icon" href="http://expediaaffiliate.com/sites/default/files/ean_favicon.ico" type="image/x-icon" />
+	{% endifequal %}
 	<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />		
 	<script src="http://widgets.twimg.com/j/2/widget.js"></script>
 </head>
@@ -38,7 +44,7 @@
 	</div>
 	<article id="shell">
 		<header id="main">                     
-   			<h1><img src="/static/img/{{brand}}/site_master_top_logo.gif" alt="lastminute.com" /></h1> 
+   			<h1><img src="/static/img/{{brand}}/site_master_top_logo.gif" alt="{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %}" /></h1> 
 			{% comment %}<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button>{% endcomment %} 
 			
 			<nav id="map-controls" class="">
