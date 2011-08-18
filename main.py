@@ -277,12 +277,18 @@ class ExperienceHandler(webapp.RequestHandler):
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
 		startDate = self.request.get("startDate")
-		         
+
+		servicePath = requestAjaxAPI         
 		brand = "lastminute"
 		urlPath = self.request.path
+
 		if urlPath is not None and len(urlPath) > 1:
 			brand = urlPath.replace('/','')
-		
+		    
+			if brand == "lastminute":
+				servicePath = requestAjaxAPI
+			elif brand == "expedia":
+				servicePath = requestEANHotelList
 		if len(price) > 0:
 			price = float(price)
 			
@@ -300,7 +306,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		facebookAppId = config_properties.get('Facebook', 'app_id')
 		facebookAccessToken = config_properties.get('Facebook', 'access_token')
 		analytics_key = config_properties.get('Google', 'analytics_key')
-		args = dict(brand=brand, analytics_key=analytics_key, viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
+		args = dict(servicePath=servicePath, brand=brand, analytics_key=analytics_key, viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
 		self.response.out.write(template.render(path, args))
 	def post(self):

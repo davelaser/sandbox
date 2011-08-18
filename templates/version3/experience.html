@@ -194,7 +194,9 @@
 			viewType:'{{ viewType }}',
 			brand:'{{brand}}'
 		});
-		RIA.InitAjaxSubmit = new RIA.AjaxSubmit();
+		RIA.InitAjaxSubmit = new RIA.AjaxSubmit({
+			servicePath:'{{ servicePath }}'
+		});
 		
 		(function() {
 			var e = document.createElement('script');

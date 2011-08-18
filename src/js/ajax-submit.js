@@ -1,12 +1,7 @@
 RIA.AjaxSubmit = new Class({
 	Implements:[Options],
 	options:{
-        lastminute:{
-	    	hotelServiceUrl:"/ajax"
-		},
-		expedia:{
-			hotelServiceUrl:"/ean-get-hotels"
-		}
+        servicePath:null
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -102,7 +97,7 @@ RIA.AjaxSubmit = new Class({
 		if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "lastminute") {
 			this.requestHotels = new Request.HTML({
 				method:"POST",
-				url:this.options.lastminute.hotelServiceUrl,
+				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
 				data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
@@ -115,7 +110,7 @@ RIA.AjaxSubmit = new Class({
 		else if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "expedia") {
 			this.requestHotels = new Request.HTML({
 				method:"POST",
-				url:this.options.expedia.hotelServiceUrl,
+				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
 				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
