@@ -47,7 +47,7 @@ requestLastminute = "/lastminute"
 requestRazorfish = "/razorfish"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 #logging.info(memcache.get_stats())
 
 # DELETE ALL HOTELS

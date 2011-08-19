@@ -9,9 +9,6 @@
 			<span class="price">&#163;{{ hotel.price|floatformat:2 }}<sup>*</sup></span>
 			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
 		</h3>
-		{% comment %}
-		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.hotel.name }}"/></a>
-		{% endcomment %}
     </header>
     <div class="rating">
 		{% if hotel.hotel.rating %}
@@ -48,9 +45,6 @@
 			<span class="price">&#163;{{ hotel.price|floatformat:2 }}<sup>*</sup></span>
 			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
 		</h3>
-		{% comment %}
-		<a href="#" class="drop-pin"><img src="http://chart.apis.google.com/chart?chst=d_map_xpin_letter&amp;chld=pin_star||EC008C|FFFFFF|FFFF00" alt="{{ hotel.name }}"/></a>
-		{% endcomment %}
     </header>
     <div class="rating">
 		{% if hotel.rating %}
