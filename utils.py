@@ -24,6 +24,7 @@ def ean_get_hotel_list_url(arrivalDate, departureDate, city):
 	urlArgs['apiKey'] = config_properties.get('EAN', 'api_key')
 	urlArgs['locale'] = config_properties.get('EAN', 'locale')
 	urlArgs['currencyCode'] = config_properties.get('EAN', 'currency_code')
+	urlArgs['_type'] = config_properties.get('EAN', 'type')
 	urlArgs['xml'] = requestXML
 	urlAgrsEncoded = urllib.urlencode(urlArgs)
 

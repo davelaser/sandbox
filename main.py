@@ -44,6 +44,7 @@ requestHotelsPriceWorker = "/hotelspriceworker"
 requestEANHotelList = "/ean-get-hotels"
 requestExpedia = "/expedia"
 requestLastminute = "/lastminute"
+requestRazorfish = "/razorfish"
 
 # TODO: remove the memcache flush
 #memcache.flush_all()
@@ -262,7 +263,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		startDate = self.request.get("startDate")
 
 		servicePath = requestAjaxAPI         
-		brand = "lastminute"
+		brand = "razorfish"
 		urlPath = self.request.path
 
 		if urlPath is not None and len(urlPath) > 1:
@@ -271,6 +272,8 @@ class ExperienceHandler(webapp.RequestHandler):
 			if brand == "lastminute":
 				servicePath = requestAjaxAPI
 			elif brand == "expedia":
+				servicePath = requestEANHotelList
+			elif brand == "razorfish":
 				servicePath = requestEANHotelList
 		if len(price) > 0:
 			price = float(price)
@@ -387,6 +390,7 @@ application = webapp.WSGIApplication([
 		(requestHotelsPriceWorker, handlers.HotelPriceStoreTaskWorker),
 		(requestLastminute, ExperienceHandler),
 		(requestExpedia, ExperienceHandler),
+		(requestRazorfish, ExperienceHandler),
 		(requestHome, ExperienceHandler),
 		(requestAjaxAPI, AjaxAPIHandler_v3),
 		(requestGooglePlaces, handlers.GooglePlacesHandler),

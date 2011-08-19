@@ -120,6 +120,19 @@ RIA.AjaxSubmit = new Class({
 			});
 			this.requests.include(this.requestHotels);
 		}
+		else if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "razorfish") {
+			this.requestHotels = new Request.HTML({
+				method:"POST",
+				url:this.options.servicePath,
+				evalScripts:false,
+				update:this.hotels.getElement(".results"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				onRequest: this.requestStart.pass([this.hotels],this),
+				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
+				onFailure: this.requestFailure.bind(this)
+			});
+			this.requests.include(this.requestHotels);
+		}
 		
 
 			

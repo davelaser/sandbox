@@ -11,14 +11,14 @@ h1 {
 .button {
 	background:#000;
 	color:#fff;	
-}
-header#main {
-    height:186px;
-} 
+}             
+
 form#search {  
     background:#fff;
 }
-
+header#main {
+    height:186px;
+}
 #horizontal a {
 	background:#000 url(../img/expedia/arrows.png) no-repeat 0 0;
 	cursor:pointer;

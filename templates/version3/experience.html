@@ -7,7 +7,7 @@
 	<meta name="googlebot" content="noindex, nofollow, noarchive"/>
 	<meta name="msnbot" content="noindex, nofollow"/>
 	<meta property="fb:app_id" content="{{facebookAppId}}"/>
-	<meta property="og:site_name" content="{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
+	<meta property="og:site_name" content="{% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
 	<meta property="og:type" content="website"/>
 	<meta property="og:title" content="{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
 	{% comment %}<meta property="og:url" content="http://rf-lm-poc.appspot.com/hotels"/>{% endcomment %}
@@ -19,7 +19,10 @@
 	<link rel="stylesheet" href="/static/css/styles.css"/>
 	<link rel="stylesheet" href="/static/css/{{ brand }}.css" type="text/css" />
 	<link rel="stylesheet" media="only screen and (min-device-width: 768px) and (max-device-width: 1024px)" href="/static/css/ipad.css" type="text/css" />
-	
+	{% ifequal brand "razorfish" %}
+	<link rel="shortcut icon" href="http://www.razorfish.com/img/favicon.ico" />
+	<link rel="icon" href="http://www.razorfish.com/img/favicon.ico"/>
+	{% endifequal %}
 	{% ifequal brand "lastminute" %}
 	<link rel="shortcut icon" type="image/x-icon" href="http://cdn.lastminute.com/site/favicon.ico?skin=engb.lastminute.com" />
 	{% endifequal %}
@@ -44,7 +47,7 @@
 	</div>
 	<article id="shell">
 		<header id="main">                     
-   			<h1><img src="/static/img/{{brand}}/site_master_top_logo.gif" alt="{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %}" /></h1> 
+   			<h1><img src="/static/img/{{brand}}/site_master_top_logo.gif" alt="{% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %}" /></h1> 
 			{% comment %}<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button>{% endcomment %} 
 			
 			<nav id="map-controls" class="">

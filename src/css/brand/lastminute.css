@@ -40,6 +40,9 @@ header#main {
 .price {
 	color:#EC008C;
 }
+form#search {  
+    background:#fff;
+}
 
 #hotels {
 	top:172px;

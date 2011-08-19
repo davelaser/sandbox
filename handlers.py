@@ -111,9 +111,10 @@ class EANHotelRequest(webapp.RequestHandler):
 		arrivalDateRaw = self.request.get('arrivalDate')
 		numberOfNights = self.request.get('numberOfNights')
 		city = self.request.get('city')
-		
-	   	arrivalDateList = arrivalDateRaw.split('-')
-
+		arrivalDateList = arrivalDateRaw.split('-')
+		arrivalDate = None
+		departureDate = None
+		global_mashup = {}
 		try:
 			arrivalDate = datetime.datetime(int(arrivalDateList[0]), int(arrivalDateList[1]), int(arrivalDateList[2]))
 			departureDateTimeDelta = datetime.timedelta(days=int(numberOfNights))
@@ -121,38 +122,42 @@ class EANHotelRequest(webapp.RequestHandler):
 		except ValueError, e:
 			logging.error(e)
 			logging.error("EANHotelRequest : Invalid date values or date format")
+		
+		if arrivalDate is not None and departureDate is not None:	
+			requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
+
+			try: 
+				requestServiceURL = config_properties.get('EAN', 'xml_service_url')
+				f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
+				response = f.read()
+				logging.info(response)
 			
-		requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
-
-		try: 
-			requestServiceURL = config_properties.get('EAN', 'xml_service_url')
-			f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
-			logging.info(f)
-			response = f.read()
-			
-		except urllib2.URLError, e:
-			logging.error("EANHotelRequest : urllib2 error") 
-			logging.error(e)
+			except urllib2.URLError, e:
+				logging.error("EANHotelRequest : urllib2 error") 
+				logging.error(e)
 		
-		jsonLoadResponse = json.loads(response)	
+			jsonLoadResponse = json.loads(response)	
 
-		result = None
-		global_mashup = {}
-		global_mashup['name'] = city
-		if utils.destination_display_names.has_key(city):
-			global_mashup['name'] = utils.destination_display_names[city]
+			result = None
+			global_mashup['name'] = city
+			if utils.destination_display_names.has_key(city):
+				global_mashup['name'] = utils.destination_display_names[city]
 
-		if jsonLoadResponse['HotelListResponse'] is not None:
-			if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
-				if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
-					result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
+			if jsonLoadResponse['HotelListResponse'] is not None:
+				if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
+					if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
+						result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
 		
-		if result is not None:
-			logging.info(result)
-			global_mashup['hotels'] = result
+			if result is not None:
+				logging.info(result)
+				global_mashup['hotels'] = result
 		
-			path = os.path.join(os.path.dirname(__file__),'templates/expedia/hotels.html')
-			self.response.out.write(template.render(path, global_mashup))
+				path = os.path.join(os.path.dirname(__file__),'templates/expedia/hotels.html')
+				self.response.out.write(template.render(path, global_mashup))
+			else:
+				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+				self.response.out.write(template.render(path, global_mashup))			
+				
 		else:
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
-			self.response.out.write(template.render(path, global_mashup))			
+			self.response.out.write(template.render(path, global_mashup))
