@@ -6,7 +6,12 @@ RIA.MapStreetView = new Class({
 		bookmarks:null,
 		maptype:"panorama",
 		spectrum:["00FF00", "FFFF00", "FF0000"],
-		panoramaServiceRadius:50
+		panoramaServiceRadius:50,
+		userLocationOptions:{
+			enableHighAcurracy:true, 
+			timeout:5000,
+			maximumAge:300000
+		}
 	},
 	mapInitialize: function() {
 		
@@ -157,7 +162,11 @@ RIA.MapStreetView = new Class({
 		}
 		
  
-		this.toggleMapFullScreen(null);	
+		this.toggleMapFullScreen(null);
+		
+		if(this.options.ios) {
+			this.watchUserPosition();
+		}	
 	},
 	toggleMapFullScreen: function(e){
 		/*
@@ -762,5 +771,51 @@ RIA.MapStreetView = new Class({
 		} else {
 			return false;
 		}		
+	},
+	getCurrentUserPosition: function() {
+		var latLng;
+		if(navigator.geolocation) {
+			latLng = navigator.geolocation.getCurrentPosition(this.setCurrentPosition.bind(this), this.currentPositionFailure.bind(this), this.options.userLocationOptions);
+			return latLng;
+		}		
+	},
+	setCurrentUserPosition: function(position) {
+		var userPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        this.setMapPositionPan(userPosition);
+		this.setPanoramaPosition(userPosition);
+	},
+    currentUserPositionFailure: function(PositionError) {
+
+		this.cancelUserWatchPosition();
+
+		switch(PositionError.code) // Returns 0-3
+		{
+			case 0:
+				// Unknown error
+				Log.error({method:"RIA.Class.GeoLocation : currentPositionFailure()", e:PositionError});
+				break;
+			case 1:
+				// Permission denied
+				Log.error({method:"RIA.Class.GeoLocation : currentPositionFailure()", e:PositionError});
+				break;				
+			case 2:
+				// Position unavailable
+				Log.error({method:"RIA.Class.GeoLocation : currentPositionFailure()", e:PositionError});
+				break;
+			case 3:
+				// Timeout
+				Log.error({method:"RIA.Class.GeoLocation : currentPositionFailure()", e:PositionError});
+				break;
+		}
+	},
+	watchUserPosition: function() {              
+		if(navigator.geolocation) {
+			this.watchUserPos = navigator.geolocation.watchPosition(this.setCurrentUserPosition.bind(this), this.currentUserPositionFailure.bind(this), this.options.userLocationOptions);
+		}		
+	},
+	cancelUserWatchPosition: function() {
+		if(navigator.geolocation) {
+			navigator.geolocation.clearWatch(this.watchPos);
+		}
 	}
 });

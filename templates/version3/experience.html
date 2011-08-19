@@ -187,7 +187,8 @@
 		RIA.currentDestination = "{{ destination }}"; 
 		RIA.fbAppId = '{{facebookAppId}}';
 		RIA.fbAccessToken = '{{ facebookAccessToken }}';
-		
+		RIA.sensor = (Browser.Platform.ios ? true : false);
+
 		// Go to Times Square
 	   	RIA.InitExperience = new RIA.Experience({
 			geolocation:{lat:40.757920208794026, lng:-73.98588180541992}, 
@@ -195,7 +196,8 @@
 			maptype:"{{ maptype|default:'panorama' }}",
 			contenttype:"{{ contenttype|default:'maximized' }}",
 			viewType:'{{ viewType }}',
-			brand:'{{brand}}'
+			brand:'{{brand}}',
+			ios:(Browser.Platform.ios ? true : false)
 		});
 		RIA.InitAjaxSubmit = new RIA.AjaxSubmit({
 			servicePath:'{{ servicePath }}'
@@ -218,10 +220,11 @@
 			});	
 		};	
         
+
 		function loadScript() {
 		  var script = document.createElement("script");
 		  script.type = "text/javascript";
-		  script.src = "http://maps.google.com/maps/api/js?sensor=false&libraries=geometry,panoramio&callback=RIA.InitExperience.mapInitialize";
+		  script.src = "http://maps.google.com/maps/api/js?sensor="+RIA.sensor+"&libraries=geometry,panoramio&callback=RIA.InitExperience.mapInitialize";
 		  document.body.appendChild(script);
 		}
         window.addEvent("domready", function() {

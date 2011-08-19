@@ -1,11 +1,13 @@
 RIA.Experience = new Class({
 	Implements:[Options, RIA.Utils, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
-		contenttype:"maximized"
+		contenttype:"maximized",
+		ios:false
 	},
 	initialize: function(options) {
 		this.setOptions(options);
-
+        
+		
 		RIA.places = new Object();
 		
 		this._form = document.id("search");
@@ -450,5 +452,11 @@ RIA.Experience = new Class({
 	},
 	sortByRatingLowHigh: function(a, b){
 		return a.get("data-rating") - b.get("data-rating");
+	},
+	findHotelsNearMe: function() {
+		
+		
+				   
+					
 	}
 });
