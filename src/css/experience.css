@@ -117,6 +117,7 @@ h2 {
 	-o-border-radius:5px; 
 	-ms-border-radius:5px; 
 	
+	box-shadow: -2px -1px 5px gray inset, 0px 3px 8px white inset;
 	-moz-box-shadow: -2px -1px 5px gray inset, 0px 3px 8px white inset;
 	-webkit-box-shadow: -2px -1px 5px gray inset, 0px 3px 8px white inset;
 }
