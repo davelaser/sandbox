@@ -101,6 +101,10 @@ class HotelStoreTaskWorker(webapp.RequestHandler):
 class HotelPriceStoreTaskWorker(webapp.RequestHandler):
     def post(self):
         result = datastore.put_hotel_by_price(self.request.get("destination"), self.request.get("locationid"), self.request.get("price"), self.request.get("startDate"), self.request.get("endDate"))
+        if result is False:
+			logging.error("HotelPriceStoreTaskWorker : Error 500")
+			self.error(500)
+		
 
 class EANHotelRequest(webapp.RequestHandler):
 	def get(self):
