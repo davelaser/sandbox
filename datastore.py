@@ -112,7 +112,7 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 			dbHotelByPrice.locationid = locationid
 			dbHotelByPrice.price = float(price) # [ST]NOTE: we have already converted this to float in main.py:handle_result_ajax_v3()
 			startDate = startDate.split('-')
-			
+			endDate = endDate.split('-')
 			try:
 				startDate = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 				endDate = datetime.datetime(int(endDate[0]), int(endDate[1]), int(endDate[2]))
@@ -120,7 +120,7 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 				logging.error(e)
 				logging.error("put_hotel_by_price : Invalid date values or format")
 
-			endDate = endDate.split('-')
+			
 			dbHotelByPrice.startdate = startDate
 			dbHotelByPrice.enddate = endDate
 			
