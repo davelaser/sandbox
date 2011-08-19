@@ -330,13 +330,13 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
 	endDate = startDate + endDateTimeDelta
 	
-	price = self.request.POST.get("priceMax")
-	if price is not None and len(price) > 0:
-		price = float(price)
-    
+	price = float(0.0)
+	priceRaw = self.request.POST.get("priceMax")
+	if priceRaw is not None and len(priceRaw) > 0:
+		price = float(priceRaw)
+		
     
 	global_mashup['price'] = price
-	#logging.info(price)
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
 	destination = destination.lower()

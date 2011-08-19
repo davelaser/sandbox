@@ -183,8 +183,8 @@ def get_hotels(destination, price, startDate, endDate, rating):
 	hotelsByPrice = get_hotels_by_price(destination, price, startDate, endDate, rating)
     # Create a list for the Django template to use to get the loop length! Argh! 
 	# GQL query objects can be iterated in Django for loops, but have no length, which we need for hotel total count
-	hotelsList = list()
 	if hotelsByPrice.get() is not None:
+		hotelsList = list()
 		for priceStructure in hotelsByPrice:
 			hotelsList.append(priceStructure)
 		return hotelsList
@@ -195,11 +195,6 @@ def get_hotels_by_price(destination, price, startDate, endDate, rating):
 	logging.debug("get_hotels_by_price()")
 	logging.debug("price : ")
 	logging.debug(type(price))
-	logging.debug("startDate : ")
-	logging.debug(type(startDate))
-	logging.debug("endDate : ")
-	logging.debug(endDate)
-	logging.debug("rating : "+str(rating))
 	
 	queryString = ""
 
@@ -208,11 +203,11 @@ def get_hotels_by_price(destination, price, startDate, endDate, rating):
 		if startDate is not None and endDate is not None:
 			queryString += " AND startdate = :1 AND enddate = :2"
 		
-		if price is not None:  
+		if price is not None and price > 0.0:  
 			queryString += " AND price <= :3 ORDER BY price"
 
 	logging.info(queryString)                      
-	if price is not None:
+	if price is not None and price > 0.0:
 		resultset = datamodel.LMHotelPriceAndDate.gql(queryString, startDate, endDate, price)
 	else:
 		resultset = datamodel.LMHotelPriceAndDate.gql(queryString, startDate, endDate)
