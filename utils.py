@@ -1,6 +1,7 @@
 import configparsers
 import logging 
 import urllib
+import xml.etree.ElementTree as et
 
 def ean_get_hotel_list_url(arrivalDate, departureDate, city):
 	config_properties = configparsers.loadConfigProperties()
@@ -55,3 +56,21 @@ destination_display_names = {
 	'milan':'Milan',
 	'sorrento':'Sorrento'
 }
+
+
+""" Use with Live Kapow Service """
+def parseXML(xmlStringContent):
+	results = [] 
+	tree = et.XML(xmlStringContent)
+	for items in all(tree, 'object'):
+		i = {}
+		for item in all(items, 'attribute'):
+			text = item.text      
+			name = item.attrib.get('name')
+			i[name] = text
+		if i.has_key('address'):
+			if i['address'] is not None:
+				results.append(i)
+		else:
+			results.append(i)
+	return results

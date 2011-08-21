@@ -5,7 +5,6 @@ import re
 import os
 import codecs
 import logging
-import xml.etree.ElementTree as et
 import xml.dom.minidom as md
 import urllib
 import urllib2
@@ -99,7 +98,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 		result = rpc.get_result()
 		if result.status_code == 200:
 			logging.info("handle_result_ajax_v3() : RPC response SUCCESS code: 200")
-			f = parseXMLLive(result.content.replace('|', ''))
+			f = utils.parseXML(result.content.replace('|', ''))
 			
 			
 			counter = 1
@@ -225,22 +224,6 @@ def kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, respon
 	endkapowAPILiveRPC_v3 = quota.get_request_cpu_usage()
 	logging.info("kapowAPILiveRPC_v3() : cost %d megacycles." % (endkapowAPILiveRPC_v3 - startkapowAPILiveRPC_v3))
 
-""" Use with Live Kapow Service """
-def parseXMLLive(xmlStringContent):
-	results = [] 
-	tree = et.XML(xmlStringContent)
-	for items in utils.all(tree, 'object'):
-		i = {}
-		for item in utils.all(items, 'attribute'):
-			text = item.text      
-			name = item.attrib.get('name')
-			i[name] = text
-		if i.has_key('address'):
-			if i['address'] is not None:
-				results.append(i)
-		else:
-			results.append(i)
-	return results
 
 class HomeHandler(webapp.RequestHandler):
     def get(self):
