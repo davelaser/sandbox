@@ -20,12 +20,12 @@ class DBHotel(db.Model):
 class LMHotelPriceAndDate(db.Model):
 	hotel = db.ReferenceProperty(DBHotel)
 	destination = db.StringProperty()
-	locationid = db.StringProperty()
 	price = db.FloatProperty()
 	startdate = db.DateTimeProperty()
 	enddate = db.DateTimeProperty()
 	
 class DBPlace(db.Model):
+	hotel = db.ReferenceProperty(DBHotel)
 	locationid = db.StringProperty()
 	types = db.StringProperty()
 	places = db.TextProperty()

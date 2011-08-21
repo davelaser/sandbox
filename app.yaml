@@ -5,7 +5,7 @@ version: 1-9
 runtime: python
 api_version: 1  
 
-default_expiration: "10d"
+default_expiration: "0d"
 
 builtins:
 - deferred: on
@@ -16,9 +16,18 @@ handlers:
   static_dir: static
 - url: /geocodeworker
   script: main.py
-  login: admin
 - url: /hotelsworker
   script: main.py
   login: admin
 - url: /.*
   script: main.py
+  
+# OAuth request page
+- url: /admin/authorize_prediction
+  script: oauth_requester.py
+  login: admin
+
+# OAuth callback handler
+- url: /admin/authorize_prediction/auth_callback
+  script: oauth_callback.py
+  login: admin

@@ -1,7 +1,7 @@
 RIA.MapStreetView = new Class({
 	Implements:[RIA.Gradient],
 	options:{
-		geocodeURL:"/geocode",
+		geocodeURL:"/geocodeworker",
 		geolocation:null, 
 		bookmarks:null,
 		maptype:"panorama",

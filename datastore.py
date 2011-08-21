@@ -61,9 +61,7 @@ def put_hotels_by_destination(destination, data):
 			if hotel.has_key('hotelrequestid'):
 				dbHotel.hotelrequestid = hotel['hotelrequestid']
 			
-			db.put(dbHotel)
-			#datamodel.LMHotelPriceAndDate(hotel=dbHotel, price=price, startdate=startdate, enddate=enddate).put()
-			
+			db.put(dbHotel)			
 			
 			logging.debug("put_hotels_by_destination() : Added new hotel to datastore. name:"+str(dbHotel.name)+", address:"+str(dbHotel.address))
 		else:
@@ -109,7 +107,6 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 			
 			dbHotelByPrice = datamodel.LMHotelPriceAndDate(hotel=hotel.get())
 			dbHotelByPrice.destination = destination
-			dbHotelByPrice.locationid = locationid
 			dbHotelByPrice.price = float(price) # [ST]NOTE: we have already converted this to float in main.py:handle_result_ajax_v3()
 			startDate = startDate.split('-')
 			endDate = endDate.split('-')
@@ -229,10 +226,19 @@ def get_hotels_in_europe_by_price(price):
 	resultset = datamodel.DBHotel.gql(queryString, queryDestinationList)
 	return resultset
 
-#def get_hotels_by_country(countrycode):
+def get_hotels_by_country(countrycode, countryname):
+	logging.info("get_hotels_by_country")
+	countryString = ""
+	if countrycode is not None:
+		queryString = "WHERE countrycode = :1"
+		resultset = datamodel.DBHotel.gql(queryString, countrycode) 
+	elif countryname is not None:
+		queryString = "WHERE countryname = :1"
+		resultset = datamodel.DBHotel.gql(queryString, countryname)
+	return resultset
 	
-
 def get_hotels_by_region(regionName):
+	logging.info("get_hotels_by_region")
 	regions = utils.get_regions()
 	if regions.has_key(regionName):
 		region = regions[regionName]
@@ -243,6 +249,7 @@ def get_hotels_by_region(regionName):
 	
 
 def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
+	# [ST]TODO: Set  a ReferenceProperty to a DBHotel instance by getting the hotel by destination and locationid
 	placesRequest = get_places_by_hotellocationid_types_radius(locationid, types, radius)
 	if placesRequest.get() is None:
 		dbPlace = datamodel.DBPlace()
