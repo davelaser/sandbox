@@ -138,8 +138,7 @@ RIA.GooglePlaces = new Class({
 		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {  
 			           
 			this.requestPlacesSearch = new Request.JSON({
-				method:"GET",
-				secure:true,
+				method:"POST",
 				url:this.options.places.serviceURL,
 				onRequest: this.jsonRequestStart.bind(this),
 				onSuccess: function(responseJSON, responseText) {
