@@ -74,3 +74,17 @@ def parseXML(xmlStringContent):
 		else:
 			results.append(i)
 	return results
+	
+def get_countries_by_region(region):
+	if region is not None:
+		countries = list()
+		if region == 'europe':
+			countries.append('GB')
+			countries.append('FR')
+			countries.append('ES')
+			countries.append('NL')
+			countries.append('IT')
+		return countries
+		
+	else:
+		return None

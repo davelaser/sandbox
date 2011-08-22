@@ -352,7 +352,13 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		self.response.out.write(template.render(path, global_mashup))		   	
 	else:
 		if destination == "europe":
-			hotelsData = datastore.get_hotels_in_europe_by_price(price)		
+			hotelsData = datastore.get_hotels_in_region_by_price('europe', price)		
+			logging.info(hotelsData)
+			hotelsList = list()
+			for hotel in hotelsData:
+				logging.info(hotel)
+				hotelsList.append(hotel)
+			hotelsData = hotelsList
 		else:                                                                                       
 			# [ST]TODO: Reinstate arguments: rating
 		    hotelsData = datastore.get_hotels(destination, price, startDate, endDate, None)

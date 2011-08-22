@@ -206,32 +206,34 @@ def get_hotels_by_price(destination, price, startDate, endDate, rating):
 		resultset = datamodel.LMHotelPriceAndDate.gql(queryString, startDate, endDate)
 	return resultset
 
-def get_hotels_in_europe_by_price(price):
-	queryDestinationList = list()
-	queryDestinationList.append('paris')
-	queryDestinationList.append('madrid')
-	queryDestinationList.append('barcelona')
-	queryDestinationList.append('amsterdam')
-	queryDestinationList.append('rome')
-	queryDestinationList.append('london')
-	queryString = "WHERE destination IN :1"
-	if price is not None and len(str(price)) > 0:
-		queryString += " AND price <= "+str(price)
-	queryString += " ORDER BY price, index"
+def get_hotels_in_region_by_price(region, price):
+	countries = utils.get_countries_by_region('europe')
+	logging.info(countries)
+	queryString = "WHERE countrycode IN :1"
+	if price is not None and float(price) > 0.0:
+		queryString += " AND price <= :2 ORDER BY price, index"
+	else:
+		queryString += " ORDER BY index"
 	logging.info(queryString)
-	resultset = datamodel.LMHotel.gql(queryString, queryDestinationList)
+	
+	if price is not None and float(price) > 0.0:
+		resultset = datamodel.LMHotel.gql(queryString, countries, price)
+	else:
+		resultset = datamodel.LMHotel.gql(queryString, countries)
 	return resultset
 
 def get_hotels_by_country(countrycode, countryname):
 	logging.info("get_hotels_by_country")
-	countryString = ""
 	if countrycode is not None:
 		queryString = "WHERE countrycode = :1"
-		resultset = datamodel.LMHotel.gql(queryString, countrycode) 
+		resultset = datamodel.LMHotel.gql(queryString, countrycode)
+		return resultset 
 	elif countryname is not None:
 		queryString = "WHERE countryname = :1"
 		resultset = datamodel.LMHotel.gql(queryString, countryname)
-	return resultset
+		return resultset
+	else:
+		return None
 	
 def get_hotels_by_region(regionName):
 	logging.info("get_hotels_by_region")
