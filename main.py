@@ -245,7 +245,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		price = self.request.get("priceMax")
 		startDate = self.request.get("startDate")
 
-		servicePath = requestAjaxAPI         
+		servicePath = requestEANHotelList         
 		brand = "razorfish"
 		urlPath = self.request.path
 
@@ -295,14 +295,17 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	"""
 	config_properties = configparsers.loadConfigProperties()
 	
-	destination = self.request.POST.get("destination")
-	startDateRaw = self.request.POST.get("startDate")
-	ratingRaw = self.request.POST.get("rating")
+	destination = self.request.get("destination")
+	startDateRaw = self.request.get("startDate")
+	ratingRaw = self.request.get("rating")
 	rating = None
 	if ratingRaw is not None:
-		rating = True
-	startDate = startDateRaw.split('-')
-	try:
+		rating = True       
+ 	logging.info(startDateRaw)	
+	if startDateRaw is not None:
+		startDate = startDateRaw.split('-')	
+	try:		                
+		
 		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 	except ValueError, e:
 		logging.error(e)
