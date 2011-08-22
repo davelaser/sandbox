@@ -33,6 +33,7 @@
 				namespace.js,
 				log.js,
 				utils.js,
+				google.analytics.js,
 				gradient.js,
 				google.places.js,
 				google.map.streetview.js,
