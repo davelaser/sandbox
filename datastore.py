@@ -17,17 +17,12 @@ def get_hotels_by_destination(destination):
 def put_hotels_by_destination(destination, data):
 	try:
 		hotel = json.loads(data)
-		resultSet = None
-		dbHotel = datamodel.LMHotel()
-		if hotel.has_key('locationid'):
-			dbHotel.locationid = hotel['locationid']
-		if dbHotel.locationid is not None:
-			resultSet = get_hotel_by_locationid_and_destination(dbHotel.locationid, destination)
-		
+		resultSet = get_hotel_by_locationid_and_destination(hotel['locationid'], destination)
 		logging.debug('put_hotels_by_destination')
-		logging.debug(resultSet.get())
 		# If we don't already have this hotel, add it to the datastore
 		if resultSet.get() is None:
+			dbHotel = datamodel.LMHotel(key_name=hotel['locationid'])
+			dbHotel.locationid = hotel['locationid'] 
 			if hotel.has_key('propertyids'):
 				dbHotel.propertyids = hotel['propertyids']
 			if hotel.has_key('name'):
@@ -70,7 +65,7 @@ def put_hotels_by_destination(destination, data):
 			logging.debug("put_hotels_by_destination() : Added new hotel to datastore. name:"+str(dbHotel.name)+", address:"+str(dbHotel.address))
 			return True
 		else:
-			logging.debug("put_hotels_by_destination() : hotel with locationid "+dbHotel.locationid+" already exists, so not putting in datastore")
+			logging.debug("put_hotels_by_destination() : hotel with locationid "+hotel['locationid']+" already exists, so not putting in datastore")
 			return True
 	except CapabilityDisabledError:
 		log.error("put_hotels_by_destination : CapabilityDisabledError, data may not have been saved for "+str(destination))

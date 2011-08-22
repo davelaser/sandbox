@@ -28,18 +28,14 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		locationid = self.request.get('locationid')
         
 		memcachePlaces = memcache.get(str(locationid)+":"+str(types)+":"+str(radius))
-		
 		if memcachePlaces is not None:
 			logging.info("Retrieving PLACES from MEMCACHE")
 			self.response.out.write(memcachePlaces)
 		else:
-			placesData = datastore.get_places_by_hotellocationid_types_radius(locationid, types, radius)
-			if placesData.get() is not None:
+			placesData = datastore.get_places_by_hotellocationid_types_radius(locationid, types, radius).get()
+			if placesData is not None:
 				logging.info("Retrieving PLACES from DATASTORE")
-				jsonResponse = None
-				for data in placesData:				
-					jsonResponse = data.places
-				self.response.out.write(jsonResponse)
+				self.response.out.write(placesData)
 			else:
 				logging.info("Requesting PLACES from GOOGLE")   	
 				try:
@@ -102,7 +98,7 @@ class HotelStoreTaskWorker(webapp.RequestHandler):
 			logging.error("HotelStoreTaskWorker : Error 424 : bad response from put_hotels_by_destination() for destination "+str(destination))
 			self.error(424)
 		else:
-			logging.info("HotelStoreTaskWorker() : successfully added LMHotel destination "+str(destination))
+			logging.info("HotelStoreTaskWorker() : task completed successfully for "+str(destination))
 
 class HotelPriceStoreTaskWorker(webapp.RequestHandler):
     def post(self):                                                                                          
