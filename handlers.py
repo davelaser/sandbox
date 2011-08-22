@@ -95,8 +95,8 @@ class HotelStoreTaskWorker(webapp.RequestHandler):
 		destination = self.request.get("destination")
 		result = datastore.put_hotels_by_destination(destination, self.request.get("data"))
 		if result is False:
-			logging.error("HotelStoreTaskWorker : Error 424 : bad response from put_hotels_by_destination() for destination "+str(destination))
-			self.error(424)
+			logging.error("HotelStoreTaskWorker : Error 500 : bad response from put_hotels_by_destination() for destination "+str(destination))
+			self.error(500)
 		else:
 			logging.info("HotelStoreTaskWorker() : task completed successfully for "+str(destination))
 
@@ -107,8 +107,8 @@ class HotelPriceStoreTaskWorker(webapp.RequestHandler):
 		result = datastore.put_hotel_by_price(destination, locationid, self.request.get("price"), self.request.get("startDate"), self.request.get("endDate"))
         
 		if result is False:
-			logging.error("HotelPriceStoreTaskWorker : Error 424 : "+str(destination)+", with locationid "+str(locationid))
-			self.error(424)
+			logging.error("HotelPriceStoreTaskWorker : Error 500 : "+str(destination)+", with locationid "+str(locationid))
+			self.error(500)
 		else:
 			logging.debug("HotelPriceStoreTaskWorker() : successfully added LMHotelPriceAndDate destination "+str(destination)+", with locationid "+str(locationid))
 
