@@ -101,8 +101,8 @@ class HotelStoreTaskWorker(webapp.RequestHandler):
 		destination = self.request.get("destination")
 		result = datastore.put_hotels_by_destination(destination, self.request.get("data"))
 		if result is False:
-			logging.error("HotelStoreTaskWorker : Error 500 : bad response from put_hotels_by_destination() for destination "+str(destination))
-			self.error(500)
+			logging.error("HotelStoreTaskWorker : Error 424 : bad response from put_hotels_by_destination() for destination "+str(destination))
+			self.error(424)
 		else:
 			logging.info("HotelStoreTaskWorker() : successfully added LMHotel destination "+str(destination))
 
@@ -113,8 +113,8 @@ class HotelPriceStoreTaskWorker(webapp.RequestHandler):
 		result = datastore.put_hotel_by_price(destination, locationid, self.request.get("price"), self.request.get("startDate"), self.request.get("endDate"))
         
 		if result is False:
-			logging.error("HotelPriceStoreTaskWorker : Error 500 : "+str(destination)+", with locationid "+str(locationid))
-			self.error(500)
+			logging.error("HotelPriceStoreTaskWorker : Error 424 : "+str(destination)+", with locationid "+str(locationid))
+			self.error(424)
 		else:
 			logging.debug("HotelPriceStoreTaskWorker() : successfully added LMHotelPriceAndDate destination "+str(destination)+", with locationid "+str(locationid))
 
@@ -146,8 +146,10 @@ class EANHotelRequest(webapp.RequestHandler):
 				requestServiceURL = config_properties.get('EAN', 'xml_service_url')
 				f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
 				response = f.read()
-				logging.info(response)
-			
+				logging.info(type(response))
+			    
+				response = response.replace('&gt;','>')
+				response = response.replace('&lt;','<')
 			except urllib2.URLError, e:
 				logging.error("EANHotelRequest : urllib2 error") 
 				logging.error(e)
@@ -165,7 +167,7 @@ class EANHotelRequest(webapp.RequestHandler):
 						result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
 		
 			if result is not None:
-				logging.info(result)
+				#logging.info(result)
 				global_mashup['hotels'] = result
 		
 				path = os.path.join(os.path.dirname(__file__),'templates/expedia/hotels.html')
