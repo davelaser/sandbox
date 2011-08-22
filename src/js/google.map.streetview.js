@@ -1,5 +1,5 @@
 RIA.MapStreetView = new Class({
-	Implements:[RIA.Gradient],
+	Implements:[RIA.Gradient, RIA.GoogleAnalyticsHelper],
 	options:{
 		geocodeURL:"/geocodeworker",
 		geolocation:null, 
@@ -477,7 +477,10 @@ RIA.MapStreetView = new Class({
 		
 			// Add a timeout to stop animating the Marker by removing {animation:google.maps.Animation.BOUNCE}
 			hotel.bookmark.timeout = this.animateMarker.delay(2100, this, [hotel.bookmark, null]);  
-			hotel.bookmarkSV.timeout = this.animateMarker.delay(2100, this, [hotel.bookmarkSV, null]);  
+			hotel.bookmarkSV.timeout = this.animateMarker.delay(2100, this, [hotel.bookmarkSV, null]);
+			
+			// Track the bookmarking
+			this.trackEvent('Hotel', 'Bookmark', hotel.get("data-locationid")+" : "+hotel.get("data-name"), 1);
 		}
 	},
 	createInfoWindow: function(hotel, marker) {
@@ -514,7 +517,8 @@ RIA.MapStreetView = new Class({
 			this.openInfoWindow(marker, infowindow);   
 			this.animateCurrentMarker();			
 			this.resetPlacesMarkers();
-
+            
+			this.trackEvent('Hotel', 'NavigateByMap', hotel.get("data-locationid")+" : "+hotel.get("data-name"), 1);
 		}.bind(this));
 	},
 	setHotelMarkers: function(hotels) { 
