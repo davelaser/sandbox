@@ -35,6 +35,16 @@ form#search input {
 	-ms-box-shadow: 0 0 3px gray inset;	
 }
 
+form#search input.error {
+	padding:4px 2px;
+	border:3px solid #f00;
+	box-shadow: 0 0 3px #f00 inset;
+	-webkit-box-shadow: 0 0 3px #f00 inset;
+	-moz-box-shadow: 0 0 3px #f00 inset;
+	-o-box-shadow: 0 0 3px #f00 inset;
+	-ms-box-shadow: 0 0 3px #f00 inset;
+}
+
 form#search label {
 	font-size:1.4em;
 	line-height:40px;

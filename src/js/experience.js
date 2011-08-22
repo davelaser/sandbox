@@ -8,7 +8,7 @@ RIA.Experience = new Class({
 		this.setOptions(options);
         
 		RIA.places = new Object();
-		
+		                 
 		this._form = document.id("search");
 		
 		this.toggleContent = document.id("toggle-content"); 
@@ -16,7 +16,7 @@ RIA.Experience = new Class({
 		
 		this.content = document.id("content");
 		this.destination = document.id("destination");
-		
+
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
 		this.twitterNews = document.id("twitter-news");
@@ -230,19 +230,11 @@ RIA.Experience = new Class({
 			if(ready) {
 				document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
 				
-				/*
-				if(this.hotels.hasClass("minimized")) {
-					this.animateToHotel(this.hotelCollection[this.hotelIndex]); 
-					(function() {
-						this.setStreetview(this.hotelCollection[this.hotelIndex]);
-					}.bind(this)).delay(500);
-				} else {
-					this.jumpToHotel(this.hotelCollection[this.hotelIndex]);      
-					this.setStreetview(this.hotelCollection[this.hotelIndex]);
-				} 
-				*/
 				this.jumpToHotel(this.hotelCollection[this.hotelIndex]);      
 				this.setStreetview(this.hotelCollection[this.hotelIndex]);
+				
+				// Track the Hotel View Event
+				this.trackEvent('Hotel', 'NavigateByArrow', this.hotelCollection[this.hotelIndex].get("data-locationid")+" : "+this.hotelCollection[this.hotelIndex].get("data-name"), 1);
 			}
 
 
@@ -294,7 +286,7 @@ RIA.Experience = new Class({
 			
 			document.getElements(".hotel-name").set("text", this.hotelCollection[this.hotelIndex].get("data-name"));
 			
-			RIA.currentDestination = this.hotelCollection[0].get("data-destination");
+			RIA.currentDestination = this.hotelCollection[this.hotelIndex].get("data-destination");
 			//Log.info("RIA.currentDestination is now "+RIA.currentDestination);
 					
 			
@@ -304,8 +296,8 @@ RIA.Experience = new Class({
 				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px"});
 			}
 			
-			this.setStreetview(this.hotelCollection[0]);
-			    
+			this.setStreetview(this.hotelCollection[this.hotelIndex]);
+			
 			if(this.options.bookmarks != null && this.options.bookmarks.length) {
 				this.setBookmarkMarkers(this.hotelCollection);
 			}
@@ -316,6 +308,8 @@ RIA.Experience = new Class({
 			
 			this.addHotelNavEventListeners();
 			
+			// Track the initial hotel view
+			this.trackEvent('Hotel', 'NavigateByArrow', this.hotelCollection[this.hotelIndex].get("data-locationid")+" : "+this.hotelCollection[this.hotelIndex].get("data-name"), 1);
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
 		}   
@@ -336,6 +330,7 @@ RIA.Experience = new Class({
 						e.preventDefault();
 						this.jumpToHotel(hotel);
 						this.setStreetview(this.hotelCollection[this.hotelIndex]);
+						this.trackEvent('Hotel', 'NavigateByNumberList', this.hotelCollection[this.hotelIndex].get("data-locationid")+" : "+this.hotelCollection[this.hotelIndex].get("data-name"), 1);
 					}.bind(this)
 				}
 			}))

@@ -1,5 +1,5 @@
 RIA.AjaxSubmit = new Class({
-	Implements:[Options],
+	Implements:[Options, RIA.GoogleAnalyticsHelper],
 	options:{
         servicePath:null
 	},
@@ -33,14 +33,45 @@ RIA.AjaxSubmit = new Class({
 	},
 	addEventListeners: function() {
 		this.ajaxForm.addEvents({
-			"submit": function(e) {  
-				if(e) e.preventDefault();
-				this.updateDestinationName(this.destination.get("value"));
-				//if(this.destination.get("value") != "") {
-					this.requestData();
-				//}				
-			}.bind(this)
+			"submit": this.validateSearch.bind(this)
 		});
+		
+		this.arrivalDate.addEvents({
+			"focus":function() {
+				if(this.get("value") == this.get("data-default")) {
+					this.set("value", "");
+				}
+			},
+			"blur": function(e) {
+				if(this.get("value") == "") {
+					this.set("value", this.get("data-default"));
+				}
+			}
+		});
+	},
+	validateSearch: function(e) {
+		if(e) e.preventDefault();
+		
+		this.ajaxForm.getElements("input").each(function(element) {
+			element.removeClass("error");
+		},this);
+		
+		var validSearch = true, isValidArrivalDate = false, dateParsed;
+		
+		this.ajaxForm.getElements("input").each(function(element) {
+			if(element.get("data-required") == "true" && element.get("value") == "") {
+				element.addClass("error");
+				validSearch = false;
+			}
+		},this);
+		
+		if(validSearch) {
+			this.requestData();
+			this.updateDestinationName(this.destination.get("value"));			
+		} else {
+			Log.info("Search Form user input data validation error");			
+		}
+		
 	},
 	requestData: function() {
 		/*
@@ -135,7 +166,8 @@ RIA.AjaxSubmit = new Class({
 		}
 		
 
-			
+		this.trackEvent('Hotel', 'Search', destination+", "+this.arrivalDate.get("value")+", "+this.numberOfNights.get("value"), 1);	
+		
 		/*
 		this.requestFlights = new Request.HTML({
 			method:"POST",
