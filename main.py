@@ -160,6 +160,7 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			logging.info("handle_result_ajax_v3 : after response, handing hotel datastore write to taskqueue")
 			
 			for hotel in hotelList:
+				# [ST]TODO: Lookup the Hotel by key_name (locationid) before adding a taskqueue instance for it
 				taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel)})
 				taskqueue.add(queue_name='hotelspricequeue', url='/hotelspriceworker', params={'destination':destination, 'locationid':hotel['locationid'], 'price':hotel['price'], 'startDate':hotel['startdate'], 'endDate':hotel['enddate']})
             
