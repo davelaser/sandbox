@@ -1,11 +1,11 @@
 application: rf-lm-poc
 #application: razorfish-prototype-1
-version: 1-9
+version: 1-10
 #version: 1-1
 runtime: python
 api_version: 1  
 
-default_expiration: "0d"
+default_expiration: "2d"
 
 builtins:
 - deferred: on
@@ -18,16 +18,7 @@ handlers:
   script: main.py
 - url: /hotelsworker
   script: main.py
-  login: admin
+- url: /hotelspriceworker
+  script: main.py
 - url: /.*
   script: main.py
-  
-# OAuth request page
-- url: /admin/authorize_prediction
-  script: oauth_requester.py
-  login: admin
-
-# OAuth callback handler
-- url: /admin/authorize_prediction/auth_callback
-  script: oauth_callback.py
-  login: admin

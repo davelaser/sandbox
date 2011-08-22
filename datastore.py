@@ -11,19 +11,21 @@ import datamodel
 import utils
 
 def get_hotels_by_destination(destination):
-	resultset = datamodel.DBHotel.gql("WHERE destination = '"+destination+"'")
+	resultset = datamodel.LMHotel.gql("WHERE destination = '"+destination+"'")
 	return resultset
 
 def put_hotels_by_destination(destination, data):
 	try:
 		hotel = json.loads(data)
 		resultSet = None
-		dbHotel = datamodel.DBHotel()
+		dbHotel = datamodel.LMHotel()
 		if hotel.has_key('locationid'):
 			dbHotel.locationid = hotel['locationid']
 		if dbHotel.locationid is not None:
 			resultSet = get_hotel_by_locationid_and_destination(dbHotel.locationid, destination)
 		
+		logging.debug('put_hotels_by_destination')
+		logging.debug(resultSet.get())
 		# If we don't already have this hotel, add it to the datastore
 		if resultSet.get() is None:
 			if hotel.has_key('propertyids'):
@@ -41,6 +43,7 @@ def put_hotels_by_destination(destination, data):
 				dateTime = datetime.datetime(int(rawDate[0]), int(rawDate[1]), int(rawDate[2]))
 			except ValueError, e:
 				logging.error("put_hotels_by_destination : invalid startdate")
+				return False
 			startdate = dateTime
 			rawDate = hotel['enddate'].split('-')
 			dateTime = None
@@ -48,6 +51,7 @@ def put_hotels_by_destination(destination, data):
 				dateTime = datetime.datetime(int(rawDate[0]), int(rawDate[1]), int(rawDate[2]))
 			except ValueError, e:
 				logging.error("put_hotels_by_destination : invalid enddate")
+				return False
 			enddate = dateTime
 			
 			if hotel.has_key('index'):
@@ -64,12 +68,13 @@ def put_hotels_by_destination(destination, data):
 			db.put(dbHotel)			
 			
 			logging.debug("put_hotels_by_destination() : Added new hotel to datastore. name:"+str(dbHotel.name)+", address:"+str(dbHotel.address))
+			return True
 		else:
 			logging.debug("put_hotels_by_destination() : hotel with locationid "+dbHotel.locationid+" already exists, so not putting in datastore")
+			return True
 	except CapabilityDisabledError:
 		log.error("put_hotels_by_destination : CapabilityDisabledError, data may not have been saved for "+str(destination))
-		# fail gracefully here
-		pass
+		return False
 
 def get_hotel_by_price(destination, locationid, price, startDate, endDate):
 	price = float(price)
@@ -93,7 +98,7 @@ def get_hotel_by_price(destination, locationid, price, startDate, endDate):
 	return resultset
 
 def get_hotel_by_locationid(locationid):
-	resultset = datamodel.DBHotel.gql("WHERE locationid = '"+locationid+"'")
+	resultset = datamodel.LMHotel.gql("WHERE locationid = '"+locationid+"'")
 	return resultset
 
 def put_hotel_by_price(destination, locationid, price, startDate, endDate):
@@ -102,7 +107,7 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 		
 		if hotelsByPrice.get() is None:
 			hotel = get_hotel_by_locationid(locationid)
-			if hotel is None:
+			if hotel.get() is None:
 				raise e
 			
 			dbHotelByPrice = datamodel.LMHotelPriceAndDate(hotel=hotel.get())
@@ -140,7 +145,7 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 Save LatLng against a Hotel
 """
 def get_hotel_by_locationid_and_destination(locationid, destination):
-	resultset = datamodel.DBHotel.gql("WHERE locationid = '"+locationid+"' AND destination = '"+destination+"'")
+	resultset = datamodel.LMHotel.gql("WHERE locationid = '"+locationid+"' AND destination = '"+destination+"'")
 	return resultset
 
 def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng, countryname, countrycode):
@@ -189,10 +194,6 @@ def get_hotels(destination, price, startDate, endDate, rating):
 		logging.debug("No hotels found for destination "+str(destination)+" and price "+str(price))
 
 def get_hotels_by_price(destination, price, startDate, endDate, rating):
-	logging.debug("get_hotels_by_price()")
-	logging.debug("price : ")
-	logging.debug(type(price))
-	
 	queryString = ""
 	
 	if destination is not None and len(destination) > 0:
@@ -223,7 +224,7 @@ def get_hotels_in_europe_by_price(price):
 		queryString += " AND price <= "+str(price)
 	queryString += " ORDER BY price, index"
 	logging.info(queryString)
-	resultset = datamodel.DBHotel.gql(queryString, queryDestinationList)
+	resultset = datamodel.LMHotel.gql(queryString, queryDestinationList)
 	return resultset
 
 def get_hotels_by_country(countrycode, countryname):
@@ -231,10 +232,10 @@ def get_hotels_by_country(countrycode, countryname):
 	countryString = ""
 	if countrycode is not None:
 		queryString = "WHERE countrycode = :1"
-		resultset = datamodel.DBHotel.gql(queryString, countrycode) 
+		resultset = datamodel.LMHotel.gql(queryString, countrycode) 
 	elif countryname is not None:
 		queryString = "WHERE countryname = :1"
-		resultset = datamodel.DBHotel.gql(queryString, countryname)
+		resultset = datamodel.LMHotel.gql(queryString, countryname)
 	return resultset
 	
 def get_hotels_by_region(regionName):
@@ -249,7 +250,7 @@ def get_hotels_by_region(regionName):
 	
 
 def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
-	# [ST]TODO: Set  a ReferenceProperty to a DBHotel instance by getting the hotel by destination and locationid
+	# [ST]TODO: Set  a ReferenceProperty to a LMHotel instance by getting the hotel by destination and locationid
 	placesRequest = get_places_by_hotellocationid_types_radius(locationid, types, radius)
 	if placesRequest.get() is None:
 		dbPlace = datamodel.DBPlace()
@@ -270,7 +271,7 @@ def get_places_by_hotellocationid_types_radius(locationid, types, radius):
 	
 
 def delete_all_hotels():
-	resultset = datamodel.DBHotel.gql("ORDER BY index")
+	resultset = datamodel.LMHotel.gql("ORDER BY index")
 	db.delete(resultset);
 	resultsetPrices = datamodel.LMHotelPriceAndDate.gql("ORDER BY price")
 	db.delete(resultsetPrices);

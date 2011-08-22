@@ -4,7 +4,7 @@
 	<header>
 		<h3>
 			<span class="name">{{hotel.hotel.name|safe}} {% if destination == "europe" %}({{ hotel.hotel.countryname }}){% endif %}</span> 
-			<span class="stars">{{ hotel.hotel.rating }} star,</span>
+			<span class="stars">{{ hotel.hotel.rating|floatformat:0 }} star,</span>
 			<span class="from">from</span>
 			<span class="price">&#163;{{ hotel.price|floatformat:2 }}<sup>*</sup></span>
 			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
@@ -12,7 +12,7 @@
     </header>
     <div class="rating">
 		{% if hotel.hotel.rating %}
-		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.hotel.rating }}-0.gif" />
+		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.hotel.rating|floatformat:0 }}-0.gif" />
 		{% endif %}
 	</div>
 	<div class="photos" data-thumbnail="http://m.travelocity.com/images/new_york/hotel/0/{{ hotel.hotel.locationid }}/Exterior_H_1.jpg">
@@ -36,11 +36,11 @@
 	</div>
 </div>
 {% else %} 
-<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid|safe }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}" data-price="&#163;{{hotel.price|floatformat:2}}" data-latlng="{{ hotel.latlng }}" data-rating="{{ hotel.rating }}">
+<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.locationid|safe }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}" data-price="&#163;{{hotel.price|floatformat:2}}" data-latlng="{{ hotel.latlng }}" data-rating="{{ hotel.rating|floatformat:0 }}">
 	<header>
 		<h3>
 			<span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}</span> 
-			<span class="stars">{{ hotel.rating }} star,</span>
+			<span class="stars">{{ hotel.rating|floatformat:0 }} star,</span>
 			<span class="from">from</span>
 			<span class="price">&#163;{{ hotel.price|floatformat:2 }}<sup>*</sup></span>
 			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
@@ -48,7 +48,7 @@
     </header>
     <div class="rating">
 		{% if hotel.rating %}
-		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.rating }}-0.gif" />
+		<img src="http://cdn2.travelpn.com.edgesuite.net/trips/11.07.1/brand/lastminute/img/stars-{{ hotel.rating|floatformat:0 }}-0.gif" />
 		{% endif %}
 	</div>
 	<div class="photos" data-thumbnail="http://m.travelocity.com/images/new_york/hotel/0/{{ hotel.locationid }}/Exterior_H_1.jpg">

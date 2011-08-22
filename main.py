@@ -356,6 +356,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		if hotelsData is not None:
 			logging.info("AjaxAPIHandler_v3() : Retrieving Hotels from datastore for destination "+destination)
 			global_mashup['hotels'] = hotelsData
+			
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
 			self.response.out.write(template.render(path, global_mashup))
 		else:
