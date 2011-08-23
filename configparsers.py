@@ -14,3 +14,16 @@ def loadConfigProperties():
 		configProperties.read(configPropertyLocation)
 		memcache.add("config.properties", configProperties)
 		return configProperties
+
+def loadRegionProperties():
+	configProperties = memcache.get("region.properties")
+	if configProperties is not None:
+		#logging.info("Got configProperties from memcache")
+		return configProperties
+	else:
+		#logging.info("NOT Got configProperties from memcache")
+		configPropertyLocation = "properties/countries-by-region.properties"
+		configProperties = ConfigParser()
+		configProperties.read(configPropertyLocation)
+		memcache.add("region.properties", configProperties)
+		return configProperties

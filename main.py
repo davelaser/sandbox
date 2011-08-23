@@ -9,7 +9,7 @@ import xml.dom.minidom as md
 import urllib
 import urllib2
 import datetime
- 
+
 from google.appengine.api import urlfetch
 from google.appengine.api import quota
 from django.utils import simplejson as json
@@ -25,7 +25,7 @@ from google.appengine.ext import deferred
 """
 Import local scripts
 """
-import datamodel    
+import datamodel
 import configparsers
 import datastore
 import utils
@@ -72,7 +72,7 @@ hotel_booking_dest_names = {
 	'paris':'PAR',
 	'madrid':'MAD',
 	'amsterdam':'AMS',
-	'barcelona':'BCN'		
+	'barcelona':'BCN'
 }
 
 tripadvisor_image_paths = {
@@ -86,11 +86,11 @@ tripadvisor_image_paths = {
 	'losangeles':'los_angeles',
 	'amalfi':'amalfi',
 	'positano':'positano'
-}                   
-
+}
 
 	
 		
+
 """ Use with Live Kapow Service - Handle an RPC result instance, for Flights """
 def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response):
 	starthandle_result_ajax_v3 = quota.get_request_cpu_usage()
@@ -103,18 +103,18 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			
 			counter = 1
 			hotelList = list()
-			for hotel in f:				
+			for hotel in f:
 				if hotel['address'] is not None:
 					hotelDict = dict()
-					price = hotel['price'].replace('&#163;','')
-					price = price.replace(',','')
-					price = float(price)                                           
-
+					hotelPrice = hotel['price'].replace('&#163;','')
+					hotelPrice = hotelPrice.replace(',','')
+					hotelPrice = float(hotelPrice)
+					
 					hotelDict['name'] = hotel['name']
 					# [ST]TODO: Move price, startdate and enddate to LMHotelPriceAndDate db.Model
 					hotelDict['startdate'] = startDate.date().isoformat()
 					hotelDict['enddate'] = endDate.date().isoformat()
-					hotelDict['price'] = price
+					hotelDict['price'] = hotelPrice
 					hotelDict['address'] = hotel['address']
 					hotelDict['destination'] = destination
 					hotelDict['index'] = counter
@@ -124,12 +124,12 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 						rating = rating.split("/").pop()
 						rating = rating.split('-')[1]
 						hotelDict['rating'] = rating
-
+					
 					if hotel['url'] is not None:
 						hotelLink = hotel['url']
 						hotelLinkArray = hotelLink.split("&amp;")
 						for param in hotelLinkArray:
-							if param.startswith("propertyIds"):        
+							if param.startswith("propertyIds"):
 								propertyIdValue = param.split("=")[1]
 								hotelDict['locationid'] = propertyIdValue.split('-',1)[0]
 								if len(hotelDict['locationid']) == 3:
@@ -138,20 +138,25 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 									hotelDict['locationid'] = "00"+hotelDict['locationid']
 								if len(hotelDict['locationid']) == 5:
 									hotelDict['locationid'] = "0"+hotelDict['locationid']
-									
-								hotelDict['propertyids'] = propertyIdValue
 								
+								hotelDict['propertyids'] = propertyIdValue
+							
 							if param.startswith("hotelRequestId"):
 								hotelDict['hotelrequestid'] = param.split("=")[1]
-								
+						
 						hotelDict['productdetailsurl'] = str(hotelLink).replace('tabId=information','tabId=rooms')
 					else:
 						hotelDict['locationid'] = destination+str(counter)
 					counter += 1
 					hotelList.append(hotelDict)
 			
-			# [ST] WARNING: With this execution we cannot filter by price on the first search of a destion, startdate and enddate		
-			global_mashup['hotels'] = hotelList		
+			# [ST] WARNING: With this execution we cannot filter by price on the first search of a destination, startdate and enddate
+			
+			memcacheKey = str(destination)+":"+str(price)+":"+str(startDate.date().isoformat())+":"+str(endDate.date().isoformat())
+			logging.info("Setting hotels to MEMCACHE with key : "+memcacheKey)
+			
+			memcache.set(memcacheKey, hotelList)
+			global_mashup['hotels'] = hotelList
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			response.out.write(template.render(path, global_mashup))
 			
@@ -163,21 +168,21 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 				# [ST]TODO: Lookup the Hotel by key_name (locationid) before adding a taskqueue instance for it
 				taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel)})
 				taskqueue.add(queue_name='hotelspricequeue', url='/hotelspriceworker', params={'destination':destination, 'locationid':hotel['locationid'], 'price':hotel['price'], 'startDate':hotel['startdate'], 'endDate':hotel['enddate']})
-            
 			
+		
 		elif result.status_code == 400:
 			logging.info("RPC response ERROR code: 400")
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
-			response.out.write(template.render(path, global_mashup))	    
+			response.out.write(template.render(path, global_mashup))
 	except urlfetch.DownloadError:
 		logging.info("RPC response DEADLINE OR DOWNLOAD ERROR")
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/service-error.html')
 		response.out.write(template.render(path, global_mashup))
-		
+
 
 """ Use with Live Kapow Service - Use a helper function to define the scope of the callback, for Ajax Request Handler """
 def create_callback_ajax_v3(rpc, destination, price, startDate, endDate, response):
-	return lambda: handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)		
+	return lambda: handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 
 def get_hotels_request_url(destination, startDate, endDate):
 	"""
@@ -229,7 +234,7 @@ def kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, respon
 class HomeHandler(webapp.RequestHandler):
     def get(self):
 		path = os.path.join(os.path.dirname(__file__),'templates/mashup.html')
-		self.response.out.write(template.render(path, {}))		
+		self.response.out.write(template.render(path, {}))
 
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
@@ -245,14 +250,14 @@ class ExperienceHandler(webapp.RequestHandler):
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
 		startDate = self.request.get("startDate")
-
-		servicePath = requestEANHotelList         
+		
+		servicePath = requestEANHotelList
 		brand = "razorfish"
 		urlPath = self.request.path
-
+		
 		if urlPath is not None and len(urlPath) > 1:
 			brand = urlPath.replace('/','')
-		    
+			
 			if brand == "lastminute":
 				servicePath = requestAjaxAPI
 			elif brand == "expedia":
@@ -261,11 +266,11 @@ class ExperienceHandler(webapp.RequestHandler):
 				servicePath = requestEANHotelList
 		if len(price) > 0:
 			price = float(price)
-			
+		
 		destinationDisplayName = destination
-		tripAdvisorDestination = destination 
+		tripAdvisorDestination = destination
 		bookmarks = self.request.get("bookmarks").split(',')
-		maptype = self.request.get("maptype") 
+		maptype = self.request.get("maptype")
 		contenttype = self.request.get("contenttype")
 		if utils.destination_display_names.has_key(destination):
 			destinationDisplayName = utils.destination_display_names[destination]
@@ -277,14 +282,14 @@ class ExperienceHandler(webapp.RequestHandler):
 		facebookAccessToken = config_properties.get('Facebook', 'access_token')
 		analytics_key = config_properties.get('Google', 'analytics_key')
 		args = dict(servicePath=servicePath, brand=brand, analytics_key=analytics_key, viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate)
-		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')		
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')
 		self.response.out.write(template.render(path, args))
 	def post(self):
 		destination = self.request.POST.get("destination")
 
 
 class AjaxAPIHandler_v3(webapp.RequestHandler):
-  def get(self):		
+  def get(self):
 	self.response.error = 500
 	return True
   def post(self):
@@ -301,17 +306,17 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	ratingRaw = self.request.get("rating")
 	rating = None
 	if ratingRaw is not None:
-		rating = True       
- 	logging.info(startDateRaw)	
+		rating = True
+ 	logging.info(startDateRaw)
 	if startDateRaw is not None:
-		startDate = startDateRaw.split('-')	
-	try:		                
+		startDate = startDateRaw.split('-')
+	try:
 		
 		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 	except ValueError, e:
 		logging.error(e)
 		logging.error("AjaxAPIHandler_v3 : Invalid date values or date format")
-	startDate = dateTime       
+	startDate = dateTime
 	
 	numberOfNightsRaw = self.request.POST.get("numberOfNights")
 	endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
@@ -321,8 +326,8 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	priceRaw = self.request.POST.get("priceMax")
 	if priceRaw is not None and len(priceRaw) > 0:
 		price = float(priceRaw)
-		
     
+	
 	global_mashup['price'] = price
 	global_mashup['name'] = destination
 	destination = re.sub(r'(<|>|\s)', '', destination)
@@ -330,18 +335,18 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	global_mashup['destination'] = destination
 	info_type = self.request.POST.get("info_type")
 	info_type = info_type.replace(' ', '').lower()
-
+	
 	"""
 	If the Destination provided matches a nice display name we have stored locally, then use this.
 	WARNING: Otherwise the Destination will be set to whatever the User provided!
 	"""
-
+	
 	if utils.destination_display_names.has_key(destination):
 		global_mashup['name'] = utils.destination_display_names[destination]
-		
+   	
    	if tripadvisor_image_paths.has_key(destination):
 		global_mashup['tripAdvisorDestination'] = tripadvisor_image_paths[destination]
-
+	
 	if info_type == "weather":
 		get_weather(destination)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/weather.html')
@@ -349,35 +354,49 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	elif info_type == "guardian":
 		get_guardian(destination)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
-		self.response.out.write(template.render(path, global_mashup))		   	
+		self.response.out.write(template.render(path, global_mashup))
 	else:
-		if destination == "europe":
-			hotelsData = datastore.get_hotels_in_region_by_price('europe', price)		
-			logging.info(hotelsData)
-			hotelsList = list()
-			for hotel in hotelsData:
-				logging.info(hotel)
-				hotelsList.append(hotel)
-			hotelsData = hotelsList
-		else:                                                                                       
-			# [ST]TODO: Reinstate arguments: rating
-		    hotelsData = datastore.get_hotels(destination, price, startDate, endDate, None)
-			
-		if hotelsData is not None:
-			logging.info("AjaxAPIHandler_v3() : Retrieving Hotels from datastore for destination "+destination)
-			global_mashup['hotels'] = hotelsData
-			
+		
+		memcacheKey = str(destination)+":"+str(price)+":"+str(startDate.date().isoformat())+":"+str(endDate.date().isoformat())
+		memcachedHotels = memcache.get(memcacheKey)
+		logging.info("Looking up MEMCACHE for : "+memcacheKey)
+		logging.info(memcachedHotels)
+		if memcachedHotels is not None:
+			global_mashup['hotels'] = memcachedHotels
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
 			self.response.out.write(template.render(path, global_mashup))
+			logging.info("AjaxAPIHandler_v3() : Retrieving Hotels from MEMCACHE for destination "+str(destination))
 		else:
-			logging.info("NOT Got hotels from datastore")
-			mashup = kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, self.response)
-
+			regions = utils.get_regions()
+			if destination in regions:
+				hotelsData = datastore.get_hotels_by_region(destination, price)
+				if hotelsData is None:
+					logging.info("No results for "+str(destination))
+					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+					self.response.out.write(template.render(path, global_mashup))
+					return
+				logging.info("Setting hotels to MEMCACHE with key : "+memcacheKey)
+				memcache.set(memcacheKey, hotelsData)
+			
+			else:
+				# [ST]TODO: Reinstate arguments: rating
+			    hotelsData = datastore.get_hotels(destination, price, startDate, endDate, None)
+			
+			if hotelsData is not None:
+				logging.info("AjaxAPIHandler_v3() : Retrieving Hotels from datastore for destination "+destination)
+				global_mashup['hotels'] = hotelsData
+				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/'+info_type+'.html')
+				self.response.out.write(template.render(path, global_mashup))
+			else:
+				logging.info("NOT Got hotels from datastore")
+				mashup = kapowAPILiveRPC_v3(destination, price, startDate, endDate, info_type, self.response)
+    
+	
 	endAjaxRequestQuota = quota.get_request_cpu_usage()
 	logging.info("AjaxAPIHandler_v3() : POST : cost %d megacycles." % (endAjaxRequestQuota - startAjaxRequestQuota))
-	return True
-	
-application = webapp.WSGIApplication([         
+	return
+
+application = webapp.WSGIApplication([
 		(requestGeoCode, handlers.GeocodeStoreTaskHandler),
         (requestGeoCodeWorker, handlers.GeocodeStoreTaskWorker),
 		(requestHotelsWorker, handlers.HotelStoreTaskWorker),

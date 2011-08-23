@@ -76,15 +76,26 @@ def parseXML(xmlStringContent):
 	return results
 	
 def get_countries_by_region(region):
-	if region is not None:
+	if region is not None:          
+		region_properties = configparsers.loadRegionProperties()
 		countries = list()
-		if region == 'europe':
-			countries.append('GB')
-			countries.append('FR')
-			countries.append('ES')
-			countries.append('NL')
-			countries.append('IT')
-		return countries
-		
+		# If we have a region Section in the config file...
+		if region_properties.has_section(region):          
+			# And that region Section has items...
+			items = region_properties.items(region)
+			if len(items) > 0:
+				for item in items:
+					# Add the Country Code to the countries list
+					countries.append(item[0].upper())
+		return countries		
 	else:
 		return None
+		
+def get_regions():
+	regions = list()
+	regions.append('europe')
+	regions.append('northamerica')
+	regions.append('southamerica')
+	regions.append('africa')
+	regions.append('asia')
+	return regions

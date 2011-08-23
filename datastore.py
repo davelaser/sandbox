@@ -72,25 +72,18 @@ def put_hotels_by_destination(destination, data):
 		return False
 
 def get_hotel_by_price(destination, locationid, price, startDate, endDate):
-	price = float(price)
-	startDate = startDate.split('-')
+	result = None
 	try:
+		price = float(price)
+		startDate = startDate.split('-')
 		startDate = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
-	except ValueError, e:
-		logging.error(e)
-		logging.error("get_hotel_by_price : Invalid date values or startDate format")
-	
-	endDate = endDate.split('-')
-	try:
+		endDate = endDate.split('-')
 		endDate = datetime.datetime(int(endDate[0]), int(endDate[1]), int(endDate[2]))
+		queryString = "WHERE locationid = '"+str(locationid)+"' AND destination = '"+str(destination)+"' AND price = :1 AND startdate = :2 AND enddate = :3"
+		result = datamodel.LMHotelPriceAndDate.gql(queryString, price, startDate, endDate)
 	except ValueError, e:
-		logging.error(e)
-		logging.error("get_hotel_by_price : Invalid date values for endDate format")
-	
-	queryString = "WHERE locationid = '"+str(locationid)+"' AND destination = '"+str(destination)+"' AND price = :1 AND startdate = :2 AND enddate = :3"
-	resultset = datamodel.LMHotelPriceAndDate.gql(queryString, price, startDate, endDate)
-	logging.info("get_hotel_by_price(): returning result")
-	return resultset
+		logging.error("get_hotel_by_price : ValueError" % e)
+	return result
 
 def get_hotel_by_locationid(locationid):
 	resultset = datamodel.LMHotel.gql("WHERE locationid = '"+locationid+"'")
@@ -206,23 +199,33 @@ def get_hotels_by_price(destination, price, startDate, endDate, rating):
 		resultset = datamodel.LMHotelPriceAndDate.gql(queryString, startDate, endDate)
 	return resultset
 
-def get_hotels_in_region_by_price(region, price):
-	countries = utils.get_countries_by_region('europe')
-	logging.info(countries)
-	queryString = "WHERE countrycode IN :1"
-	if price is not None and float(price) > 0.0:
-		queryString += " AND price <= :2 ORDER BY price, index"
-	else:
-		queryString += " ORDER BY index"
-	logging.info(queryString)
+def get_hotels_by_region(region, price):
+	# [ST]TODO: The LMHotel Model has now price attribute. We'll to fetch LMHotelPriceAndDate instead...
+	countries = utils.get_countries_by_region(region)
+	if len(countries) > 0:
+		queryString = "WHERE countrycode IN :1"
+		if price is not None and float(price) > 0.0:
+			queryString += " AND price <= :2 ORDER BY price, index"
+		else:
+			queryString += " ORDER BY index"
+		logging.info(queryString)
 	
-	if price is not None and float(price) > 0.0:
-		resultset = datamodel.LMHotel.gql(queryString, countries, price)
+		if price is not None and float(price) > 0.0:
+			resultset = datamodel.LMHotel.gql(queryString, countries, price)
+		else:
+			resultset = datamodel.LMHotel.gql(queryString, countries)
+		
+		hotelsList = list()
+		for hotel in resultset:
+			hotelsList.append(hotel)
+		if len(hotelsList) == 0:
+			return None
+		else:
+			return hotelsList
 	else:
-		resultset = datamodel.LMHotel.gql(queryString, countries)
-	return resultset
+		return None
 
-def get_hotels_by_country(countrycode, countryname):
+def get_hotels_by_country(countrycode, countryname, price):
 	logging.info("get_hotels_by_country")
 	if countrycode is not None:
 		queryString = "WHERE countrycode = :1"
@@ -234,17 +237,7 @@ def get_hotels_by_country(countrycode, countryname):
 		return resultset
 	else:
 		return None
-	
-def get_hotels_by_region(regionName):
-	logging.info("get_hotels_by_region")
-	regions = utils.get_regions()
-	if regions.has_key(regionName):
-		region = regions[regionName]
-		
-	
-	else:
-		return None
-	
+
 
 def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 	# [ST]TODO: Set  a ReferenceProperty to a LMHotel instance by getting the hotel by destination and locationid
