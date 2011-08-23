@@ -124,6 +124,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
 		departureDate = None
+		price = float(0.0)
 		global_mashup = {}
 		try:
 			arrivalDate = datetime.datetime(int(arrivalDateList[0]), int(arrivalDateList[1]), int(arrivalDateList[2]))
@@ -133,43 +134,54 @@ class EANHotelRequest(webapp.RequestHandler):
 			logging.error(e)
 			logging.error("EANHotelRequest : Invalid date values or date format")
 		
-		if arrivalDate is not None and departureDate is not None:	
-			requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
-
-			try: 
-				requestServiceURL = config_properties.get('EAN', 'xml_service_url')
-				f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
-				response = f.read()
-				logging.info(type(response))
-			    
-				response = response.replace('&gt;','>')
-				response = response.replace('&lt;','<')
-			except urllib2.URLError, e:
-				logging.error("EANHotelRequest : urllib2 error") 
-				logging.error(e)
-		
-			jsonLoadResponse = json.loads(response)	
-
-			result = None
-			global_mashup['name'] = city
-			if utils.destination_display_names.has_key(city):
-				global_mashup['name'] = utils.destination_display_names[city]
-
-			if jsonLoadResponse['HotelListResponse'] is not None:
-				if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
-					if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
-						result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
-		
-			if result is not None:
-				#logging.info(result)
-				global_mashup['hotels'] = result
-		
-				path = os.path.join(os.path.dirname(__file__),'templates/expedia/hotels.html')
+		if arrivalDate is not None and departureDate is not None:
+			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())
+			memcachedHotels = memcache.get(memcacheKey)
+			logging.info("Looking up MEMCACHE for : "+memcacheKey)
+			logging.info(memcachedHotels)
+			if memcachedHotels is not None:
+				global_mashup['hotels'] = memcachedHotels
+	
+				path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 				self.response.out.write(template.render(path, global_mashup))
-			else:
-				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
-				self.response.out.write(template.render(path, global_mashup))			
 				
+			else:	
+				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
+
+				try: 
+					requestServiceURL = config_properties.get('EAN', 'xml_service_url')
+					f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
+					response = f.read()
+					logging.info(type(response))
+			    
+					response = response.replace('&gt;','>')
+					response = response.replace('&lt;','<')
+				except DeadlineExceededError, e:
+					logging.error("EANHotelRequest : DeadlineExceededError error" % e) 
+		
+				jsonLoadResponse = json.loads(response)	
+
+				result = None
+				global_mashup['name'] = city
+				if utils.destination_display_names.has_key(city):
+					global_mashup['name'] = utils.destination_display_names[city]
+
+				if jsonLoadResponse['HotelListResponse'] is not None:
+					if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
+						if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
+							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
+		
+				if result is not None:
+					#logging.info(result)
+					global_mashup['hotels'] = result
+		
+					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
+					self.response.out.write(template.render(path, global_mashup))
+					memcache.set(memcacheKey, result)
+				else:
+					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+					self.response.out.write(template.render(path, global_mashup))			
+				                                                                 
 		else:
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 			self.response.out.write(template.render(path, global_mashup))

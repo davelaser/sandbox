@@ -61,7 +61,16 @@
 				{% comment %}<button id="fb-dialog-send" class="button">Share</button>{% endcomment %}
 			</nav>
 			
+			{% ifequal brand "razorfish" %}
+			{% include "expedia/form.html" %}
+			{% endifequal %}
+			{% ifequal brand "expedia" %}
+			{% include "expedia/form.html" %}
+			{% endifequal %}
+			{% ifequal brand "lastminute" %}
 			{% include "includes/form.html" %} 
+			{% endifequal %}
+			
 		</header>
 		
 		
