@@ -14,3 +14,16 @@ indexes:
   properties:
   - name: countrycode
   - name: index
+
+- kind: LMHotel
+  properties:
+  - name: countrycode
+  - name: price
+  - name: index
+
+- kind: LMHotelPriceAndDate
+  properties:
+  - name: destination
+  - name: enddate
+  - name: startdate
+  - name: price

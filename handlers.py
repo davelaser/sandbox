@@ -26,8 +26,9 @@ class GooglePlacesHandler(webapp.RequestHandler):
 		types = self.request.get('types')
 		radius = self.request.get('radius')
 		locationid = self.request.get('locationid')
-        
-		memcachePlaces = memcache.get(str(locationid)+":"+str(types)+":"+str(radius))
+                                     
+		memcacheKey = str(locationid)+":"+str(types)+":"+str(radius)
+		memcachePlaces = memcache.get(key=memcacheKey)
 		if memcachePlaces is not None:
 			logging.info("Retrieving PLACES from MEMCACHE")
 			self.response.out.write(memcachePlaces)
@@ -53,7 +54,7 @@ class GooglePlacesHandler(webapp.RequestHandler):
 					result = urllib.urlopen(placesURL % urlAgrsEncoded)
 					jsonResponse = result.read()
 					self.response.out.write(jsonResponse)
-					memcache.set(str(locationid)+":"+str(types)+":"+str(radius), jsonResponse)
+					memcache.set(key=memcacheKey, value=jsonResponse)
 					datastore.put_places_by_hotellocationid_and_types(locationid, types, jsonResponse, radius)
 				except urllib2.URLError, e:
 					logging.error("GooglePlacesHandler : urllib2 error") 
@@ -136,7 +137,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		
 		if arrivalDate is not None and departureDate is not None:
 			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())
-			memcachedHotels = memcache.get(memcacheKey)
+			memcachedHotels = memcache.get(key=memcacheKey, namespace='ean')
 			logging.info("Looking up MEMCACHE for : "+memcacheKey)
 			logging.info(memcachedHotels)
 			if memcachedHotels is not None:
@@ -177,7 +178,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 					self.response.out.write(template.render(path, global_mashup))
-					memcache.set(memcacheKey, result)
+					memcache.set(key=memcacheKey, value=result, namespace='ean')
 				else:
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 					self.response.out.write(template.render(path, global_mashup))			

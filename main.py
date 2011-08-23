@@ -155,18 +155,22 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 			memcacheKey = str(destination)+":"+str(price)+":"+str(startDate.date().isoformat())+":"+str(endDate.date().isoformat())
 			logging.info("Setting hotels to MEMCACHE with key : "+memcacheKey)
 			
-			memcache.set(memcacheKey, hotelList)
+			memcache.set(key=memcacheKey, value=hotelList, namespace='lastminute')
 			global_mashup['hotels'] = hotelList
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/hotels.html')
 			response.out.write(template.render(path, global_mashup))
 			
 			# After sending the response, add the datastore write to the taskqueue
-			# [ST] WARNING: db.put(list) batch dtastore writes are extremely expensive on CPU/s. Use a taskqueue that writes 1 hotel at a time
-			logging.info("handle_result_ajax_v3 : after response, handing hotel datastore write to taskqueue")
-			
 			for hotel in hotelList:
 				# [ST]TODO: Lookup the Hotel by key_name (locationid) before adding a taskqueue instance for it
-				taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel)})
+				existingHotel = datamodel.LMHotel.get_by_key_name(hotel['locationid'])
+				logging.info(existingHotel)
+				if existingHotel is None:
+					logging.info("handle_result_ajax_v3() : Hotel with location id "+str(hotel['locationid'])+" DOES NOT exist. Assigning task to queue")
+					taskqueue.add(queue_name='hotelsqueue', url='/hotelsworker', params={'destination':destination, 'data':json.dumps(hotel)})
+				 
+				logging.info("handle_result_ajax_v3() : Hotel with location id "+str(hotel['locationid'])+" DOES exist. No task queue necessary")
+				# Add the new price data for this hotel
 				taskqueue.add(queue_name='hotelspricequeue', url='/hotelspriceworker', params={'destination':destination, 'locationid':hotel['locationid'], 'price':hotel['price'], 'startDate':hotel['startdate'], 'endDate':hotel['enddate']})
 			
 		
@@ -358,7 +362,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	else:
 		
 		memcacheKey = str(destination)+":"+str(price)+":"+str(startDate.date().isoformat())+":"+str(endDate.date().isoformat())
-		memcachedHotels = memcache.get(memcacheKey)
+		memcachedHotels = memcache.get(key=memcacheKey, namespace='lastminute')
 		logging.info("Looking up MEMCACHE for : "+memcacheKey)
 		logging.info(memcachedHotels)
 		if memcachedHotels is not None:
@@ -376,7 +380,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 					self.response.out.write(template.render(path, global_mashup))
 					return
 				logging.info("Setting hotels to MEMCACHE with key : "+memcacheKey)
-				memcache.set(memcacheKey, hotelsData)
+				memcache.set(key=memcacheKey, value=hotelsData, namespace='lastminute')
 			
 			else:
 				# [ST]TODO: Reinstate arguments: rating
