@@ -35,11 +35,10 @@ def put_hotels_by_destination(destination, data):
 			dbHotel.rating = float(hotel['rating'])
 		if hotel.has_key('hotelrequestid'):
 			dbHotel.hotelrequestid = hotel['hotelrequestid']
-		
+	
 		logging.debug("put_hotels_by_destination() : Added new hotel to datastore. name:"+str(dbHotel.name)+", address:"+str(dbHotel.address))
 		dbHotel.put()
-		return True
-	
+		return True 
 	
 	except (ValueError, CapabilityDisabledError):
 		logging.error('put_hotels_by_destination() : ' % e)
@@ -69,8 +68,6 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 		
 		if hotelsByPrice.get() is None:
 			existingHotel = datamodel.LMHotel.get_by_key_name(locationid)
-			logging.info("put_hotel_by_price() : retrieving hotel by key_name")
-			logging.info(existingHotel)
 			if existingHotel is None:
 				raise e
 			
@@ -114,37 +111,34 @@ def get_hotel_by_locationid_and_destination(locationid, destination):
 	return resultset
 
 def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng, countryname, countrycode):
-	hotelRequest = get_hotel_by_locationid_and_destination(locationid, destination)
-	if hotelRequest.get() is not None:
-		for data in hotelRequest:
-			"""
-			This only returns 1 entity, so no need for a batch .put() operation here
-			"""
-			requiredtoput = False
+	existingHotel = datamodel.LMHotel.get_by_key_name(locationid)
+	if existingHotel is not None:
+		requiredtoput = False
+		
+		if existingHotel.latlng is None:
+			existingHotel.latlng = db.GeoPt(lat,lng)
+			requiredtoput = True
+			logging.debug("put_latlng_by_hotel_locationid_and_destination() : latlng is None, so storing for locationid : "+str(locationid))
+		if existingHotel.countryname is None:
+			requiredtoput = True
+			existingHotel.countryname = countryname
+			logging.debug("put_latlng_by_hotel_locationid_and_destination() : countryname is None, so storing for locationid : "+str(locationid))
+		if existingHotel.countrycode is None:
+			requiredtoput = True
+			existingHotel.countrycode = countrycode
+			logging.debug("put_latlng_by_hotel_locationid_and_destination() : countrycode is None, so storing for locationid : "+str(locationid))
+		try:
+			if(requiredtoput is True):
+				existingHotel.put()
+		except CapabilityDisabledError:
+			log.error("put_latlng_by_hotel_locationid_and_destination() : CapabilityDisabledError")
+			# fail gracefully here
+			raise e
 			
-			if data.latlng is None:
-				data.latlng = db.GeoPt(lat,lng)
-				requiredtoput = True
-				logging.debug("put_latlng_by_hotel_locationid_and_destination() : latlng is None, so storing for locationid : "+str(locationid))
-			if data.countryname is None:
-				requiredtoput = True
-				data.countryname = countryname
-				logging.debug("put_latlng_by_hotel_locationid_and_destination() : countryname is None, so storing for locationid : "+str(locationid))
-			if data.countrycode is None:
-				requiredtoput = True
-				data.countrycode = countrycode
-				logging.debug("put_latlng_by_hotel_locationid_and_destination() : countrycode is None, so storing for locationid : "+str(locationid))
-			try:
-				if(requiredtoput is True):
-					db.put(data)
-			except CapabilityDisabledError:
-				log.error("put_latlng_by_hotel_locationid_and_destination : CapabilityDisabledError")
-				# fail gracefully here
-				pass
-		return "true"
+		return True
 	else:
 		logging.debug("put_latlng_by_hotel_locationid_and_destination() : Hotel at locationid "+locationid+" NOT FOUND!")
-		return "false"
+		return False
 
 def get_hotels(destination, price, startDate, endDate, rating):
 	hotelsByPrice = get_hotels_by_price(destination, price, startDate, endDate, rating)
@@ -184,7 +178,7 @@ def get_hotels_by_region(region, price):
 		if price is not None and float(price) > 0.0:
 			queryString += " AND price <= :2 ORDER BY price, index"
 		else:
-			queryString += " ORDER BY index"
+			queryString += " ORDER BY index LIMIT 30"
 		logging.info(queryString)
 		
 		if price is not None and float(price) > 0.0:

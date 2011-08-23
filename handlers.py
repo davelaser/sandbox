@@ -54,7 +54,7 @@ class GooglePlacesHandler(webapp.RequestHandler):
 					result = urllib.urlopen(placesURL % urlAgrsEncoded)
 					jsonResponse = result.read()
 					self.response.out.write(jsonResponse)
-					memcache.set(key=memcacheKey, value=jsonResponse)
+					memcache.set(key=memcacheKey, value=jsonResponse, time=6000)
 					datastore.put_places_by_hotellocationid_and_types(locationid, types, jsonResponse, radius)
 				except urllib2.URLError, e:
 					logging.error("GooglePlacesHandler : urllib2 error") 
@@ -80,7 +80,12 @@ class GeocodeStoreTaskWorker(webapp.RequestHandler):
 		lng = self.request.get("lng")
 		countryname = self.request.get("countryname")
 		countrycode = self.request.get("countrycode")
-		datastore.put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng, countryname, countrycode)
+		result = datastore.put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng, countryname, countrycode)
+		if result is False:
+			logging.error("GeocodeStoreTaskWorker() : Error 500 : bad response from put_latlng_by_hotel_locationid_and_destination() for locationid "+str(locationid))
+			self.error(500)
+		else:
+			logging.info("GeocodeStoreTaskWorker() : task completed successfully for locationid "+str(locationid))
         
 class HotelStoreTaskHandler(webapp.RequestHandler):
     def post(self):
@@ -178,7 +183,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 					self.response.out.write(template.render(path, global_mashup))
-					memcache.set(key=memcacheKey, value=result, namespace='ean')
+					memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
 				else:
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 					self.response.out.write(template.render(path, global_mashup))			

@@ -132,6 +132,10 @@ def handle_result_ajax_v3(rpc, destination, price, startDate, endDate, response)
 							if param.startswith("propertyIds"):
 								propertyIdValue = param.split("=")[1]
 								hotelDict['locationid'] = propertyIdValue.split('-',1)[0]
+								if len(hotelDict['locationid']) == 1:
+									hotelDict['locationid'] = "00000"+hotelDict['locationid']
+								if len(hotelDict['locationid']) == 2:
+									hotelDict['locationid'] = "0000"+hotelDict['locationid']
 								if len(hotelDict['locationid']) == 3:
 									hotelDict['locationid'] = "000"+hotelDict['locationid']
 								if len(hotelDict['locationid']) == 4:
@@ -376,8 +380,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 					self.response.out.write(template.render(path, global_mashup))
 					return
 				logging.info("Setting hotels to MEMCACHE with key : "+memcacheKey)
-				memcache.set(key=memcacheKey, value=hotelsData, namespace='lastminute')
-			
+				memcache.set(key=memcacheKey, value=hotelsData, time=6000, namespace='lastminute')
+				global_mashup['region'] = destination
+				
 			else:
 				# [ST]TODO: Reinstate arguments: rating
 			    hotelsData = datastore.get_hotels(destination, price, startDate, endDate, None)
@@ -389,7 +394,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 				self.response.out.write(template.render(path, global_mashup))
 				
 				logging.info("Setting hotels to MEMCACHE with key : "+memcacheKey)
-				memcache.set(key=memcacheKey, value=hotelsData, namespace='lastminute')
+				memcache.set(key=memcacheKey, value=hotelsData, time=6000, namespace='lastminute')
 				
 			else:
 				logging.info("NOT Got hotels from datastore")
