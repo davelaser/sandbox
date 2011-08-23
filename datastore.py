@@ -94,11 +94,13 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 		hotelsByPrice = get_hotel_by_price(destination, locationid, price, startDate, endDate)
 		
 		if hotelsByPrice.get() is None:
-			hotel = get_hotel_by_locationid(locationid)
-			if hotel.get() is None:
+			existingHotel = datamodel.LMHotel.get_by_key_name(locationid)
+			logging.info("put_hotel_by_price() : retrieving hotel by key_name")
+			logging.info(existingHotel)
+			if existingHotel is None:
 				raise e
 			
-			dbHotelByPrice = datamodel.LMHotelPriceAndDate(hotel=hotel.get())
+			dbHotelByPrice = datamodel.LMHotelPriceAndDate(hotel=existingHotel)
 			dbHotelByPrice.destination = destination
 			dbHotelByPrice.price = float(price) # [ST]NOTE: we have already converted this to float in main.py:handle_result_ajax_v3()
 			startDate = startDate.split('-')
