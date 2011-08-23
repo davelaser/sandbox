@@ -62,14 +62,14 @@
 			<filelist dir="${build.js.dir}" 
 				files="
 				mootools.js,
-				build.concat.js
+				build.min.js
 				"/>
 		</concat>		
 	</target>
 	
 	<target name="OPERATION.JS.Build" description="Building JS">
 		<ant target="OPERATION.JS.Concat"/>
-		<!--<ant target="OPERATION.JS.Minify"/>-->
+		<ant target="OPERATION.JS.Minify"/>
 		<ant target="OPERATION.JS.Package"/>		
 	</target>
 </project>
