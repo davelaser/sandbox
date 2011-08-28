@@ -197,7 +197,7 @@ RIA.GooglePlaces = new Class({
 		*		place[Object](returned from a Places API request)
 		*		latLng[Object(LatLng)]
 		*/ 
-   	 	var mapIcon; 
+   	 	var mapIcon, panoIcon, latLng; 
 
 		if(place.types.length > 0 && RIA.MarkerIconsImages[place.types[0]]) {
 			mapIcon = RIA.MarkerIconsImages[place.types[0]];
@@ -205,7 +205,7 @@ RIA.GooglePlaces = new Class({
 			mapIcon = RIA.MarkerIconsImages.star;
 		}
        
-		var panoIcon = new google.maps.MarkerImage(place.icon),
+		panoIcon = new google.maps.MarkerImage(place.icon);
 		latLng = new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng);
 	                                                  
 		place.placesMarker = new google.maps.Marker({
