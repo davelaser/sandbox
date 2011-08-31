@@ -1,11 +1,11 @@
 application: rf-lm-poc
 #application: razorfish-prototype-1
-version: 1-11
+version: 1-12
 #version: 1-2
 runtime: python
 api_version: 1  
 
-default_expiration: "2d"
+default_expiration: "0d"
 
 builtins:
 - deferred: on

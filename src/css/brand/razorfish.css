@@ -5,9 +5,12 @@ a {
 h1 {
 	background:#fff; 
 	color:#000;
-	height:88px;
+	height:60px;
 }
 
+h1 img {
+	margin:20px 0 0 20px;
+}
 .button {
 	background:#000;
 	color:#fff;	
@@ -17,7 +20,7 @@ form#search {
     background:#fff;
 }
 header#main {
-    height:186px;
+    height:160px;
 }
 #horizontal a {
 	background:#000 url(../img/expedia/arrows.png) no-repeat 0 0;
@@ -46,7 +49,7 @@ header#main {
 }
 
 #hotels {
-	top:196px;
+	top:172px;
 }
 nav#hotel-list a.active {
 	background:#000;
