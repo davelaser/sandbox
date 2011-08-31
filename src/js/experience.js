@@ -2,7 +2,8 @@ RIA.Experience = new Class({
 	Implements:[Options, RIA.Utils, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
 		contenttype:"maximized",
-		ios:false
+		ios:false,
+		tweetBox: false
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -25,6 +26,10 @@ RIA.Experience = new Class({
 		this.twitterNews = document.id("twitter-news");
 		
 		this.save = document.id("save");
+		this.share = document.id("share");
+		this.shareDialog = document.id("share-dialog");
+		this.shareDialog.store("viewstate", "closed");
+		this.toggleShareDialog = document.id("toggle-share-dialog");
 		
 		this.places = document.id("places");
 		this.places.store("viewstate", "closed");
@@ -58,8 +63,6 @@ RIA.Experience = new Class({
 		this.addEventListeners();  
 		
 		this.toggleInformation(null);
-		
-		
 		
 	},                          
 	addEventListeners: function() {
@@ -105,6 +108,12 @@ RIA.Experience = new Class({
 			});
 		}
 		
+		if(this.toggleShareDialog) {
+			this.toggleShareDialog.addEvents({
+				"click":this.showShareDialog.bind(this) 
+			});
+		}
+		
 		if(document.id("news")) {
 			document.id("news").addEvents({
 				"click":this.showGuardian.bind(this) 
@@ -116,10 +125,10 @@ RIA.Experience = new Class({
 				"click":this.showPlaces.bind(this)
 			});
 		}
-		if(document.id("share")) {
+		if(this.share) {
 			
-			document.id("share").addEvents({
-				"click":this.shareMyBookmarks.pass([true],this)
+			this.share.addEvents({
+				"click":this.shareMyBookmarks.bind(this)
 			});
 
 		
@@ -128,6 +137,19 @@ RIA.Experience = new Class({
 		if(this.guardian) {
 			this.guardianDrag = new Drag(this.guardian, {
 				handle:this.guardian.getElement("h2"),
+			    snap: 0,
+			    onSnap: function(el){
+			        el.addClass('dragging');
+			    },
+			    onComplete: function(el){
+			        el.removeClass('dragging');
+			    }
+			});
+		}
+		
+		if(this.shareDialog) {
+			this.shareDialogDrag = new Drag(this.shareDialog, {
+				handle:this.shareDialog,
 			    snap: 0,
 			    onSnap: function(el){
 			        el.addClass('dragging');
@@ -348,15 +370,13 @@ RIA.Experience = new Class({
 			
 			// Track the initial hotel view
 			this.trackEvent('Hotel', 'NavigateByArrow', this.hotelCollection[this.hotelIndex].get("data-locationid")+" : "+this.hotelCollection[this.hotelIndex].get("data-name"), 1);
+
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
 		}   
 		
 	}, 
 	createHotelNav: function() {
-		
-		Log.info("Re-writing hotel nav");
-		
 		this.hotelCollection.each(function(hotel, index) {
 			this.hotelsNav.getElement(".results").adopt(new Element("a", {
 				"href":"#",
@@ -430,7 +450,7 @@ RIA.Experience = new Class({
 			}    
 		}
 	},
-	shareMyBookmarks: function(show) {   
+	shareMyBookmarks: function() {   
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
 		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
@@ -443,10 +463,30 @@ RIA.Experience = new Class({
             index++;
 		},this);    
 		
-		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&viewType="+this.options.viewType+"&fb_ref=message";
+		//RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&viewType="+this.options.viewType+"&fb_ref=message";
 		
-		this.fbDialogSend();
+		//this.fbDialogSend();
 		
+		if(twttr && !this.options.tweetBox) {
+			this.tweetBox = null;
+			document.id("share-dialog-content").empty();
+			
+			twttr.anywhere(function (T) {
+		    	this.tweetBox = T("#share-dialog-content").tweetBox({
+					label:"Share saved Hotels with friends",
+		      		height: 100,
+		      		width: 400,
+		      		defaultContent: "My saved hotels at @RazorfishHotels "+RIA.shareURL,
+					onTweet: function(plainTextTweet, HTMLTweet) {
+						Log.info("TweetBox Tweet sent");
+						Log.info(plainTextTweet);
+						LOG.INFO(HTMLTweet);
+					}.bind(this)
+		    	});
+		  	}.bind(this));
+			this.shareDialog.setStyles({"display":"block"});
+			this.options.tweetBox = true;
+		}
 	},
 	showPlaces: function(e) {
 		e.preventDefault();
@@ -469,6 +509,18 @@ RIA.Experience = new Class({
 			this.guardian.setStyles({"display":"none"}); 
 		}
 		
+	},
+	showShareDialog: function(e) {
+		e.preventDefault();
+		if(this.shareDialog.retrieve("viewstate") == "closed") {
+    		this.shareDialog.store("viewstate", "open"); 
+			this.shareDialog.setStyles({"display":"block"});
+			this.options.tweetBox = true;
+		} else {   
+    		this.shareDialog.store("viewstate", "closed");
+			this.shareDialog.setStyles({"display":"none"}); 
+			this.options.tweetBox = false;
+		}
 	},
 	sortEvent: function(e) {
 		try { 

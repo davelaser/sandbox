@@ -184,7 +184,7 @@ RIA.MapStreetView = new Class({
 		}.bind(this));
 		
 		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'idle', function() {
-		    Log.info("RIA.map Event : idle");
+		    //Log.info("RIA.map Event : idle");
 		
 			this.animateCurrentMarker(); 
 		}.bind(this));

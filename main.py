@@ -22,6 +22,7 @@ from google.appengine.runtime import DeadlineExceededError
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import deferred
+from ConfigParser import ConfigParser
 
 """
 Import local scripts
@@ -285,10 +286,14 @@ class ExperienceHandler(webapp.RequestHandler):
 		
 		if tripadvisor_image_paths.has_key(destination):
 			tripAdvisorDestination = tripadvisor_image_paths[destination]
-		
-		facebookAppId = config_properties.get('Facebook', 'app_id')
-		facebookAccessToken = config_properties.get('Facebook', 'access_token')
-		analytics_key = config_properties.get('Google', 'analytics_key')
+		try:
+			facebookAppId = config_properties.get('Facebook', 'app_id')
+			facebookAccessToken = config_properties.get('Facebook', 'access_token')
+			analytics_key = config_properties.get('Google', 'analytics_key')
+			twitterAppKey = config_properties.get('Twitter', 'anywhere_api_key')
+		except ConfigParser.NoSectionError, e:
+			logging.error(e)
+			
 		args = dict(
 			servicePath=servicePath, 
 			brand=brand, 
@@ -302,7 +307,8 @@ class ExperienceHandler(webapp.RequestHandler):
 			maptype=maptype, 
 			contenttype=contenttype, 
 			facebookAppId=facebookAppId, 
-			facebookAccessToken=facebookAccessToken, 
+			facebookAccessToken=facebookAccessToken,
+			twitterAppKey=twitterAppKey, 
 			tripAdvisorDestination=tripAdvisorDestination, 
 			startDate=startDate, 
 			priceSort=priceSort, 

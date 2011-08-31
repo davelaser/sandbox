@@ -133,17 +133,12 @@ class EANHotelRequest(webapp.RequestHandler):
 		numberOfNights = self.request.get('nights')
 		priceSort = self.request.get("priceSort")
 		ratingSort = self.request.get("ratingSort")
-		
-		logging.debug(priceSort)
-		logging.debug(ratingSort)
-		
 		city = self.request.get('city')
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
 		departureDate = None
 		price = float(0.0)
 		priceRaw = self.request.get("priceMax")
-		logging.debug(priceRaw)
 		if priceRaw is not None and priceRaw != '':
 			price = float(priceRaw)
 			
@@ -180,7 +175,7 @@ class EANHotelRequest(webapp.RequestHandler):
 				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
 
 				try: 
-					requestServiceURL = config_properties.get('EAN', 'xml_service_url')
+					requestServiceURL = config_properties.get('EAN', 'xml_url_hotellist')
 					f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
 					response = f.read()
 					response = response.replace('&gt;','>')
@@ -205,6 +200,9 @@ class EANHotelRequest(webapp.RequestHandler):
 					if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
 						if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
 							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
+							
+							for hotel in result:
+								hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
 		
 				if result is not None:
 					
