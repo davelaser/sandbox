@@ -61,9 +61,15 @@ RIA.Experience = new Class({
 	addEventListeners: function() {
 		
 		
-		if(this.filters) {
-			document.id("sort-by-rating").addEvents({
-				"change":this.sortByRatingEvent.bind(this)
+		if(document.id("ratingSort")) {
+			document.id("ratingSort").addEvents({
+				"change":this.sortEvent.bind(this)
+			});
+		}
+		
+		if(document.id("priceSort")) {
+			document.id("priceSort").addEvents({
+				"change":this.sortEvent.bind(this)
 			});
 		}
 		
@@ -407,37 +413,15 @@ RIA.Experience = new Class({
 		}
 		
 	},
-	sortByRatingEvent: function(e) {
+	sortEvent: function(e) {
 		try { 
-			Log.info("sortByRatingEvent");
-			Log.info("sortByRatingEvent");
+			Log.info("sortEvent");
+
 			if(e) e.preventDefault();
 		    
-			if(e.target.get("value") == "high") {  
-				this.hotelCollection = this.hotelCollection.sort(this.sortHighLow.bind(this));
-			} else if(e.target.get("value") == "low") {
-				this.hotelCollection = this.hotelCollection.sort(this.sortLowHigh.bind(this));
-			}  
-			/*  
-			this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
-			this.hotels.getElement(".results").empty();
-			this.hotelCollection.inject(this.hotels.getElement(".results"));
-			this.gotHotels(RIA.currentDestination);
-			*/
-			/*
-			this.requestHotelsByRating = new Request.HTML({
-				method:"POST",
-				url:"/ajax",
-				evalScripts:true,
-				update:this.hotels.getElement(".results"),
-				data:'destination='+RIA.currentDestination+'&priceMax='+RIA.InitAjaxSubmit.price.get("value")+'&info_type=hotels&startDate='+RIA.InitAjaxSubmit.arrivalDate.get("value")+"&numberOfNights="+RIA.InitAjaxSubmit.numberOfNights.get("value")+"&rating=true",
-				onRequest: RIA.InitAjaxSubmit.requestStart.pass([this.hotels]),
-				onSuccess: RIA.InitAjaxSubmit.requestSuccess.pass([this.hotels, RIA.currentDestination]),
-				onFailure: RIA.InitAjaxSubmit.requestFailure
-			}).send();
-			*/
+			RIA.InitAjaxSubmit._submit();
 		} catch(e) {
-			Log.error({method:"sortByRatingEvent()", error:e});
+			Log.error({method:"sortEvent()", error:e});
 		}
 		
 	},

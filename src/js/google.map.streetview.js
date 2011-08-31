@@ -14,7 +14,6 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	mapInitialize: function() {
-		
 		this.requestCounter = 500;
 		
 		RIA.bookmarks = new Object();
@@ -155,11 +154,7 @@ RIA.MapStreetView = new Class({
 		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
 		//RIA.panoramioLayer.setTag("times square");
 		
-		   
-		// Now we have initialized the Map, start the Destination request 
-		if(RIA.currentDestination != "" || RIA.InitAjaxSubmit.price.get("value") != "") {
-	    	RIA.InitAjaxSubmit._submit();
-		}
+		RIA.InitAjaxSubmit._submit();
 		
         this.toggleMapFullScreen(null);
 		
@@ -679,7 +674,8 @@ RIA.MapStreetView = new Class({
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
 				                        
-				this.storeGeocodeByHotel(hotel, results[0]);
+				//this.storeGeocodeByHotel(hotel, results[0]);
+				Log.info("Geocode store service disabled");
 				
 				// Store the LatLng against the Hotel Element
 				hotel.store("geolocation", latLng);

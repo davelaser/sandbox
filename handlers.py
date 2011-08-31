@@ -11,6 +11,9 @@ from google.appengine.ext import deferred
 from google.appengine.api import taskqueue
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from operator import itemgetter
+from google.appengine.runtime import DeadlineExceededError
+
 """
 Import local scripts
 """
@@ -127,6 +130,12 @@ class EANHotelRequest(webapp.RequestHandler):
 		config_properties = configparsers.loadConfigProperties()
 		arrivalDateRaw = self.request.get('arrivalDate')
 		numberOfNights = self.request.get('numberOfNights')
+		priceSort = self.request.get("priceSort")
+		ratingSort = self.request.get("ratingSort")
+		
+		logging.debug(priceSort)
+		logging.debug(ratingSort)
+		
 		city = self.request.get('city')
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
@@ -147,7 +156,10 @@ class EANHotelRequest(webapp.RequestHandler):
 			logging.error("EANHotelRequest : Invalid date values or date format")
 		
 		if arrivalDate is not None and departureDate is not None:
-			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())
+			#Memcache Key convention:
+			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
+			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)
+			logging.debug(memcacheKey)
 			memcachedHotels = memcache.get(key=memcacheKey, namespace='ean')
 			logging.info("Looking up MEMCACHE for : "+memcacheKey)
 			logging.info(memcachedHotels)
@@ -169,7 +181,8 @@ class EANHotelRequest(webapp.RequestHandler):
 					response = response.replace('&gt;','>')
 					response = response.replace('&lt;','<')
 				except DeadlineExceededError, e:
-					logging.error("EANHotelRequest : DeadlineExceededError error" % e) 
+					logging.error("EANHotelRequest : DeadlineExceededError error")
+					logging.error(e) 
 		
 				jsonLoadResponse = json.loads(response)	
 
@@ -184,7 +197,20 @@ class EANHotelRequest(webapp.RequestHandler):
 							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
 		
 				if result is not None:
-					#logging.info(result)
+					
+					if priceSort is not None and priceSort != '':
+						if priceSort == 'high':
+							result = sorted(result, key=itemgetter('lowRate'), reverse=True)
+						elif priceSort == 'low':
+							result = sorted(result, key=itemgetter('lowRate'), reverse=False)
+							
+					if ratingSort is not None and ratingSort != '':
+						if ratingSort == 'high':
+							result = sorted(result, key=itemgetter('hotelRating'), reverse=True)
+						elif ratingSort == 'low':
+							result = sorted(result, key=itemgetter('hotelRating'), reverse=False)
+						
+					
 					global_mashup['hotels'] = result
 		
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')

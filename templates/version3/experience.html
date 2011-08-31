@@ -89,15 +89,20 @@
 						<button id="share" class="button">Share</button>
 						<button id="nearby" class="button">What's nearby?</button>
 					</nav>
-					{% comment %}
 					<nav id="filters">
-						<label for="sort-by-rating">Sort by rating</label>
-						<select id="sort-by-rating">                
+						<label for="ratingSort">Sort by rating</label>
+						<select id="ratingSort">                
 							<option value="" selected="selected">Select</option>
 							<option value="high">high-low</option>
+							<option value="low">low-high</option>
+						</select>
+						<label for="priceSort">Sort by price</label>
+						<select id="priceSort">                
+							<option value="" selected="selected">Select</option>
+							<option value="high">high-low</option>
+							<option value="low">low-high</option>
 						</select>
 					</nav>  
-					{% endcomment %}
 				</div>
 				
 				<nav id="horizontal">
