@@ -227,17 +227,11 @@ RIA.AjaxSubmit = new Class({
 		}
 	},
 	requestSuccessInfo: function(responseHTML, responseText) {
-		var html = [];
-	    var items = JSON.parse(responseText).response.results;
-	    for (var i=0,item; item=items[i]; i++) {
-			if(i<5) {
-				html.push('<h3><a href="'+item.webUrl+'" rel="external" target="_blank">'+item.fields.headline+'</a></h3>'+item.fields.trailText);
-			}        
-	    }
-	    
-		var container = document.id("guardian").getElement(".results");
-        container.innerHTML = html.join('');
-	    
+		try{
+			//Log.info("Received Guardian news data");
+	    } catch(e) {
+			Log.error({method:"requestSuccessInfo", error:e});
+		}
 	},
 	requestFailure: function(e) {
 		Log.error({method:"requestFailure", error:e});

@@ -13,6 +13,7 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 from operator import itemgetter
 from google.appengine.runtime import DeadlineExceededError
+from google.appengine.runtime import apiproxy_errors
 
 """
 Import local scripts
@@ -184,9 +185,14 @@ class EANHotelRequest(webapp.RequestHandler):
 					response = f.read()
 					response = response.replace('&gt;','>')
 					response = response.replace('&lt;','<')
-				except DeadlineExceededError, e:
+					
+				except (apiproxy_errors.ApplicationError, DeadlineExceededError), e:
 					logging.error("EANHotelRequest : DeadlineExceededError error")
 					logging.error(e) 
+					global_mashup['name'] = city
+					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/service-error.html')
+					self.response.out.write(template.render(path, global_mashup))
+					return
 		
 				jsonLoadResponse = json.loads(response)	
 
