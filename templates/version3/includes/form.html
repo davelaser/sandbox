@@ -1,8 +1,8 @@
 <form id="search" method="post" action="/experience">
 	<fieldset>					
 		<input data-required="true" id="destination" type="text" value="{{ destinationDisplayName }}" />
-		<label for="number_of_nights">for</label>
-		<input data-required="true" id="number_of_nights" type="text" value="1{{ number_of_nights }}" />                                                        
+		<label for="nights">for</label>
+		<input data-required="true" id="nights" type="text" value="{{ nights|default:2 }}" />                                                        
 		<label for="arrival_date">night(s), arriving</label>
 		<input data-required="true" data-default="yyyy-mm-dd" id="arrival_date" type="text" value="{{ startDate|default:'yyyy-mm-dd' }}" />
 		{% comment %}<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />{% endcomment %}

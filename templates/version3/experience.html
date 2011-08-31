@@ -90,6 +90,7 @@
 						<button id="nearby" class="button">What's nearby?</button>
 						<button id="news" class="button">Guardian News</button>
 					</nav>
+					{% ifequal brand "razorfish" %}
 					<nav id="filters">
 						<label for="ratingSort">Sort by rating</label>
 						<select id="ratingSort">                
@@ -103,7 +104,8 @@
 							<option value="high" {% if priceSort == "high" %}selected="selected"{% endif %}>high-low</option>
 							<option value="low" {% if priceSort == "low" %}selected="selected"{% endif %}>low-high</option>
 						</select>
-					</nav>  
+					</nav> 
+					{% endifequal %} 
 				</div>
 				
 				<nav id="horizontal">

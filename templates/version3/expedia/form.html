@@ -6,8 +6,8 @@
 		<label for="arrival_date">night(s), arriving</label>
 		<input data-required="true" data-default="yyyy-mm-dd" id="arrival_date" type="text" value="{{ startDate|default:'yyyy-mm-dd' }}" />
 		{% comment %}<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />{% endcomment %}
-		<label class="" for="priceMax">for less than &#163;</label>
-		<input class="" id="priceMax" type="text" value="{{ price|floatformat:0 }}" />
+		<label for="priceMax">for less than &#163;</label>
+		<input id="priceMax" type="text" value="{{ price|floatformat:0 }}" />
 		<button id="submit-search" type="submit" class="button">SEARCH</button>   		
 	</fieldset>
 	<fieldset id="search-options">

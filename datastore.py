@@ -154,7 +154,6 @@ def get_hotels(destination, price, startDate, endDate, rating):
 
 def get_hotels_by_price(destination, price, startDate, endDate, rating):
 	queryString = ""
-	
 	if destination is not None and len(destination) > 0:
 		queryString += "WHERE destination = '"+destination+"'"
 		if startDate is not None and endDate is not None:

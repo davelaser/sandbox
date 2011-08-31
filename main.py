@@ -340,7 +340,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 		startDate = dateTime
 
-		numberOfNightsRaw = self.request.POST.get("numberOfNights")
+		numberOfNightsRaw = self.request.POST.get("nights")
 		endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
 		endDate = startDate + endDateTimeDelta
 		
