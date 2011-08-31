@@ -10,7 +10,7 @@ RIA.AjaxSubmit = new Class({
 		this.destination = document.id("destination");
 		this.price = document.id("priceMax");
 		this.arrivalDate = document.id("arrival_date");
-		this.numberOfNights = document.id("number_of_nights");
+		this.numberOfNights = document.id("nights");
 		RIA.currentPriceMax = this.price.get("value");
 		
 		this.priceSort = document.id("priceSort");

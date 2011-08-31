@@ -92,15 +92,15 @@
 					<nav id="filters">
 						<label for="ratingSort">Sort by rating</label>
 						<select id="ratingSort">                
-							<option value="" selected="selected">Select</option>
-							<option value="high">high-low</option>
-							<option value="low">low-high</option>
+							<option value=""  {% if ratingSort == "" %}selected="selected"{% endif %}>Select</option>
+							<option value="high" {% if ratingSort == "high" %}selected="selected"{% endif %}>high-low</option>
+							<option value="low" {% if ratingSort == "low" %}selected="selected"{% endif %}>low-high</option>
 						</select>
 						<label for="priceSort">Sort by price</label>
 						<select id="priceSort">                
-							<option value="" selected="selected">Select</option>
-							<option value="high">high-low</option>
-							<option value="low">low-high</option>
+							<option value="" {% if priceSort == "" %}selected="selected"{% endif %}>Select</option>
+							<option value="high" {% if priceSort == "high" %}selected="selected"{% endif %}>high-low</option>
+							<option value="low" {% if priceSort == "low" %}selected="selected"{% endif %}>low-high</option>
 						</select>
 					</nav>  
 				</div>
