@@ -110,9 +110,10 @@ RIA.AjaxSubmit = new Class({
 				onRequest: this.requestStart.pass([this.weather],this),
 				onSuccess: this.requestSuccessInfo.pass([this.weather],this),
 				onFailure: this.requestFailure.bind(this)
-			}).send();        
+			});
 			this.requests.include(this.requestInfo);     
 		}
+		
 		
 		if(this.guardian) {
 		   	this.requestGuardian = new Request.HTML({
@@ -120,13 +121,15 @@ RIA.AjaxSubmit = new Class({
 				url:"/ajax",
 				update:this.guardian.getElement(".results"),
 				data:'destination='+destination+'&info_type=guardian',
-				onRequest: this.requestStart.pass([this.guardian],this),
-				onSuccess: this.requestSuccessInfo.pass([this.guardian],this),
+				onRequest: function() {
+					this.guardian.getElement(".results").empty();
+				}.bind(this),
+				onSuccess: this.requestSuccessInfo.bind(this),
 				onFailure: this.requestFailure.bind(this)
-			}).send();        
+			});   
 			this.requests.include(this.requestGuardian);  
 		}
-		   
+		
 		
 		if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "lastminute") {
 			this.requestHotels = new Request.HTML({
@@ -223,10 +226,17 @@ RIA.AjaxSubmit = new Class({
 			}
 		}
 	},
-	requestSuccessInfo: function(element) {
-		element.removeClass("waiting");
-		element.getElement(".results").morph({"opacity":1});
-		if (RIA.Article) RIA.ArticleInit = new RIA.Article(article);
+	requestSuccessInfo: function(responseHTML, responseText) {
+		var html = [];
+	    var items = JSON.parse(responseText).response.results;
+	    for (var i=0,item; item=items[i]; i++) {
+			if(i<5) {
+				html.push('<h3><a href="'+item.webUrl+'" rel="external" target="_blank">'+item.fields.headline+'</a></h3>'+item.fields.trailText);
+			}        
+	    }
+	    
+		var container = document.id("guardian").getElement(".results");
+        container.innerHTML = html.join('');
 	    
 	},
 	requestFailure: function(e) {

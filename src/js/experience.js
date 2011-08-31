@@ -13,12 +13,15 @@ RIA.Experience = new Class({
 		
 		this.toggleContent = document.id("toggle-content"); 
 		this.togglePlaces = document.id("toggle-places");
+		this.toggleGuardian = document.id("toggle-guardian");
 		
 		this.content = document.id("content");
 		this.destination = document.id("destination");
 
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
+		this.guardian.store("viewstate", "closed");
+		
 		this.twitterNews = document.id("twitter-news");
 		
 		this.save = document.id("save");
@@ -95,6 +98,18 @@ RIA.Experience = new Class({
 			});
 		}    
 		
+		if(this.toggleGuardian) {
+			this.toggleGuardian.addEvents({
+				"click":this.showGuardian.bind(this) 
+			});
+		}
+		
+		if(document.id("news")) {
+			document.id("news").addEvents({
+				"click":this.showGuardian.bind(this) 
+			});
+		}
+		
 		if(document.id("nearby")) {
 			document.id("nearby").addEvents({
 				"click":this.showPlaces.bind(this)
@@ -108,6 +123,19 @@ RIA.Experience = new Class({
 
 		
 		}    
+		
+		if(this.guardian) {
+			this.guardianDrag = new Drag(this.guardian, {
+				handle:this.guardian.getElement("h2"),
+			    snap: 0,
+			    onSnap: function(el){
+			        el.addClass('dragging');
+			    },
+			    onComplete: function(el){
+			        el.removeClass('dragging');
+			    }
+			});
+		}
 		
 		if(this.places) {
 			this.places.addEvents({
@@ -353,33 +381,21 @@ RIA.Experience = new Class({
 		if(!e) {
 			if(this.options.contenttype == "maximized") {
 				if(this.toggleContent) this.toggleContent.set("text", "-");
-				if(this.weather) this.weather.setStyle("display", "block");
-				if(this.guardian) this.guardian.setStyle("display", "block");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
 				this.hotels.removeClass("minimized");
 			}
 			else {   
 				if(this.toggleContent) this.toggleContent.set("text", "+");
-				if(this.weather) this.weather.setStyle("display", "none");
-				if(this.guardian) this.guardian.setStyle("display", "none");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
 				this.hotels.addClass("minimized");				
 			}
 		} else {
 			if(this.hotels.hasClass("minimized")) {
 				this.options.contenttype = "maximized";
 				if(this.toggleContent) this.toggleContent.set("text", "-");
-				if(this.weather) this.weather.setStyle("display", "block");
-				if(this.guardian) this.guardian.setStyle("display", "block");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
 				this.hotels.removeClass("minimized");
 			}
 			else {
 				this.options.contenttype = "minimized";   
 				if(this.toggleContent) this.toggleContent.set("text", "+");
-				if(this.weather) this.weather.setStyle("display", "none");
-				if(this.guardian) this.guardian.setStyle("display", "none");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
 				this.hotels.addClass("minimized");				
 			}    
 		}
@@ -406,10 +422,21 @@ RIA.Experience = new Class({
 		e.preventDefault();
 		if(this.places.retrieve("viewstate") == "closed") {
     		this.places.store("viewstate", "open"); 
-			this.places.morph({"display":"block"});
+			this.places.setStyles({"display":"block"});
 		} else {   
     		this.places.store("viewstate", "closed");
-			this.places.morph({"display":"none"}); 
+			this.places.setStyles({"display":"none"}); 
+		}
+		
+	},
+	showGuardian: function(e) {
+		e.preventDefault();
+		if(this.guardian.retrieve("viewstate") == "closed") {
+    		this.guardian.store("viewstate", "open"); 
+			this.guardian.setStyles({"display":"block"});
+		} else {   
+    		this.guardian.store("viewstate", "closed");
+			this.guardian.setStyles({"display":"none"}); 
 		}
 		
 	},

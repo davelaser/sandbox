@@ -18,6 +18,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
+from google.appengine.runtime import DeadlineExceededError
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import deferred
@@ -55,7 +56,7 @@ requestRazorfish = "/razorfish"
 
 feeds = {
     'bbc'      : 'http://news.bbc.co.uk/weather/forecast/',
-    'guardian' : 'http://content.guardianapis.com/search?format=json&use-date=last-modified&show-fields=headline,trailText&ids=travel/',
+    'guardian' : 'http://content.guardianapis.com/search?',
     'yahoo'    : 'http://query.yahooapis.com/v1/public/yql?format=json&q='
 }
 
@@ -210,11 +211,11 @@ def get_hotels_request_url(destination, startDate, endDate):
 
 def get_weather(destination):
 	global_mashup['weather'] = feeds['yahoo']+'select%20*%20from%20weather.forecast%20where%20location%20in%20(select%20id%20from%20weather.search%20where%20query%3D%22'+global_mashup['name']+'%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
-	return global_mashup
+	return True
 
 def get_guardian(destination):
 	global_mashup['news'] = feeds['guardian']+destination
-	return global_mashup
+	return True
 
 
 """ Use with Live Kapow Service - Asynchronous mutliple RPC Requests """
@@ -288,7 +289,24 @@ class ExperienceHandler(webapp.RequestHandler):
 		facebookAppId = config_properties.get('Facebook', 'app_id')
 		facebookAccessToken = config_properties.get('Facebook', 'access_token')
 		analytics_key = config_properties.get('Google', 'analytics_key')
-		args = dict(servicePath=servicePath, brand=brand, analytics_key=analytics_key, viewType=viewType, destinationDisplayName=destinationDisplayName, price=price, nights=nights, destination=destination, bookmarks=bookmarks, maptype=maptype, contenttype=contenttype, facebookAppId=facebookAppId, facebookAccessToken=facebookAccessToken, tripAdvisorDestination=tripAdvisorDestination, startDate=startDate, priceSort=priceSort, ratingSort=ratingSort)
+		args = dict(
+			servicePath=servicePath, 
+			brand=brand, 
+			analytics_key=analytics_key, 
+			viewType=viewType, 
+			destinationDisplayName=destinationDisplayName, 
+			price=price, 
+			nights=nights, 
+			destination=destination, 
+			bookmarks=bookmarks, 
+			maptype=maptype, 
+			contenttype=contenttype, 
+			facebookAppId=facebookAppId, 
+			facebookAccessToken=facebookAccessToken, 
+			tripAdvisorDestination=tripAdvisorDestination, 
+			startDate=startDate, 
+			priceSort=priceSort, 
+			ratingSort=ratingSort)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -320,14 +338,16 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	try:
 		
 		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+		startDate = dateTime
+
+		numberOfNightsRaw = self.request.POST.get("numberOfNights")
+		endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
+		endDate = startDate + endDateTimeDelta
+		
 	except ValueError, e:
 		logging.error(e)
 		logging.error("AjaxAPIHandler_v3 : Invalid date values or date format")
-	startDate = dateTime
 	
-	numberOfNightsRaw = self.request.POST.get("numberOfNights")
-	endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
-	endDate = startDate + endDateTimeDelta
 	
 	price = float(0.0)
 	priceRaw = self.request.POST.get("priceMax")
@@ -359,8 +379,36 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/weather.html')
 		self.response.out.write(template.render(path, global_mashup))
 	elif info_type == "guardian":
-		get_guardian(destination)
-		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian.html')
+		try:
+			memcacheGuardianKey = "guardian:"+str(destination)
+			memcacheGuardian = memcache.get(key=memcacheGuardianKey, namespace='razorfish')
+			
+			if memcacheGuardian is not None:
+				global_mashup['guardian'] = memcacheGuardian
+				logging.debug("Returning Guardian content for "+str(destination)+" from memcache")
+			else:
+				requestArgs = dict()
+				requestArgs['format'] = 'json'
+				requestArgs['use-date'] = 'last-modified'
+				requestArgs['show-fields'] = 'headline,trailText'
+				requestArgs['ids'] = 'travel/'+destination
+				urlAgrsEncoded = urllib.urlencode(requestArgs)
+		
+		 
+				requestServiceURL = feeds['guardian']
+				g = urllib.urlopen(""+requestServiceURL+"%s" % urlAgrsEncoded)
+				read = g.read()
+				if read is not None:
+					response = json.loads(read)
+				
+					memcache.set(key=memcacheGuardianKey, value=response['response']['results'], namespace='razorfish', time=6000)
+				
+					global_mashup['guardian'] = response['response']['results']
+		except DeadlineExceededError, e:
+			logging.error("AjaxAPIHandler_v3 : Guardian Service : DeadlineExceededError error")
+			logging.error(e)
+			
+		path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/guardian-data.html')
 		self.response.out.write(template.render(path, global_mashup))
 	else:
 		

@@ -88,6 +88,7 @@
 						<button id="save" class="button">Save</button>
 						<button id="share" class="button">Share</button>
 						<button id="nearby" class="button">What's nearby?</button>
+						<button id="news" class="button">Guardian News</button>
 					</nav>
 					<nav id="filters">
 						<label for="ratingSort">Sort by rating</label>
@@ -117,7 +118,8 @@
 				
 				
 			</section>
-			{% include "includes/places.html" %} 
+			{% include "includes/places.html" %}
+			{% include "includes/guardian.html" %} 
 			
 			{% comment %}		    
 			<section id="weather" class="rc">
@@ -127,14 +129,7 @@
 				<div class="results">					    
 				</div>
 			</section>
-			
-			<section id="guardian" class="rc">
-				<header>
-					<h2>The Guardian</h2> 
-				</header>
-				<div class="results">					    
-				</div>
-			</section>
+
             {% endcomment %}
 		    {% comment %}
 			<section id="twitter-news">

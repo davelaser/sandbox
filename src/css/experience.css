@@ -188,40 +188,6 @@ article section {
 	background:#ccc; 
 
 }
-#guardian {
-	position:absolute;
-	right:0px;
-	top:0px;
-	width:200px;  
-	overflow:hidden; 
-}
-
-#guardian h3 a {
-	text-decoration:underline;
-	font-weight:bold;
-}                   
-
-#guardian h3,
-#guardian p {
-	margin:0 0 5px 0;
-}   
-
-#weather {
-	width:200px;  
-	overflow:hidden;
-	position:absolute;
-	top:101px;
-	left:485px;
-} 
-#weather header {
-	overflow:hidden;
-}
-
-#travel-partners {
-	position:relative;
-	width:auto;
-	height:auto;
-}  
 
 /*
 * 	loading
