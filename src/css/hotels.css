@@ -58,6 +58,11 @@ nav#hotel-list a.active {
 #hotels .details dl {
 	margin:10px 0 0 0;
 }
+
+#hotels .details p {
+	margin:0 0 10px 0;
+}
+
 #hotels.streetview .hotel .rating,
 #hotels.streetview .hotel .details,
 #hotels.streetview .hotel .photos {
@@ -107,7 +112,11 @@ nav#hotel-list a.active {
 }
 
 .hotel .room-and-rates {
-	margin:20px 0 0 0;
+	margin:20px 0 20px 0;
+}                     
+
+.hotel .value-adds {
+	margin:0 0 20px 0;
 }                     
 
 .hotel a.button {
