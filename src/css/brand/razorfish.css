@@ -71,3 +71,12 @@ nav#hotel-list a.active {
 .hotel-name {
 	color:#000;
 }
+
+
+#map-wrapper {
+	height:280px;
+}    
+
+#map_canvas {	
+	height:280px;
+}                    

@@ -207,7 +207,7 @@ RIA.MapStreetView = new Class({
 		if(!e) {
 			if(this.mapCanvas.retrieve("view:state") == "map") {
 				this.mapCanvas.setStyles({"zIndex":1, "width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
-				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});  
+				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"280px"});  
 			} else if(this.mapCanvas.retrieve("view:state") == "panorama") {
 				this.mapCanvas.setStyles({"zIndex":3, "width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
 				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
@@ -231,7 +231,7 @@ RIA.MapStreetView = new Class({
 				
 			}
 			else if(e.target.get("id") == "toggle-map" && !e.target.hasClass("active")){
-				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});
+				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"280px"});
 				google.maps.event.trigger(RIA.panorama, "resize"); 
 				
 				this.options.maptype = "map";
