@@ -52,8 +52,13 @@ header#main {
 	top:170px;
 }
 nav#hotel-list a.active {
-	background:#000;
+	
+	background:#000 !important;
 	color:#fff;
+	
+	/*
+	border:2px solid #000;
+	*/
 }
 
 .hotel nav li {

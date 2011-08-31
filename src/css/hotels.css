@@ -2,6 +2,7 @@
 	background:none;
 	position:relative;
 	width:955px;
+	min-height:120px;
 	padding:10px;
 	margin:0 0 10px 0;
 	background:rgba(0,0,0,0.2);
@@ -21,6 +22,7 @@
 	background:#fff;
 	width:955px;
 	height:100%;
+	min-height:120px;
 	overflow:hidden;  	
 	-moz-box-shadow:0px 3px 8px white inset;
 	-webkit-box-shadow:40px 40px 40px #fff inset;
@@ -43,8 +45,11 @@ nav#hotel-list {
 nav#hotel-list a {
 	display:block;
 	float:left;
+	text-align:center;
 	padding:5px 2px;
-	margin:0 2px 0 0;
+	
+	width:19px;
+
 }
 
 nav#hotel-list a.active {
@@ -148,7 +153,7 @@ nav#hotel-list a.active {
 *	Minimized
 */
 #hotels.minimized {
-	height:100px;
+	height:120px;
 }
 
 #hotels.minimized .rating,

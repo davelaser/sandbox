@@ -81,8 +81,14 @@
 					<div class="results">
 				
 					</div>
+					
 					<nav id="hotel-list">
-
+						<div id="price-guide">
+							<img class="low" src="http://chart.apis.google.com/chart?chst=d_map_spin&amp;chld=0.6|0|00FF00|10|_|£" alt="" />
+							<img class="medium" src="http://chart.apis.google.com/chart?chst=d_map_spin&amp;chld=0.6|0|FFFF00|10|_|££" alt="" />
+							<img class="high" src="http://chart.apis.google.com/chart?chst=d_map_spin&amp;chld=0.6|0|FF0000|10|_|£££" alt="" />
+						</div>
+						<div class="results"></div>
 					</nav>
 					<nav id="save-share-places">
 						<button id="save" class="button">Save</button>
@@ -94,16 +100,17 @@
 					<nav id="filters">
 						<label for="ratingSort">Sort by rating</label>
 						<select id="ratingSort">                
-							<option value=""  {% if ratingSort == "" %}selected="selected"{% endif %}>Select</option>
+							<option value=""  {% if ratingSort == "" %}selected="selected"{% endif %}>No thanks</option>
 							<option value="high" {% if ratingSort == "high" %}selected="selected"{% endif %}>high-low</option>
 							<option value="low" {% if ratingSort == "low" %}selected="selected"{% endif %}>low-high</option>
 						</select>
 						<label for="priceSort">Sort by price</label>
 						<select id="priceSort">                
-							<option value="" {% if priceSort == "" %}selected="selected"{% endif %}>Select</option>
+							<option value="" {% if priceSort == "" %}selected="selected"{% endif %}>No thanks</option>
 							<option value="high" {% if priceSort == "high" %}selected="selected"{% endif %}>high-low</option>
 							<option value="low" {% if priceSort == "low" %}selected="selected"{% endif %}>low-high</option>
 						</select>
+						
 					</nav> 
 					{% endifequal %} 
 				</div>

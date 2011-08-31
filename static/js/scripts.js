@@ -1788,7 +1788,8 @@ RIA.Experience = new Class({
 		
 		this.hotels = document.id("hotels"); 
 		this.hotelsNav = document.id("hotel-list");
-		           
+		this.priceGuide = document.id("price-guide");
+				           
 		if(this.hotels) {
 	        this.hotels.getElement(".results").set("morph", {
 				duration:400,
@@ -2047,7 +2048,10 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
-		if(this.hotelsNav) this.hotelsNav.empty();
+		if(this.hotelsNav) {
+			this.hotelsNav.getElement(".results").empty();
+		}
+		if(document.id("price-guide")) document.id("price-guide").addClass("hide");
 		this.removeAllMarkers(); 
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").empty();
@@ -2106,11 +2110,14 @@ RIA.Experience = new Class({
 		Log.info("Re-writing hotel nav");
 		
 		this.hotelCollection.each(function(hotel, index) {
-			this.hotelsNav.adopt(new Element("a", {
+			this.hotelsNav.getElement(".results").adopt(new Element("a", {
 				"href":"#",
 				"text":(index+1),
 				"class":(index == 0 ? "active" : ""),
 				"title":hotel.get("data-name")+" : "+hotel.get("data-price"),
+				/*"styles":{
+					"backgroundColor":"#"+hotel.hotelMarkerColor
+				},*/
 				"events":{
 					"click": function(e) {
 						e.preventDefault();
@@ -2121,6 +2128,29 @@ RIA.Experience = new Class({
 				}
 			}))
 		},this);
+		
+		if(this.priceGuide) {
+			/*
+			this.priceGuide.getElement(".high").setStyles({
+				"position":"absolute",
+				"bottom":"0px",
+				"left":((this.hotelCollection.length-1)*23)+"px"
+			});
+			
+			this.priceGuide.getElement(".medium").setStyles({
+				"position":"absolute",
+				"bottom":"0px",
+				"left":(((this.hotelCollection.length/2)-1)*23)+"px"
+			});
+			
+			this.priceGuide.getElement(".low").setStyles({
+				"position":"absolute",
+				"bottom":"0px",
+				"left":"0px"
+			});
+			*/
+			this.priceGuide.removeClass("hide");
+		}
 	},
 	onWindowResize: function(e) {
 		this.viewport = window.getSize(); 

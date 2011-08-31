@@ -37,7 +37,7 @@ footer  {
 }
 
 .hide {
-   display:none;
+   display:none !important;
 }              
 
 #background {  
@@ -332,4 +332,22 @@ article section {
 	top:33px;
 	left:19px;	
 	width:20px;
+}
+
+
+#price-guide {
+	width:100%;
+	height:41px;
+	position:relative;
+	display:block;
+}
+
+.low-price {
+	display:inline-block;
+	background:#00FF00;
+}
+
+.high-price {
+	display:inline-block;
+	background:#FF0000;
 }
