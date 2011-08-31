@@ -20,7 +20,7 @@ form#search {
     background:#fff;
 }
 header#main {
-    height:160px;
+    height:158px;
 }
 #horizontal a {
 	background:#000 url(../img/expedia/arrows.png) no-repeat 0 0;
@@ -49,7 +49,7 @@ header#main {
 }
 
 #hotels {
-	top:172px;
+	top:170px;
 }
 nav#hotel-list a.active {
 	background:#000;

@@ -1,12 +1,16 @@
 <section id="social" class="rc">
+	<header>
+		<h3>Share {% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels</h3>
+	</header>
 	<div>
-		<a href="http://twitter.com/share" class="twitter-share-button" data-url="http://rf-lm-poc.appspot.com/hotels" data-count="vertical">Tweet</a>
-		
-	</div>
-	<div>
-		<g:plusone size="tall" href="http://rf-lm-poc.appspot.com/hotels"></g:plusone>
-	</div>
-	<div>			
-		<fb:like href="http://rf-lm-poc.appspot.com/hotels" send="false" layout="box_count" width="450" show_faces="false" font=""></fb:like>
+		<p>
+			<a href="http://twitter.com/share" class="twitter-share-button" data-url="http://rf-lm-poc.appspot.com/{% ifequal brand "razorfish" %}{% endifequal %}{% ifequal brand "lastminute" %}lastminute{% endifequal %}{% ifequal brand "expedia" %}expedia{% endifequal %}" data-count="horizontal" data-text="Find your ideal hotel with {% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels">Tweet</a>		
+		</p>
+		<p>
+			<g:plusone size="medium" width="120" href="http://rf-lm-poc.appspot.com/{% ifequal brand "razorfish" %}{% endifequal %}{% ifequal brand "lastminute" %}lastminute{% endifequal %}{% ifequal brand "expedia" %}expedia{% endifequal %}"></g:plusone>
+		</p>
+		<p>			
+			<fb:like href="http://rf-lm-poc.appspot.com/{% ifequal brand "razorfish" %}{% endifequal %}{% ifequal brand "lastminute" %}lastminute{% endifequal %}{% ifequal brand "expedia" %}expedia{% endifequal %}" send="true" layout="button_count" width="100" show_faces="false" font=""></fb:like>
+		</p>
 	</div>
 </section>

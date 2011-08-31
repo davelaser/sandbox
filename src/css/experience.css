@@ -56,6 +56,7 @@ footer  {
 	*/
 	padding:0 10px; 
 	z-index:5;
+	position:relative;
 }
                        
 body.widescreen #shell {

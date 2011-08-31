@@ -8,9 +8,9 @@
 	<meta property="fb:app_id" content="{{facebookAppId}}"/>
 	<meta property="og:site_name" content="{% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
 	<meta property="og:type" content="website"/>
-	<meta property="og:title" content="{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
-	{% comment %}<meta property="og:url" content="http://rf-lm-poc.appspot.com/hotels"/>{% endcomment %}
-	<meta property="og:image" content="http://rf-lm-poc.appspot.com/static/img/logo.png"/>
+	<meta property="og:title" content="Find your ideal hotel with {% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels"/>
+	{% comment %}<meta property="og:url" content="http://rf-lm-poc.appspot.com/"/>{% endcomment %}
+	<meta property="og:image" content="http://rf-lm-poc.appspot.com/static/img/{{brand}}/logo.png"/>
 	<meta property="og:description" content="Search, browse and book hotels online."/>
 	<!--[if lt IE 9]>
 	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -174,9 +174,9 @@
 			</section>
 		    {% endcomment %}
          </div>
-		 
+		 {% include "includes/social.html" %} 
 	</article>
-	{% include "includes/social.html" %} 
+	
 	<div id="loading">
 		<div id="mask"></div>
 		<div id="loading-message">
