@@ -22,7 +22,8 @@
 	background:#fff;
 	width:955px;
 	height:100%;
-	min-height:120px;
+	padding-bottom:50px;
+	min-height:70px;
 	overflow:hidden;  	
 	-moz-box-shadow:0px 3px 8px white inset;
 	-webkit-box-shadow:40px 40px 40px #fff inset;
@@ -169,7 +170,9 @@ nav#hotel-list a.active {
 	display:none;
 }  
 
-
+#hotels.minimized .results-wrapper {
+	padding-bottom:0px;
+}
 h3.no-results {
 	display:block;
 	height:50px;
@@ -183,6 +186,9 @@ h3.no-results {
 
 #save-share-places {
 	padding:5px;
+	position:absolute;
+	bottom:9px;
+	left:9px;
 } 
 
 #filters {
@@ -191,12 +197,6 @@ h3.no-results {
 	bottom:9px;
 	right:14px;
 }                  
-                
-#hotels.minimized #save-share-places {
-	position:absolute;
-	bottom:9px;
-	left:9px;
-} 
 
 #hotels.minimized #filters {
 	position:absolute;

@@ -452,24 +452,24 @@ RIA.Experience = new Class({
 			}    
 		}
 	},
-	shareMyBookmarks: function() {   
+	shareMyBookmarks: function(e) {   
+		if(e && e.preventDefault) e.preventDefault();
+		
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
-		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&bookmarks=", index = 0;
+		//priceMax="+RIA.currentPriceMax+"&
+		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&bookmarks=", keys = [];
 		Object.each(RIA.bookmarks, function(value, key) {                
-			if(index == 0) {
-				RIA.shareURL+= key;
-            } else {
-				RIA.shareURL+=","+key;
-			}				
-            index++;
-		},this);    
+			keys.push(key);
+		});    
+		
+		RIA.shareURL += keys.join(",");
 		
 		//RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&viewType="+this.options.viewType+"&fb_ref=message";
 		
 		//this.fbDialogSend();
 		
-		if(twttr && !this.options.tweetBox) {
+		if(twttr) {
 			this.tweetBox = null;
 			document.id("share-dialog-content").empty();
 			
@@ -487,7 +487,7 @@ RIA.Experience = new Class({
 		    	});
 		  	}.bind(this));
 			this.shareDialog.setStyles({"display":"block"});
-			this.options.tweetBox = true;
+			this.shareDialog.store("viewstate", "open"); 
 		}
 	},
 	showPlaces: function(e) {

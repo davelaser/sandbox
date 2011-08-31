@@ -21,6 +21,8 @@
 }
 
 #share-dialog-content {
+	width:400px;
+	height:168px;
 	background:#fff;
 	border-radius:5px;
 	-webkit-border-radius:5px;
