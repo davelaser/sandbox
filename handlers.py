@@ -220,7 +220,7 @@ class EANHotelRequest(webapp.RequestHandler):
 							if hotel['lowRate'] <= price:
 								priceList.append(hotel)
 						
-							result = priceList
+						result = priceList
 					
 					if len(result) <= 0:
 						global_mashup['price'] = price
