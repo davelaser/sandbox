@@ -129,7 +129,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		logging.info("EANHotelRequest")
 		config_properties = configparsers.loadConfigProperties()
 		arrivalDateRaw = self.request.get('arrivalDate')
-		numberOfNights = self.request.get('numberOfNights')
+		numberOfNights = self.request.get('nights')
 		priceSort = self.request.get("priceSort")
 		ratingSort = self.request.get("ratingSort")
 		
@@ -141,6 +141,11 @@ class EANHotelRequest(webapp.RequestHandler):
 		arrivalDate = None
 		departureDate = None
 		price = float(0.0)
+		priceRaw = self.request.get("priceMax")
+		logging.debug(priceRaw)
+		if priceRaw is not None and priceRaw != '':
+			price = float(priceRaw)
+			
 		global_mashup = {}
 		
 		destination = re.sub(r'(<|>|\s)', '', city)
@@ -176,8 +181,6 @@ class EANHotelRequest(webapp.RequestHandler):
 					requestServiceURL = config_properties.get('EAN', 'xml_service_url')
 					f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
 					response = f.read()
-					logging.info(type(response))
-			    
 					response = response.replace('&gt;','>')
 					response = response.replace('&lt;','<')
 				except DeadlineExceededError, e:
@@ -209,13 +212,24 @@ class EANHotelRequest(webapp.RequestHandler):
 							result = sorted(result, key=itemgetter('hotelRating'), reverse=True)
 						elif ratingSort == 'low':
 							result = sorted(result, key=itemgetter('hotelRating'), reverse=False)
-						
 					
-					global_mashup['hotels'] = result
-		
-					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
-					self.response.out.write(template.render(path, global_mashup))
-					memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
+					if price is not None and price > 0.0:
+						priceList = list()
+						for hotel in result:
+							if hotel['lowRate'] <= price:
+								priceList.append(hotel)
+						
+							result = priceList
+					
+					if len(result) <= 0:
+						global_mashup['price'] = price
+						path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+						self.response.out.write(template.render(path, global_mashup))
+					else:
+						global_mashup['hotels'] = result
+						path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
+						self.response.out.write(template.render(path, global_mashup))
+						memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
 				else:
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 					self.response.out.write(template.render(path, global_mashup))			

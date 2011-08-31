@@ -134,7 +134,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value"),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
@@ -147,7 +147,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value"),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
@@ -160,7 +160,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&priceMax="+this.price.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value"),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
