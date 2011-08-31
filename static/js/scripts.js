@@ -1771,6 +1771,8 @@ RIA.Experience = new Class({
 		this.content = document.id("content");
 		this.destination = document.id("destination");
 
+		this.arrivalDate = document.id("arrival_date");
+		
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
 		this.guardian.store("viewstate", "closed");
@@ -2205,7 +2207,7 @@ RIA.Experience = new Class({
 	shareMyBookmarks: function() {   
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
-		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
+		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&bookmarks=", index = 0;
 		Object.each(RIA.bookmarks, function(value, key) {                
 			if(index == 0) {
 				RIA.shareURL+= key;
@@ -2228,7 +2230,7 @@ RIA.Experience = new Class({
 					label:"Share saved Hotels with friends",
 		      		height: 100,
 		      		width: 400,
-		      		defaultContent: "My saved hotels at @RazorfishHotels "+RIA.shareURL,
+		      		defaultContent: "My hotels @RazorfishHotels "+RIA.shareURL,
 					onTweet: function(plainTextTweet, HTMLTweet) {
 						Log.info("TweetBox Tweet sent");
 						Log.info(plainTextTweet);
