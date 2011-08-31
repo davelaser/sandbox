@@ -161,20 +161,21 @@ class EANHotelRequest(webapp.RequestHandler):
 			logging.error("EANHotelRequest : Invalid date values or date format")
 		
 		if arrivalDate is not None and departureDate is not None:
-			#Memcache Key convention:
+			# Memcache Key convention:
 			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
 			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)
 			logging.debug(memcacheKey)
 			memcachedHotels = memcache.get(key=memcacheKey, namespace='ean')
 			logging.info("Looking up MEMCACHE for : "+memcacheKey)
-			logging.info(memcachedHotels)
+			
 			if memcachedHotels is not None:
 				global_mashup['hotels'] = memcachedHotels
 	
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 				self.response.out.write(template.render(path, global_mashup))
-				
+				logging.debug("Returned hotels from memcache")
 			else:	
+				logging.debug("Memcache empty, requesting hotels")
 				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
 
 				try: 
