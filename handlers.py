@@ -1,4 +1,5 @@
 import os
+import re
 import urllib
 import urllib2
 import logging
@@ -83,7 +84,7 @@ class GeocodeStoreTaskWorker(webapp.RequestHandler):
 		result = datastore.put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng, countryname, countrycode)
 		if result is False:
 			logging.error("GeocodeStoreTaskWorker() : Error 500 : bad response from put_latlng_by_hotel_locationid_and_destination() for locationid "+str(locationid))
-			self.error(500)
+			#self.error(500)
 		else:
 			logging.info("GeocodeStoreTaskWorker() : task completed successfully for locationid "+str(locationid))
         
@@ -132,6 +133,11 @@ class EANHotelRequest(webapp.RequestHandler):
 		departureDate = None
 		price = float(0.0)
 		global_mashup = {}
+		
+		destination = re.sub(r'(<|>|\s)', '', city)
+		destination = destination.lower()
+		global_mashup['destination'] = destination
+		
 		try:
 			arrivalDate = datetime.datetime(int(arrivalDateList[0]), int(arrivalDateList[1]), int(arrivalDateList[2]))
 			departureDateTimeDelta = datetime.timedelta(days=int(numberOfNights))

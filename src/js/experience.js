@@ -193,7 +193,7 @@ RIA.Experience = new Class({
 			access_token:RIA.fbAccessToken,
 			method: 'send',
 			display:'iframe',
-          	name: 'Your saved lastminute.com Hotels',
+          	name: 'Your saved Hotels',
 			link: RIA.shareURL
 		});
 	},
