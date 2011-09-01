@@ -2247,11 +2247,14 @@ RIA.Experience = new Class({
 						Log.info("TweetBox Tweet sent");
 						Log.info(plainTextTweet);
 						Log.info(HTMLTweet);
-					}.bind(this)
+					}
 		    	});
+
 		  	}.bind(this));
 			this.shareDialog.setStyles({"display":"block"});
 			this.shareDialog.store("viewstate", "open"); 
+			
+			
 		}
 	},
 	showPlaces: function(e) {
