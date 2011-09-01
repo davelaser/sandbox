@@ -92,7 +92,7 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 				logging.debug("put_hotel_by_price() : adding hotel with locationid "+str(locationid))
 				return True
 			except CapabilityDisabledError:
-				log.error("put_hotel_by_price : CapabilityDisabledError")
+				logging.error("put_hotel_by_price : CapabilityDisabledError")
 				# fail gracefully here
 				return False
 	
