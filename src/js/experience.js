@@ -33,6 +33,18 @@ RIA.Experience = new Class({
 		this.shareDialog.store("viewstate", "closed");
 		this.toggleShareDialog = document.id("toggle-share-dialog");
 		
+		/*
+		*	Create default dialog
+		*/
+		twttr.anywhere(function (T) {
+	    	this.tweetBox = T("#share-dialog-content").tweetBox({
+				label:"Share saved Hotels with friends",
+	      		height: 100,
+	      		width: 400,
+	      		defaultContent: "My hotels @RazorfishHotels"
+	    	});
+	  	}.bind(this));
+	
 		this.places = document.id("places");
 		this.places.store("viewstate", "closed");
 		   
@@ -482,7 +494,7 @@ RIA.Experience = new Class({
 					onTweet: function(plainTextTweet, HTMLTweet) {
 						Log.info("TweetBox Tweet sent");
 						Log.info(plainTextTweet);
-						LOG.INFO(HTMLTweet);
+						Log.info(HTMLTweet);
 					}.bind(this)
 		    	});
 		  	}.bind(this));
