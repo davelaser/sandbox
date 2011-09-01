@@ -5,9 +5,12 @@ a {
 h1 {
 	background:#fff; 
 	color:#000;
-	height:88px;
+	height:60px;
 }
 
+h1 img {
+	margin:10px 0 0 23px;
+}
 .button {
 	background:#000;
 	color:#fff;	
@@ -17,7 +20,7 @@ form#search {
     background:#fff;
 }
 header#main {
-    height:186px;
+    height:158px;
 }
 #horizontal a {
 	background:#000 url(../img/expedia/arrows.png) no-repeat 0 0;
@@ -46,11 +49,16 @@ header#main {
 }
 
 #hotels {
-	top:196px;
+	top:170px;
 }
 nav#hotel-list a.active {
-	background:#000;
+	
+	background:#000 !important;
 	color:#fff;
+	
+	/*
+	border:2px solid #000;
+	*/
 }
 
 .hotel nav li {
@@ -68,3 +76,12 @@ nav#hotel-list a.active {
 .hotel-name {
 	color:#000;
 }
+
+
+#map-wrapper {
+	height:280px;
+}    
+
+#map_canvas {	
+	height:280px;
+}                    

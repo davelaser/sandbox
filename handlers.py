@@ -1,4 +1,5 @@
 import os
+import re
 import urllib
 import urllib2
 import logging
@@ -10,6 +11,10 @@ from google.appengine.ext import deferred
 from google.appengine.api import taskqueue
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from operator import itemgetter
+from google.appengine.runtime import DeadlineExceededError
+from google.appengine.runtime import apiproxy_errors
+
 """
 Import local scripts
 """
@@ -83,7 +88,7 @@ class GeocodeStoreTaskWorker(webapp.RequestHandler):
 		result = datastore.put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat, lng, countryname, countrycode)
 		if result is False:
 			logging.error("GeocodeStoreTaskWorker() : Error 500 : bad response from put_latlng_by_hotel_locationid_and_destination() for locationid "+str(locationid))
-			self.error(500)
+			#self.error(500)
 		else:
 			logging.info("GeocodeStoreTaskWorker() : task completed successfully for locationid "+str(locationid))
         
@@ -125,13 +130,24 @@ class EANHotelRequest(webapp.RequestHandler):
 		logging.info("EANHotelRequest")
 		config_properties = configparsers.loadConfigProperties()
 		arrivalDateRaw = self.request.get('arrivalDate')
-		numberOfNights = self.request.get('numberOfNights')
+		numberOfNights = self.request.get('nights')
+		priceSort = self.request.get("priceSort")
+		ratingSort = self.request.get("ratingSort")
 		city = self.request.get('city')
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
 		departureDate = None
 		price = float(0.0)
+		priceRaw = self.request.get("priceMax")
+		if priceRaw is not None and priceRaw != '':
+			price = float(priceRaw)
+			
 		global_mashup = {}
+		
+		destination = re.sub(r'(<|>|\s)', '', city)
+		destination = destination.lower()
+		global_mashup['destination'] = destination
+		
 		try:
 			arrivalDate = datetime.datetime(int(arrivalDateList[0]), int(arrivalDateList[1]), int(arrivalDateList[2]))
 			departureDateTimeDelta = datetime.timedelta(days=int(numberOfNights))
@@ -141,29 +157,37 @@ class EANHotelRequest(webapp.RequestHandler):
 			logging.error("EANHotelRequest : Invalid date values or date format")
 		
 		if arrivalDate is not None and departureDate is not None:
-			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())
+			# Memcache Key convention:
+			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
+			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)
+			logging.debug(memcacheKey)
 			memcachedHotels = memcache.get(key=memcacheKey, namespace='ean')
 			logging.info("Looking up MEMCACHE for : "+memcacheKey)
-			logging.info(memcachedHotels)
+			
 			if memcachedHotels is not None:
 				global_mashup['hotels'] = memcachedHotels
 	
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 				self.response.out.write(template.render(path, global_mashup))
-				
+				logging.debug("Returned hotels from memcache")
 			else:	
+				logging.debug("Memcache empty, requesting hotels")
 				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
 
 				try: 
-					requestServiceURL = config_properties.get('EAN', 'xml_service_url')
+					requestServiceURL = config_properties.get('EAN', 'xml_url_hotellist')
 					f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
 					response = f.read()
-					logging.info(type(response))
-			    
 					response = response.replace('&gt;','>')
 					response = response.replace('&lt;','<')
-				except DeadlineExceededError, e:
-					logging.error("EANHotelRequest : DeadlineExceededError error" % e) 
+					
+				except (apiproxy_errors.ApplicationError, DeadlineExceededError), e:
+					logging.error("EANHotelRequest : DeadlineExceededError error")
+					logging.error(e) 
+					global_mashup['name'] = city
+					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/service-error.html')
+					self.response.out.write(template.render(path, global_mashup))
+					return
 		
 				jsonLoadResponse = json.loads(response)	
 
@@ -176,14 +200,41 @@ class EANHotelRequest(webapp.RequestHandler):
 					if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
 						if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
 							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
+							
+							for hotel in result:
+								hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
 		
 				if result is not None:
-					#logging.info(result)
-					global_mashup['hotels'] = result
-		
-					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
-					self.response.out.write(template.render(path, global_mashup))
-					memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
+					
+					if priceSort is not None and priceSort != '':
+						if priceSort == 'high':
+							result = sorted(result, key=itemgetter('lowRate'), reverse=True)
+						elif priceSort == 'low':
+							result = sorted(result, key=itemgetter('lowRate'), reverse=False)
+							
+					if ratingSort is not None and ratingSort != '':
+						if ratingSort == 'high':
+							result = sorted(result, key=itemgetter('hotelRating'), reverse=True)
+						elif ratingSort == 'low':
+							result = sorted(result, key=itemgetter('hotelRating'), reverse=False)
+					
+					if price is not None and price > 0.0:
+						priceList = list()
+						for hotel in result:
+							if hotel['lowRate'] <= price:
+								priceList.append(hotel)
+						
+						result = priceList
+					
+					if len(result) <= 0:
+						global_mashup['price'] = price
+						path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+						self.response.out.write(template.render(path, global_mashup))
+					else:
+						global_mashup['hotels'] = result
+						path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
+						self.response.out.write(template.render(path, global_mashup))
+						memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
 				else:
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 					self.response.out.write(template.render(path, global_mashup))			

@@ -1,0 +1,9 @@
+{% for article in guardian %}
+<section>
+	<header>
+		<h3><a href="{{ article.webUrl }}" target="_blank" rel="external">{{ article.webTitle }}</a> ({{ article.sectionName|safe }})</h3>
+		<h4>{{ article.webPublicationDate }}</h4>
+	</header>
+	{{ article.fields.trailText|safe }}
+</section>
+{% endfor %}

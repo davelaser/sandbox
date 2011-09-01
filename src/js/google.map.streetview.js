@@ -14,7 +14,6 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	mapInitialize: function() {
-		
 		this.requestCounter = 500;
 		
 		RIA.bookmarks = new Object();
@@ -155,11 +154,7 @@ RIA.MapStreetView = new Class({
 		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
 		//RIA.panoramioLayer.setTag("times square");
 		
-		   
-		// Now we have initialized the Map, start the Destination request 
-		if(RIA.currentDestination != "" || RIA.InitAjaxSubmit.price.get("value") != "") {
-	    	RIA.InitAjaxSubmit._submit();
-		}
+		RIA.InitAjaxSubmit._submit();
 		
         this.toggleMapFullScreen(null);
 		
@@ -189,7 +184,7 @@ RIA.MapStreetView = new Class({
 		}.bind(this));
 		
 		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'idle', function() {
-		    Log.info("RIA.map Event : idle");
+		    //Log.info("RIA.map Event : idle");
 		
 			this.animateCurrentMarker(); 
 		}.bind(this));
@@ -212,7 +207,7 @@ RIA.MapStreetView = new Class({
 		if(!e) {
 			if(this.mapCanvas.retrieve("view:state") == "map") {
 				this.mapCanvas.setStyles({"zIndex":1, "width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
-				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});  
+				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"280px"});  
 			} else if(this.mapCanvas.retrieve("view:state") == "panorama") {
 				this.mapCanvas.setStyles({"zIndex":3, "width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
 				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
@@ -236,7 +231,7 @@ RIA.MapStreetView = new Class({
 				
 			}
 			else if(e.target.get("id") == "toggle-map" && !e.target.hasClass("active")){
-				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});
+				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"280px"});
 				google.maps.event.trigger(RIA.panorama, "resize"); 
 				
 				this.options.maptype = "map";
@@ -543,7 +538,7 @@ RIA.MapStreetView = new Class({
 			error = hotel.retrieve("geolocation:error");
 
 			// Only attempt to get a gelocation if we haven't already tried and failed
-			if((geo == null || geo == "None") && error != "NO_RESULTS") {
+			if((geo == null || geo == "None") && error != google.maps.GeocoderStatus.ZERO_RESULTS) {
 				delay = counter+=500;              
 				this.getGeocodeByAddress.delay(delay, this, [hotel, this.addHotelMarker.bind(this)]);
 			} else {
@@ -679,7 +674,8 @@ RIA.MapStreetView = new Class({
 			if (status == google.maps.GeocoderStatus.OK) {             
 				var latLng = results[0].geometry.location; 
 				                        
-				this.storeGeocodeByHotel(hotel, results[0]);
+				//this.storeGeocodeByHotel(hotel, results[0]);
+				Log.info("Geocode store service disabled");
 				
 				// Store the LatLng against the Hotel Element
 				hotel.store("geolocation", latLng);

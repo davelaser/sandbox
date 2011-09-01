@@ -2,6 +2,7 @@
 	background:none;
 	position:relative;
 	width:955px;
+	min-height:120px;
 	padding:10px;
 	margin:0 0 10px 0;
 	background:rgba(0,0,0,0.2);
@@ -21,6 +22,8 @@
 	background:#fff;
 	width:955px;
 	height:100%;
+	padding-bottom:50px;
+	min-height:70px;
 	overflow:hidden;  	
 	-moz-box-shadow:0px 3px 8px white inset;
 	-webkit-box-shadow:40px 40px 40px #fff inset;
@@ -43,8 +46,11 @@ nav#hotel-list {
 nav#hotel-list a {
 	display:block;
 	float:left;
+	text-align:center;
 	padding:5px 2px;
-	margin:0 2px 0 0;
+	
+	width:19px;
+
 }
 
 nav#hotel-list a.active {
@@ -58,6 +64,11 @@ nav#hotel-list a.active {
 #hotels .details dl {
 	margin:10px 0 0 0;
 }
+
+#hotels .details p {
+	margin:0 0 10px 0;
+}
+
 #hotels.streetview .hotel .rating,
 #hotels.streetview .hotel .details,
 #hotels.streetview .hotel .photos {
@@ -107,7 +118,11 @@ nav#hotel-list a.active {
 }
 
 .hotel .room-and-rates {
-	margin:20px 0 0 0;
+	margin:20px 0 20px 0;
+}                     
+
+.hotel .value-adds {
+	margin:0 0 20px 0;
 }                     
 
 .hotel a.button {
@@ -139,7 +154,7 @@ nav#hotel-list a.active {
 *	Minimized
 */
 #hotels.minimized {
-	height:100px;
+	height:120px;
 }
 
 #hotels.minimized .rating,
@@ -155,7 +170,9 @@ nav#hotel-list a.active {
 	display:none;
 }  
 
-
+#hotels.minimized .results-wrapper {
+	padding-bottom:0px;
+}
 h3.no-results {
 	display:block;
 	height:50px;
@@ -169,6 +186,9 @@ h3.no-results {
 
 #save-share-places {
 	padding:5px;
+	position:absolute;
+	bottom:9px;
+	left:9px;
 } 
 
 #filters {
@@ -177,12 +197,6 @@ h3.no-results {
 	bottom:9px;
 	right:14px;
 }                  
-                
-#hotels.minimized #save-share-places {
-	position:absolute;
-	bottom:9px;
-	left:9px;
-} 
 
 #hotels.minimized #filters {
 	position:absolute;

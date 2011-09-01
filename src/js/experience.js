@@ -2,7 +2,8 @@ RIA.Experience = new Class({
 	Implements:[Options, RIA.Utils, RIA.MapStreetView, RIA.GooglePlaces],
 	options:{
 		contenttype:"maximized",
-		ios:false
+		ios:false,
+		tweetBox: false
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -13,16 +14,37 @@ RIA.Experience = new Class({
 		
 		this.toggleContent = document.id("toggle-content"); 
 		this.togglePlaces = document.id("toggle-places");
+		this.toggleGuardian = document.id("toggle-guardian");
 		
 		this.content = document.id("content");
 		this.destination = document.id("destination");
 
+		this.arrivalDate = document.id("arrival_date");
+		
 		this.weather = document.id("weather");
 		this.guardian = document.id("guardian");
+		this.guardian.store("viewstate", "closed");
+		
 		this.twitterNews = document.id("twitter-news");
 		
 		this.save = document.id("save");
+		this.share = document.id("share");
+		this.shareDialog = document.id("share-dialog");
+		this.shareDialog.store("viewstate", "closed");
+		this.toggleShareDialog = document.id("toggle-share-dialog");
 		
+		/*
+		*	Create default dialog
+		*/
+		twttr.anywhere(function (T) {
+	    	this.tweetBox = T("#share-dialog-content").tweetBox({
+				label:"Share saved Hotels with friends",
+	      		height: 100,
+	      		width: 400,
+	      		defaultContent: "My hotels @RazorfishHotels"
+	    	});
+	  	}.bind(this));
+	
 		this.places = document.id("places");
 		this.places.store("viewstate", "closed");
 		   
@@ -33,7 +55,8 @@ RIA.Experience = new Class({
 		
 		this.hotels = document.id("hotels"); 
 		this.hotelsNav = document.id("hotel-list");
-		           
+		this.priceGuide = document.id("price-guide");
+				           
 		if(this.hotels) {
 	        this.hotels.getElement(".results").set("morph", {
 				duration:400,
@@ -55,15 +78,19 @@ RIA.Experience = new Class({
 		
 		this.toggleInformation(null);
 		
-		
-		
 	},                          
 	addEventListeners: function() {
 		
 		
-		if(this.filters) {
-			document.id("sort-by-rating").addEvents({
-				"change":this.sortByRatingEvent.bind(this)
+		if(document.id("ratingSort")) {
+			document.id("ratingSort").addEvents({
+				"change":this.sortEvent.bind(this)
+			});
+		}
+		
+		if(document.id("priceSort")) {
+			document.id("priceSort").addEvents({
+				"change":this.sortEvent.bind(this)
 			});
 		}
 		
@@ -89,19 +116,63 @@ RIA.Experience = new Class({
 			});
 		}    
 		
+		if(this.toggleGuardian) {
+			this.toggleGuardian.addEvents({
+				"click":this.showGuardian.bind(this) 
+			});
+		}
+		
+		if(this.toggleShareDialog) {
+			this.toggleShareDialog.addEvents({
+				"click":this.showShareDialog.bind(this) 
+			});
+		}
+		
+		if(document.id("news")) {
+			document.id("news").addEvents({
+				"click":this.showGuardian.bind(this) 
+			});
+		}
+		
 		if(document.id("nearby")) {
 			document.id("nearby").addEvents({
 				"click":this.showPlaces.bind(this)
 			});
 		}
-		if(document.id("share")) {
+		if(this.share) {
 			
-			document.id("share").addEvents({
-				"click":this.shareMyBookmarks.pass([true],this)
+			this.share.addEvents({
+				"click":this.shareMyBookmarks.bind(this)
 			});
 
 		
 		}    
+		
+		if(this.guardian) {
+			this.guardianDrag = new Drag(this.guardian, {
+				handle:this.guardian.getElement("h2"),
+			    snap: 0,
+			    onSnap: function(el){
+			        el.addClass('dragging');
+			    },
+			    onComplete: function(el){
+			        el.removeClass('dragging');
+			    }
+			});
+		}
+		
+		if(this.shareDialog) {
+			this.shareDialogDrag = new Drag(this.shareDialog, {
+				handle:this.shareDialog,
+			    snap: 0,
+			    onSnap: function(el){
+			        el.addClass('dragging');
+			    },
+			    onComplete: function(el){
+			        el.removeClass('dragging');
+			    }
+			});
+		}
 		
 		if(this.places) {
 			this.places.addEvents({
@@ -193,7 +264,7 @@ RIA.Experience = new Class({
 			access_token:RIA.fbAccessToken,
 			method: 'send',
 			display:'iframe',
-          	name: 'Your saved lastminute.com Hotels',
+          	name: 'Your saved Hotels',
 			link: RIA.shareURL
 		});
 	},
@@ -261,7 +332,10 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
-		if(this.hotelsNav) this.hotelsNav.empty();
+		if(this.hotelsNav) {
+			this.hotelsNav.getElement(".results").empty();
+		}
+		if(document.id("price-guide")) document.id("price-guide").addClass("hide");
 		this.removeAllMarkers(); 
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").empty();
@@ -310,21 +384,22 @@ RIA.Experience = new Class({
 			
 			// Track the initial hotel view
 			this.trackEvent('Hotel', 'NavigateByArrow', this.hotelCollection[this.hotelIndex].get("data-locationid")+" : "+this.hotelCollection[this.hotelIndex].get("data-name"), 1);
+
 		} else {
 			Log.error({method:"gotHotels()", error:{message:"No Hotels returned"}});
 		}   
 		
 	}, 
 	createHotelNav: function() {
-		
-		Log.info("Re-writing hotel nav");
-		
 		this.hotelCollection.each(function(hotel, index) {
-			this.hotelsNav.adopt(new Element("a", {
+			this.hotelsNav.getElement(".results").adopt(new Element("a", {
 				"href":"#",
 				"text":(index+1),
 				"class":(index == 0 ? "active" : ""),
 				"title":hotel.get("data-name")+" : "+hotel.get("data-price"),
+				/*"styles":{
+					"backgroundColor":"#"+hotel.hotelMarkerColor
+				},*/
 				"events":{
 					"click": function(e) {
 						e.preventDefault();
@@ -335,6 +410,29 @@ RIA.Experience = new Class({
 				}
 			}))
 		},this);
+		
+		if(this.priceGuide) {
+			/*
+			this.priceGuide.getElement(".high").setStyles({
+				"position":"absolute",
+				"bottom":"0px",
+				"left":((this.hotelCollection.length-1)*23)+"px"
+			});
+			
+			this.priceGuide.getElement(".medium").setStyles({
+				"position":"absolute",
+				"bottom":"0px",
+				"left":(((this.hotelCollection.length/2)-1)*23)+"px"
+			});
+			
+			this.priceGuide.getElement(".low").setStyles({
+				"position":"absolute",
+				"bottom":"0px",
+				"left":"0px"
+			});
+			*/
+			this.priceGuide.removeClass("hide");
+		}
 	},
 	onWindowResize: function(e) {
 		this.viewport = window.getSize(); 
@@ -347,97 +445,106 @@ RIA.Experience = new Class({
 		if(!e) {
 			if(this.options.contenttype == "maximized") {
 				if(this.toggleContent) this.toggleContent.set("text", "-");
-				if(this.weather) this.weather.setStyle("display", "block");
-				if(this.guardian) this.guardian.setStyle("display", "block");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
 				this.hotels.removeClass("minimized");
 			}
 			else {   
 				if(this.toggleContent) this.toggleContent.set("text", "+");
-				if(this.weather) this.weather.setStyle("display", "none");
-				if(this.guardian) this.guardian.setStyle("display", "none");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
 				this.hotels.addClass("minimized");				
 			}
 		} else {
 			if(this.hotels.hasClass("minimized")) {
 				this.options.contenttype = "maximized";
 				if(this.toggleContent) this.toggleContent.set("text", "-");
-				if(this.weather) this.weather.setStyle("display", "block");
-				if(this.guardian) this.guardian.setStyle("display", "block");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "block");
 				this.hotels.removeClass("minimized");
 			}
 			else {
 				this.options.contenttype = "minimized";   
 				if(this.toggleContent) this.toggleContent.set("text", "+");
-				if(this.weather) this.weather.setStyle("display", "none");
-				if(this.guardian) this.guardian.setStyle("display", "none");
-				if(this.twitterNews) this.twitterNews.setStyle("display", "none");
 				this.hotels.addClass("minimized");				
 			}    
 		}
 	},
-	shareMyBookmarks: function(show) {   
+	shareMyBookmarks: function(e) {   
+		if(e && e.preventDefault) e.preventDefault();
+		
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
-		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?priceMax="+RIA.currentPriceMax+"&destination="+(RIA.currentDestination||"")+"&bookmarks=", index = 0;
+		//priceMax="+RIA.currentPriceMax+"&
+		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&bookmarks=", keys = [];
 		Object.each(RIA.bookmarks, function(value, key) {                
-			if(index == 0) {
-				RIA.shareURL+= key;
-            } else {
-				RIA.shareURL+=","+key;
-			}				
-            index++;
-		},this);    
+			keys.push(key);
+		});    
 		
-		RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&viewType="+this.options.viewType+"&fb_ref=message";
+		RIA.shareURL += keys.join(",");
 		
-		this.fbDialogSend();
+		//RIA.shareURL+="&maptype="+this.options.maptype+"&contenttype="+this.options.contenttype+"&viewType="+this.options.viewType+"&fb_ref=message";
 		
+		//this.fbDialogSend();
+		
+		if(twttr) {
+			this.tweetBox = null;
+			document.id("share-dialog-content").empty();
+			
+			twttr.anywhere(function (T) {
+		    	this.tweetBox = T("#share-dialog-content").tweetBox({
+					label:"Share saved Hotels with friends",
+		      		height: 100,
+		      		width: 400,
+		      		defaultContent: "My hotels @RazorfishHotels "+RIA.shareURL,
+					onTweet: function(plainTextTweet, HTMLTweet) {
+						Log.info("TweetBox Tweet sent");
+						Log.info(plainTextTweet);
+						Log.info(HTMLTweet);
+					}.bind(this)
+		    	});
+		  	}.bind(this));
+			this.shareDialog.setStyles({"display":"block"});
+			this.shareDialog.store("viewstate", "open"); 
+		}
 	},
 	showPlaces: function(e) {
 		e.preventDefault();
 		if(this.places.retrieve("viewstate") == "closed") {
     		this.places.store("viewstate", "open"); 
-			this.places.morph({"display":"block"});
+			this.places.setStyles({"display":"block"});
 		} else {   
     		this.places.store("viewstate", "closed");
-			this.places.morph({"display":"none"}); 
+			this.places.setStyles({"display":"none"}); 
 		}
 		
 	},
-	sortByRatingEvent: function(e) {
+	showGuardian: function(e) {
+		e.preventDefault();
+		if(this.guardian.retrieve("viewstate") == "closed") {
+    		this.guardian.store("viewstate", "open"); 
+			this.guardian.setStyles({"display":"block"});
+		} else {   
+    		this.guardian.store("viewstate", "closed");
+			this.guardian.setStyles({"display":"none"}); 
+		}
+		
+	},
+	showShareDialog: function(e) {
+		e.preventDefault();
+		if(this.shareDialog.retrieve("viewstate") == "closed") {
+    		this.shareDialog.store("viewstate", "open"); 
+			this.shareDialog.setStyles({"display":"block"});
+			this.options.tweetBox = true;
+		} else {   
+    		this.shareDialog.store("viewstate", "closed");
+			this.shareDialog.setStyles({"display":"none"}); 
+			this.options.tweetBox = false;
+		}
+	},
+	sortEvent: function(e) {
 		try { 
-			Log.info("sortByRatingEvent");
-			Log.info("sortByRatingEvent");
+			Log.info("sortEvent");
+
 			if(e) e.preventDefault();
 		    
-			if(e.target.get("value") == "high") {  
-				this.hotelCollection = this.hotelCollection.sort(this.sortHighLow.bind(this));
-			} else if(e.target.get("value") == "low") {
-				this.hotelCollection = this.hotelCollection.sort(this.sortLowHigh.bind(this));
-			}  
-			/*  
-			this.setCurrentLocation(this.hotelCollection[this.hotelIndex].get("data-latlng"));
-			this.hotels.getElement(".results").empty();
-			this.hotelCollection.inject(this.hotels.getElement(".results"));
-			this.gotHotels(RIA.currentDestination);
-			*/
-			/*
-			this.requestHotelsByRating = new Request.HTML({
-				method:"POST",
-				url:"/ajax",
-				evalScripts:true,
-				update:this.hotels.getElement(".results"),
-				data:'destination='+RIA.currentDestination+'&priceMax='+RIA.InitAjaxSubmit.price.get("value")+'&info_type=hotels&startDate='+RIA.InitAjaxSubmit.arrivalDate.get("value")+"&numberOfNights="+RIA.InitAjaxSubmit.numberOfNights.get("value")+"&rating=true",
-				onRequest: RIA.InitAjaxSubmit.requestStart.pass([this.hotels]),
-				onSuccess: RIA.InitAjaxSubmit.requestSuccess.pass([this.hotels, RIA.currentDestination]),
-				onFailure: RIA.InitAjaxSubmit.requestFailure
-			}).send();
-			*/
+			RIA.InitAjaxSubmit._submit();
 		} catch(e) {
-			Log.error({method:"sortByRatingEvent()", error:e});
+			Log.error({method:"sortEvent()", error:e});
 		}
 		
 	},

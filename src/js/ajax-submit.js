@@ -10,8 +10,11 @@ RIA.AjaxSubmit = new Class({
 		this.destination = document.id("destination");
 		this.price = document.id("priceMax");
 		this.arrivalDate = document.id("arrival_date");
-		this.numberOfNights = document.id("number_of_nights");
+		this.numberOfNights = document.id("nights");
 		RIA.currentPriceMax = this.price.get("value");
+		
+		this.priceSort = document.id("priceSort");
+		this.ratingSort = document.id("ratingSort");
 		
 		//Log.info("RIA.AjaxSubmit : RIA.currentPriceMax: "+RIA.currentPriceMax);
 		
@@ -107,9 +110,10 @@ RIA.AjaxSubmit = new Class({
 				onRequest: this.requestStart.pass([this.weather],this),
 				onSuccess: this.requestSuccessInfo.pass([this.weather],this),
 				onFailure: this.requestFailure.bind(this)
-			}).send();        
+			});
 			this.requests.include(this.requestInfo);     
 		}
+		
 		
 		if(this.guardian) {
 		   	this.requestGuardian = new Request.HTML({
@@ -117,13 +121,15 @@ RIA.AjaxSubmit = new Class({
 				url:"/ajax",
 				update:this.guardian.getElement(".results"),
 				data:'destination='+destination+'&info_type=guardian',
-				onRequest: this.requestStart.pass([this.guardian],this),
-				onSuccess: this.requestSuccessInfo.pass([this.guardian],this),
+				onRequest: function() {
+					this.guardian.getElement(".results").empty();
+				}.bind(this),
+				onSuccess: this.requestSuccessInfo.bind(this),
 				onFailure: this.requestFailure.bind(this)
-			}).send();        
+			});   
 			this.requests.include(this.requestGuardian);  
 		}
-		   
+		
 		
 		if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "lastminute") {
 			this.requestHotels = new Request.HTML({
@@ -131,7 +137,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				data:'destination='+destination+'&priceMax='+this.price.get("value")+'&info_type=hotels&startDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value"),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
@@ -144,7 +150,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value"),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
@@ -157,7 +163,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&numberOfNights="+this.numberOfNights.get("value"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&priceMax="+this.price.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value"),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
@@ -220,11 +226,12 @@ RIA.AjaxSubmit = new Class({
 			}
 		}
 	},
-	requestSuccessInfo: function(element) {
-		element.removeClass("waiting");
-		element.getElement(".results").morph({"opacity":1});
-		if (RIA.Article) RIA.ArticleInit = new RIA.Article(article);
-	    
+	requestSuccessInfo: function(responseHTML, responseText) {
+		try{
+			//Log.info("Received Guardian news data");
+	    } catch(e) {
+			Log.error({method:"requestSuccessInfo", error:e});
+		}
 	},
 	requestFailure: function(e) {
 		Log.error({method:"requestFailure", error:e});
