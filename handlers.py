@@ -202,7 +202,7 @@ class EANHotelRequest(webapp.RequestHandler):
 							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
 							
 							for hotel in result:
-								if hotel['thumbNailUrl'] is not None:
+								if hotel.has_key('thumbNailUrl'):
 									hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
 		
 				if result is not None:
