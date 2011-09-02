@@ -1,9 +1,10 @@
 #share-dialog {
+	cursor:move;
 	display:none;
 	z-index:100;
 	position:absolute;
 	top:30%;
-	left:45%;
+	left:30%;
 	padding:10px;
 
 	background:rgba(0,0,0,0.2);

@@ -149,7 +149,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		global_mashup['destination'] = destination
 		
 		try:
-			arrivalDate = datetime.datetime(int(arrivalDateList[0]), int(arrivalDateList[1]), int(arrivalDateList[2]))
+			arrivalDate = datetime.datetime(int(arrivalDateList[2]), int(arrivalDateList[1]), int(arrivalDateList[0]))
 			departureDateTimeDelta = datetime.timedelta(days=int(numberOfNights))
 			departureDate = arrivalDate + departureDateTimeDelta
 		except ValueError, e:

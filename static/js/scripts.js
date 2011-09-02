@@ -1231,7 +1231,7 @@ RIA.MapStreetView = new Class({
 		}						
 	},
 	animateCurrentMarker: function(delayStart) {
-   		if(!this.hotelCollection) return;
+   		if(!this.hotelCollection[this.hotelIndex]) return;
 
 		if(this.hotelCollection[this.hotelIndex].bookmark) {
 			(function() {

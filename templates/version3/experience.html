@@ -129,7 +129,11 @@
 			</section>
 			{% include "includes/places.html" %}
 			{% include "includes/guardian.html" %} 
-			
+			<div id="share-dialog">
+				<img src="https://si0.twimg.com/images/dev/cms/intents/bird/bird_blue/bird_32_blue.png" width="32" height="32" alt="Shasre with Twitter" />
+				<button id="toggle-share-dialog" data-default="x">x</button>
+				<div id="share-dialog-content"></div>
+			</div>
 			{% comment %}		    
 			<section id="weather" class="rc">
 				<header>
@@ -189,11 +193,6 @@
 		<div id="loading-message">
 			<img src="static/img/{{brand}}/logo.png" alt="" />
 		</div>
-	</div>
-	<div id="share-dialog">
-		<img src="https://si0.twimg.com/images/dev/cms/intents/bird/bird_blue/bird_32_blue.png" width="32" height="32" alt="Shasre with Twitter" />
-		<button id="toggle-share-dialog" data-default="x">x</button>
-		<div id="share-dialog-content"></div>
 	</div>
 	<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 	<div id="fb-root"></div>
