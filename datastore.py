@@ -98,9 +98,6 @@ def put_hotel_by_price(destination, locationid, price, startDate, endDate):
 	
 	except Exception, e:
 		logging.error("put_hotel_by_price : ValueError, data may not have been saved for destination: "+str(destination)+", locationid: "+str(locationid))
-		logging.info("Retrying?")
-		# fail gracefully here
-	 	
 	 	return False
 
 """
@@ -221,7 +218,7 @@ def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 		try:
 			dbPlace.put()
 		except CapabilityDisabledError, e:
-			log.error("put_places_by_hotellocationid_and_types : CapabilityDisabledError" % e)
+			logging.error("put_places_by_hotellocationid_and_types : CapabilityDisabledError" % e)
 			# fail gracefully here
 			pass
 
@@ -230,9 +227,84 @@ def get_places_by_hotellocationid_types_radius(locationid, types, radius):
 	return resultset
 
 
+def put_ean_hotel(hotelData):
+	hotel = json.loads(hotelData)
+	dbEANHotel = datamodel.EANHotel(key_name=str(hotel['hotelId']))
+
+	dbEANHotel.hotelid = str(hotel['hotelId'])
+	dbEANHotel.name = hotel['name']
+	dbEANHotel.address1 = hotel['address1']
+	dbEANHotel.city = hotel['city']
+	dbEANHotel.postalcode = str(hotel['postalCode'])
+	dbEANHotel.stateprovincecode = hotel['stateProvinceCode']
+	dbEANHotel.countrycode = hotel['countryCode']
+	dbEANHotel.latlng = db.GeoPt(float(hotel['latitude']), float(hotel['longitude']))
+	dbEANHotel.shortdescription = hotel['shortDescription']
+	dbEANHotel.locationdescription = hotel['locationDescription']
+	dbEANHotel.propertycategory = str(hotel['propertyCategory'])
+	dbEANHotel.supplierType = hotel['supplierType']
+	dbEANHotel.mainimageurl = hotel['mainImageUrl']
+	dbEANHotel.thumbnailurl = hotel['thumbNailUrl']
+	dbEANHotel.hotelrating = float(hotel['hotelRating'])
+	dbEANHotel.airportcode = hotel['airportCode']
+	dbEANHotel.proximitydistance = float(hotel['proximityDistance'])
+	dbEANHotel.proximityunit = hotel['proximityUnit']
+	#dbEANHotel.deeplink = hotel['deepLink'] #- this is date specific
+
+	try:
+		dbEANHotel.put()
+	except CapabilityDisabledError, e:
+		logging.error("put_ean_hotel : CapabilityDisabledError")
+		logging.error(e)
+
+
+def put_ean_hotel_by_price(hotelData, arrivalDate, departureDate):
+	try:
+		hotel = json.loads(hotelData)		
+		
+		logging.debug(hotel)
+		
+		existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
+		
+		if existingHotel is not None:
+			dbEANPrice = datamodel.EANHotelPriceAndDate(parent=existingHotel, hotel=existingHotel)		
+			dbEANPrice.city = hotel['city']
+			dbEANPrice.price = float(hotel['lowRate'])
+			dbEANPrice.deeplink = hotel['deepLink']
+		
+			try:
+				startDate = arrivalDate.split('-')
+				endDate = departureDate.split('-')
+				startDate = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+				endDate = datetime.datetime(int(endDate[0]), int(endDate[1]), int(endDate[2]))
+			
+				dbEANPrice.startdate = startDate
+				dbEANPrice.enddate = endDate
+
+			except ValueError, e:
+				logging.error(e)
+				logging.error("put_hotel_by_price : Invalid date values or format")
+				raise e
+
+			try:
+				dbEANPrice.put()
+				logging.debug("put_hotel_by_price() : adding hotel")
+				return True
+			except CapabilityDisabledError:
+				logging.error("put_hotel_by_price : CapabilityDisabledError")
+				# fail gracefully here
+				raise e
+		else:
+			return False
+
+	except Exception, e:
+		logging.error("put_ean_hotel_by_price : price data not stored")
+		logging.error(e)
+	 	return False	
+	
 def delete_all_hotels():
-	resultset = datamodel.LMHotel.gql("ORDER BY index")
+	resultset = datamodel.EANHotel.gql("ORDER BY index")
 	db.delete(resultset);
-	resultsetPrices = datamodel.LMHotelPriceAndDate.gql("ORDER BY price")
+	resultsetPrices = datamodel.EANHotelPriceAndDate.gql("ORDER BY price")
 	db.delete(resultsetPrices);
 	logging.info("delete_all_hotels : Deleted all hotels")
