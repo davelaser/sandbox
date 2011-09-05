@@ -20,6 +20,7 @@ Import local scripts
 """
 
 import datastore
+import datamodel
 import configparsers
 import utils
 		
@@ -123,6 +124,31 @@ class HotelPriceStoreTaskWorker(webapp.RequestHandler):
 		else:
 			logging.debug("HotelPriceStoreTaskWorker() : successfully added LMHotelPriceAndDate destination "+str(destination)+", with locationid "+str(locationid))
 
+class EANHotelStoreTaskWorker(webapp.RequestHandler):
+    def post(self):
+		hotel = self.request.get("hotel")
+		result = datastore.put_ean_hotel(hotel)
+		if result is False:
+			logging.error("EANHotelStoreTaskWorker : Error 500 : bad response from put_ean_hotel()")
+			self.error(500)
+		else:
+			logging.info("EANHotelStoreTaskWorker() : task completed successfully for")
+
+class EANHotelPriceStoreTaskWorker(webapp.RequestHandler):
+    def post(self):                                                                                          
+		hotel = self.request.get("hotel")
+		arrivalDate = self.request.get("arrivalDate")
+		departureDate = self.request.get("departureDate")
+		
+		result = datastore.put_ean_hotel_by_price(hotel, arrivalDate, departureDate)
+
+		if result is False:
+			logging.error("HotelPriceStoreTaskWorker : Error 500")
+			self.error(500)
+		else:
+			logging.debug("HotelPriceStoreTaskWorker() : successfully added EANHotelPriceAndDate with hotelId")
+
+
 class EANHotelRequest(webapp.RequestHandler):
 	def get(self):
 		logging.info("EANHotelRequest")
@@ -202,7 +228,8 @@ class EANHotelRequest(webapp.RequestHandler):
 							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
 							
 							for hotel in result:
-								hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
+								if hotel.has_key('thumbNailUrl'):
+									hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
 		
 				if result is not None:
 					
@@ -235,8 +262,18 @@ class EANHotelRequest(webapp.RequestHandler):
 						path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 						self.response.out.write(template.render(path, global_mashup))
 						memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
-						
-					logging.debug(result)
+
+						# After sending the response, add the datastore write to the taskqueue
+						for hotel in result:
+							# [ST]TODO: Lookup the Hotel by key_name (locationid) before adding a taskqueue instance for it
+							existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
+							if existingHotel is None:
+								logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
+								taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
+							else: 
+								logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
+							# Add the new price data for this hotel
+							taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
 					
 				else:
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')

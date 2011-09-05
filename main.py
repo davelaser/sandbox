@@ -42,6 +42,8 @@ requestGeoCode = "/geocode"
 requestGeoCodeWorker = "/geocodeworker"
 requestHotelsWorker = "/hotelsworker"
 requestHotelsPriceWorker = "/hotelspriceworker"
+requestEANHotelsWorker = "/eanhotelsworker"
+requestEANHotelsPriceWorker = "/eanhotelspriceworker"
 requestEANHotelList = "/ean-get-hotels"
 requestExpedia = "/expedia"
 requestLastminute = "/lastminute"
@@ -467,6 +469,8 @@ application = webapp.WSGIApplication([
         (requestGeoCodeWorker, handlers.GeocodeStoreTaskWorker),
 		(requestHotelsWorker, handlers.HotelStoreTaskWorker),
 		(requestHotelsPriceWorker, handlers.HotelPriceStoreTaskWorker),
+		(requestEANHotelsWorker, handlers.EANHotelStoreTaskWorker),
+		(requestEANHotelsPriceWorker, handlers.EANHotelPriceStoreTaskWorker),
 		(requestLastminute, ExperienceHandler),
 		(requestExpedia, ExperienceHandler),
 		(requestRazorfish, ExperienceHandler),
