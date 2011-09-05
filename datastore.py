@@ -1,3 +1,4 @@
+import cgi
 import logging
 import datetime
 from django.utils import simplejson as json
@@ -228,6 +229,31 @@ def put_places_by_hotellocationid_and_types(locationid, types, places, radius):
 def get_places_by_hotellocationid_types_radius(locationid, types, radius):
 	resultset = datamodel.DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
 	return resultset
+
+def put_ean_hotel(hotel):
+	dbHotel = datamodel.EANHotel()
+	
+	for attributes in hotel:
+		timestamp = db.DateTimeProperty(auto_now_add=True)
+		name = hotel['name']
+		address1 = hotel['address1']
+		postalcode = hotel['postalCode']
+		stateprovincecode = hotel['stateProvinceCode']
+		countrycode = hotel['countryCode']
+		propertycategory = hotel['propertyCategory']
+		shortdescription = hotel['shortDescription']
+		locationdescription = hotel['locationDescription']
+		suppliertype = hotel['supplierType']
+		mainimageurl = hotel['mainImageUrl']
+		thumbnailurl = hotel['thumbnailUrl']
+		hotelrating = float(hotel['hotelrating'])
+		hotelid = hotel['hotelId']
+		airportcode = hotel['airportCode']
+		proximitydistance = hotel['proximityDistance']
+		proximityunit = hotel['proximityUnit']
+		latlng = db.GeoPt(float(hotel['latitude']), float(hotel['longitude']))
+		deeplink = hotel['deepLink']
+
 
 
 def delete_all_hotels():

@@ -235,6 +235,9 @@ class EANHotelRequest(webapp.RequestHandler):
 						path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 						self.response.out.write(template.render(path, global_mashup))
 						memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
+						
+					logging.debug(result)
+					
 				else:
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 					self.response.out.write(template.render(path, global_mashup))			
