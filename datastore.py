@@ -262,7 +262,9 @@ def put_ean_hotel(hotelData):
 	dbEANHotel.address1 = hotel['address1']
 	dbEANHotel.city = hotel['city']
 	dbEANHotel.postalcode = str(hotel['postalCode'])
-	dbEANHotel.stateprovincecode = hotel['stateProvinceCode']
+	#stateProvinceCode is not always available
+	if hotel.has_key('stateProvinceCode'):
+		dbEANHotel.stateprovincecode = hotel['stateProvinceCode']
 	dbEANHotel.countrycode = hotel['countryCode']
 	dbEANHotel.latlng = db.GeoPt(float(hotel['latitude']), float(hotel['longitude']))
 	dbEANHotel.shortdescription = hotel['shortDescription']
@@ -275,7 +277,6 @@ def put_ean_hotel(hotelData):
 	dbEANHotel.airportcode = hotel['airportCode']
 	dbEANHotel.proximitydistance = float(hotel['proximityDistance'])
 	dbEANHotel.proximityunit = hotel['proximityUnit']
-	#dbEANHotel.deeplink = hotel['deepLink'] #- this is date specific
 
 	try:
 		dbEANHotel.put()
