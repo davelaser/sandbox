@@ -296,8 +296,10 @@ def put_ean_hotel_by_price(hotelData, arrivalDate, departureDate):
 		if existingHotel is not None:
 			dbEANPrice = datamodel.EANHotelPriceAndDate(parent=existingHotel, hotel=existingHotel)		
 			dbEANPrice.city = hotel['city']
-			dbEANPrice.price = float(hotel['lowRate'])
-			dbEANPrice.deeplink = hotel['deepLink']
+			if hotel.has_key('lowRate'):
+				dbEANPrice.price = float(hotel['lowRate'])
+			if hotel.has_key('deepLink'):
+				dbEANPrice.deeplink = hotel['deepLink']
 		
 			try:
 				startDate = arrivalDate.split('-')
