@@ -297,7 +297,9 @@ def put_ean_hotel_by_price(hotelData, arrivalDate, departureDate):
 			dbEANPrice = datamodel.EANHotelPriceAndDate(parent=existingHotel, hotel=existingHotel)		
 			dbEANPrice.city = hotel['city']
 			if hotel.has_key('lowRate'):
-				dbEANPrice.price = float(hotel['lowRate'])
+				dbEANPrice.lowRate = float(hotel['lowRate'])
+			if hotel.has_key('highRate'):
+				dbEANPrice.highRate = float(hotel['highRate'])
 			if hotel.has_key('deepLink'):
 				dbEANPrice.deeplink = hotel['deepLink']
 		
