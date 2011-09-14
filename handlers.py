@@ -265,7 +265,6 @@ class EANHotelRequest(webapp.RequestHandler):
 
 						# After sending the response, add the datastore write to the taskqueue
 						for hotel in result:
-							# [ST]TODO: Lookup the Hotel by key_name (locationid) before adding a taskqueue instance for it
 							existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
 							if existingHotel is None:
 								logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")

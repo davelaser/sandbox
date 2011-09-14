@@ -334,13 +334,15 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	"""
 	config_properties = configparsers.loadConfigProperties()
 	
+	logging.debug(self.request.arguments())
 	destination = self.request.get("destination")
 	startDateRaw = self.request.get("startDate")
 	ratingRaw = self.request.get("rating")
+	numberOfNightsRaw = self.request.get("nights")
 	rating = None
 	if ratingRaw is not None:
 		rating = True
- 	logging.info(startDateRaw)
+
 	if startDateRaw is not None:
 		startDate = startDateRaw.split('-')
 	try:
@@ -348,7 +350,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
 		startDate = dateTime
 
-		numberOfNightsRaw = self.request.POST.get("nights")
+		
 		endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
 		endDate = startDate + endDateTimeDelta
 		
