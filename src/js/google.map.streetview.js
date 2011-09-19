@@ -162,6 +162,7 @@ RIA.MapStreetView = new Class({
 		this.setMapEventListeners();
 		
 		
+		
 		if(this.options.ios) {
 			this.watchUserPosition();
 		}	
@@ -169,10 +170,15 @@ RIA.MapStreetView = new Class({
 	setMapEventListeners: function() {
 		RIA.map._events.bounds_changed = google.maps.event.addListener(RIA.map, 'bounds_changed', function() {
 		    Log.info("RIA.map Event : bounds_changed");
+			if (RIA.map.getZoom() > 15) this.setMapZoom(10); 
 		}.bind(this));
 		
 		RIA.map._events.center_changed = google.maps.event.addListener(RIA.map, 'center_changed', function() {
 		    Log.info("RIA.map Event : center_changed");
+		}.bind(this));
+		
+		RIA.map._events.zoom_changed = google.maps.event.addListener(RIA.map, 'zoom_changed', function() {
+		    Log.info("RIA.map Event : zoom_changed");
 		}.bind(this));
 		
 		RIA.map._events.click = google.maps.event.addListener(RIA.map, 'click', function() {
@@ -318,7 +324,7 @@ RIA.MapStreetView = new Class({
 		}						
 	},
 	animateCurrentMarker: function(delayStart) {
-   		if(!this.hotelCollection[this.hotelIndex]) return;
+   		if(!this.hotelCollection || !this.hotelCollection[this.hotelIndex]) return;
 
 		if(this.hotelCollection[this.hotelIndex].bookmark) {
 			(function() {
@@ -365,10 +371,14 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		latLng[Object(LatLng)]
 		*/ 
+		Log.info("Setting map center to...")
+		Log.info(latLng);
+		
 		RIA.map.setCenter(latLng); 
 	},
 	setMapZoom: function(zoomLevel) {
 		if(RIA.map) RIA.map.setZoom(zoomLevel);
+		Log.info("Set map zoom to level "+zoomLevel)
 	},
 	setPanoramaPosition: function(latLng) {
 		/*
@@ -551,7 +561,8 @@ RIA.MapStreetView = new Class({
 			
 		},this);
 		    
-		
+		this.setMapBounds();
+		this.setMapZoom(20);
 	},
 	addHotelMarker: function(hotel, latLng) {
 		/*
@@ -835,5 +846,31 @@ RIA.MapStreetView = new Class({
 		if(navigator.geolocation) {
 			navigator.geolocation.clearWatch(this.watchPos);
 		}
+	},
+	setMapBounds: function() {
+		var hotelLatLngList = new Array(), bounds;
+		
+		if(this.hotelCollection) {
+			this.hotelCollection.each(function(hotel) {
+				var latlng = hotel.get("data-latlng").split(",");
+				hotelLatLngList.push(new google.maps.LatLng(latlng[0], latlng[1]));
+			},this);
+
+			Log.info(hotelLatLngList);
+			
+			//  Create a new viewpoint bound
+			bounds = new google.maps.LatLngBounds();
+			//  Go through each...
+			for (var i = 0, LtLgLen = hotelLatLngList.length; i < LtLgLen; i++) {
+			  	//  And increase the bounds to take this point
+				bounds.extend(hotelLatLngList[i]);
+			}
+			//  Fit these bounds to the map
+			RIA.map.fitBounds(bounds);
+			
+			this.setMapPositionCenter(bounds.getCenter());
+			
+		}
+
 	}
 });

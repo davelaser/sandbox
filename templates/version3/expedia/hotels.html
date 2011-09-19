@@ -1,5 +1,5 @@
 {% for hotel in hotels %}
-<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.hotelId }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address1}} {{hotel.city}} {{hotel.postalCode}}" data-name-geo="{{hotel.name|safe}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}" data-price="&#163;{{hotel.lowRate|floatformat:2}}" data-latlng="{% comment %}{{ hotel.latitude }},{{hotel.longitude}}{% endcomment %}" data-rating="{{ hotel.hotelRating }}" data-countrycode="{{hotel.countryCode}}">
+<div class="hotel" data-destination="{{ destination }}" data-locationid="{{ hotel.hotelId }}" data-counter="{{ forloop.counter }}" data-address="{{hotel.address1}} {{hotel.city}} {{hotel.postalCode}}" data-name-geo="{{hotel.name|safe}}" data-name="{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}" data-price="&#163;{{hotel.lowRate|floatformat:2}}" data-latlng="{{ hotel.latitude }},{{hotel.longitude}}" data-rating="{{ hotel.hotelRating }}" data-countrycode="{{hotel.countryCode}}">
 	<header>
 		<h3>
 			<span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}</span> 
