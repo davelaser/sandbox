@@ -23,12 +23,7 @@
 			{% if hotel.phone %}<dt>Phone: {{hotel.phone}}</dt>{% endif %}
 		</dl>
 		<p class="description">       
-			<p>
-				{{ hotel.shortDescription|safe }}
-			</p>
-			<p>
-				{{ hotel.locationDescription }}
-			</p>
+			{{ hotel.shortDescription|safe }}
 		</p>				
 	</div>
 	<div class="room-and-rates">
