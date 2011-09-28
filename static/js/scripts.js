@@ -1067,7 +1067,13 @@ RIA.MapStreetView = new Class({
 		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
 		//RIA.panoramioLayer.setTag("times square");
 		
-		RIA.InitAjaxSubmit._submit();
+		/*
+		*	From page load, if we have a Destination submit the form
+		*/
+		if(RIA.currentDestination != null && RIA.currentDestination != "") {
+			RIA.InitAjaxSubmit._submit();
+		}
+		
 		
         this.toggleMapFullScreen(null);
 		
@@ -1090,16 +1096,27 @@ RIA.MapStreetView = new Class({
 		    Log.info("RIA.map Event : center_changed");
 		}.bind(this));
 		
+		RIA.map._events.heading_changed = google.maps.event.addListener(RIA.map, 'heading_changed', function() {
+		    Log.info("RIA.map Event : heading_changed");
+		}.bind(this));
+		
 		RIA.map._events.zoom_changed = google.maps.event.addListener(RIA.map, 'zoom_changed', function() {
-		    Log.info("RIA.map Event : zoom_changed");
+		    Log.info("RIA.map Event : zoom_changed : "+RIA.map.getZoom());
 		}.bind(this));
 		
-		RIA.map._events.click = google.maps.event.addListener(RIA.map, 'click', function() {
+		RIA.map._events.click = google.maps.event.addListener(RIA.map, 'click', function(e) {
 		    Log.info("RIA.map Event : click");
+			Log.info(e);
 		}.bind(this));
 		
-		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'dblclick', function() {
+		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'dblclick', function(e) {
 		    Log.info("RIA.map Event : dblclick");
+			Log.info(e);
+		}.bind(this));
+		
+		RIA.map._events.rightclick = google.maps.event.addListener(RIA.map, 'rightclick', function(e) {
+		    Log.info("RIA.map Event : rightclick");
+			Log.info(e);
 		}.bind(this));
 		
 		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'idle', function() {
@@ -1107,6 +1124,23 @@ RIA.MapStreetView = new Class({
 		
 			this.animateCurrentMarker(); 
 		}.bind(this));
+		
+		RIA.map._events.tilesloaded = google.maps.event.addListener(RIA.map, 'tilesloaded', function() {
+		    Log.info("RIA.map Event : tilesloaded");
+		}.bind(this));
+		
+		RIA.map._events.dragstart = google.maps.event.addListener(RIA.map, 'dragstart', function() {
+		    Log.info("RIA.map Event : dragstart");
+		}.bind(this));
+		
+		RIA.map._events.drag = google.maps.event.addListener(RIA.map, 'drag', function() {
+		    Log.info("RIA.map Event : drag");
+		}.bind(this));
+		
+		RIA.map._events.dragend = google.maps.event.addListener(RIA.map, 'dragend', function() {
+		    Log.info("RIA.map Event : dragend");
+		}.bind(this));
+		
 		
 	},
 	toggleMapFullScreen: function(e){
@@ -1159,6 +1193,7 @@ RIA.MapStreetView = new Class({
 				
 				document.id("toggle-streetview").removeClass("active");
 				document.id("toggle-map").addClass("active");
+				
 			}
 			
 		}
@@ -1290,8 +1325,11 @@ RIA.MapStreetView = new Class({
 		RIA.map.setCenter(latLng); 
 	},
 	setMapZoom: function(zoomLevel) {
-		if(RIA.map) RIA.map.setZoom(zoomLevel);
-		Log.info("Set map zoom to level "+zoomLevel)
+		if(RIA.map) {
+			Log.info("Setting map zoom to level "+zoomLevel);
+			RIA.map.setZoom(zoomLevel);
+			Log.info("Map zoom set to "+RIA.map.getZoom());
+		}		
 	},
 	setPanoramaPosition: function(latLng) {
 		/*
@@ -1402,10 +1440,10 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	createInfoWindow: function(hotel, marker) {
-		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), infowindow;
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), locationDescription = hotel.get("data-location-description"), infowindow;
 		// Create a new InfoWindow, for the Marker
 		         
-		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" height=\"75\" width\"100\" /><p>"+price+"</p>";
+		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" height=\"75\" width\"100\" /><p>"+price+"</p><p>"+locationDescription+"</p>";
 		
 		infowindow = new google.maps.InfoWindow({
 		    content: hotelContent,
@@ -1475,7 +1513,7 @@ RIA.MapStreetView = new Class({
 		},this);
 		    
 		this.setMapBounds();
-		this.setMapZoom(20);
+		this.setMapZoom(10);
 	},
 	addHotelMarker: function(hotel, latLng) {
 		/*
