@@ -2394,7 +2394,8 @@ RIA.Experience = new Class({
 RIA.AjaxSubmit = new Class({
 	Implements:[Options, RIA.GoogleAnalyticsHelper],
 	options:{
-        servicePath:null
+        servicePath:null,
+		hotelBrand:null
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -2556,7 +2557,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&priceMax="+this.price.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&priceMax="+this.price.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value")+(this.options.hotelBrand != null ? "&brand="+this.options.hotelBrand : ""),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)

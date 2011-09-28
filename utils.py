@@ -3,7 +3,7 @@ import logging
 import urllib
 import xml.etree.ElementTree as et
 
-def ean_get_hotel_list_url(arrivalDate, departureDate, city):
+def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
 	config_properties = configparsers.loadConfigProperties()
 	
 	# input format is YYY-MM-DD
@@ -18,7 +18,7 @@ def ean_get_hotel_list_url(arrivalDate, departureDate, city):
 	# Set US format date MM/DD/YYYYY
 	departureDateFormatted = departureDateList[1]+"/"+departureDateList[0]+"/"+departureDateList[2]
 	
-	requestXML = "<HotelListRequest><arrivalDate>"+arrivalDateFormatted+"</arrivalDate><departureDate>"+departureDateFormatted+"</departureDate><RoomGroup><Room><numberOfAdults>2</numberOfAdults></Room></RoomGroup><city>"+city+"</city><numberOfResults>25</numberOfResults><options>"+config_properties.get('EAN','option')+"</options></HotelListRequest>"
+	requestXML = "<HotelListRequest><propertyName>"+hotelBrand+"</propertyName><arrivalDate>"+arrivalDateFormatted+"</arrivalDate><departureDate>"+departureDateFormatted+"</departureDate><RoomGroup><Room><numberOfAdults>2</numberOfAdults></Room></RoomGroup><city>"+city+"</city><numberOfResults>25</numberOfResults><options>"+config_properties.get('EAN','option')+"</options></HotelListRequest>"
 
 	urlArgs = dict()
 	urlArgs['cid'] = config_properties.get('EAN', 'cid')

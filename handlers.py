@@ -160,6 +160,8 @@ class EANHotelRequest(webapp.RequestHandler):
 		priceSort = self.request.get("priceSort")
 		ratingSort = self.request.get("ratingSort")
 		city = self.request.get('city')
+		hotelBrand = self.request.get('brand')
+		
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
 		departureDate = None
@@ -185,7 +187,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		if arrivalDate is not None and departureDate is not None:
 			# Memcache Key convention:
 			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
-			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)
+			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)+":"+str(hotelBrand)
 			logging.debug(memcacheKey)
 			memcachedHotels = memcache.get(key=memcacheKey, namespace='ean')
 			logging.info("Looking up MEMCACHE for : "+memcacheKey)
@@ -198,7 +200,7 @@ class EANHotelRequest(webapp.RequestHandler):
 				logging.debug("Returned hotels from memcache")
 			else:	
 				logging.debug("Memcache empty, requesting hotels")
-				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
+				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city, hotelBrand)
 
 				try: 
 					requestServiceURL = config_properties.get('EAN', 'xml_url_hotellist')
@@ -226,11 +228,18 @@ class EANHotelRequest(webapp.RequestHandler):
 					if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
 						if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
 							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
-							
-							for hotel in result:
-								if hotel.has_key('thumbNailUrl'):
-									hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
-		
+							if isinstance(result, list):
+								for hotel in result:
+									if hotel.has_key('thumbNailUrl'):
+										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
+							elif isinstance(result, dict):
+								tempResult = list()
+								tempResult.append(result)
+								result = tempResult
+								for hotel in result:
+									if hotel.has_key('thumbNailUrl'):
+										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
+								
 				if result is not None:
 					
 					if priceSort is not None and priceSort != '':
@@ -273,6 +282,7 @@ class EANHotelRequest(webapp.RequestHandler):
 								logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
 							# Add the new price data for this hotel
 							taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
+						
 					
 				else:
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')

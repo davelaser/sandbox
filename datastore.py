@@ -271,8 +271,10 @@ def put_ean_hotel(hotelData):
 	dbEANHotel.locationdescription = hotel['locationDescription']
 	dbEANHotel.propertycategory = str(hotel['propertyCategory'])
 	dbEANHotel.supplierType = hotel['supplierType']
-	dbEANHotel.mainimageurl = hotel['mainImageUrl']
-	dbEANHotel.thumbnailurl = hotel['thumbNailUrl']
+	if hotel.has_key('mainImageUrl'):
+		dbEANHotel.mainimageurl = hotel['mainImageUrl']
+	if hotel.has_key('thumbNailUrl'):
+		dbEANHotel.thumbnailurl = hotel['thumbNailUrl']
 	dbEANHotel.hotelrating = float(hotel['hotelRating'])
 	dbEANHotel.airportcode = hotel['airportCode']
 	dbEANHotel.proximitydistance = float(hotel['proximityDistance'])

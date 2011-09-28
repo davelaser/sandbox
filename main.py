@@ -261,7 +261,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		priceSort = self.request.get("priceSort")
 		ratingSort = self.request.get("ratingSort")
 		nights = self.request.get("nights")
-		
+		hotelBrand = self.request.get("brand")
 		servicePath = requestEANHotelList
 		brand = "razorfish"
 		urlPath = self.request.path
@@ -305,6 +305,7 @@ class ExperienceHandler(webapp.RequestHandler):
 			price=price, 
 			nights=nights, 
 			destination=destination, 
+			hotelBrand=hotelBrand,
 			bookmarks=bookmarks, 
 			maptype=maptype, 
 			contenttype=contenttype, 
