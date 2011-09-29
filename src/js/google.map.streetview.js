@@ -2,7 +2,6 @@ RIA.MapStreetView = new Class({
 	Implements:[RIA.Gradient, RIA.GoogleAnalyticsHelper],
 	options:{
 		geocodeURL:"/geocodeworker",
-		geolocation:null, 
 		bookmarks:null,
 		maptype:"panorama",
 		spectrum:["00FF00", "FFFF00", "FF0000"],
@@ -11,7 +10,8 @@ RIA.MapStreetView = new Class({
 			enableHighAcurracy:true, 
 			timeout:5000,
 			maximumAge:300000
-		}
+		},
+		streetViewDefaultOptions:null
 	},
 	mapInitialize: function() {
 		this.requestCounter = 500;
@@ -116,8 +116,8 @@ RIA.MapStreetView = new Class({
 		RIA.geocoder = new google.maps.Geocoder();
 		RIA.sv = new google.maps.StreetViewService();         
 		
-		if(this.options.geolocation) {
-			this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat, this.options.geolocation.lng));
+		if(this.options.streetViewDefaultOptions && this.options.streetViewDefaultOptions.lat != "" && this.options.streetViewDefaultOptions.lng != "") {
+			this.setCurrentLocation(new google.maps.LatLng(this.options.streetViewDefaultOptions.lat, this.options.streetViewDefaultOptions.lng));
 		} else {
 			this.setCurrentLocation(new google.maps.LatLng(0, 0));
 		}
@@ -139,9 +139,9 @@ RIA.MapStreetView = new Class({
 			scrollwheel: false,
 			position: RIA.currentLocation,
 			pov: {
-				heading: 120,
-		        pitch: 20,
-		        zoom: 0
+				heading: (this.options.streetViewDefaultOptions.heading || 120),
+		        pitch: (this.options.streetViewDefaultOptions.pitch || 20),
+		        zoom: (this.options.streetViewDefaultOptions.zoom || 0)
 			}
 		};
 
@@ -176,7 +176,6 @@ RIA.MapStreetView = new Class({
 	setMapEventListeners: function() {
 		RIA.map._events.bounds_changed = google.maps.event.addListener(RIA.map, 'bounds_changed', function() {
 		    Log.info("RIA.map Event : bounds_changed");
-			if (RIA.map.getZoom() > 15) this.setMapZoom(10); 
 		}.bind(this));
 		
 		RIA.map._events.center_changed = google.maps.event.addListener(RIA.map, 'center_changed', function() {
@@ -228,7 +227,19 @@ RIA.MapStreetView = new Class({
 		    Log.info("RIA.map Event : dragend");
 		}.bind(this));
 		
+		/*
+		*	StreetView Panorama Events
+		*/
 		
+		google.maps.event.addListener(RIA.panorama, 'pov_changed', function() {
+			Log.info("RIA.panorama Event : pov_changed");
+			Log.info(RIA.panorama.getPov());
+		});
+		
+		google.maps.event.addListener(RIA.panorama, 'position_changed', function() {
+		    Log.info("RIA.panorama Event : position_changed");
+			Log.info(RIA.panorama.getPosition());
+		});
 	},
 	toggleMapFullScreen: function(e){
 		/*
