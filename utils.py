@@ -2,6 +2,7 @@ import configparsers
 import logging 
 import urllib
 import xml.etree.ElementTree as et
+from random import choice
 
 def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
 	config_properties = configparsers.loadConfigProperties()
@@ -99,3 +100,12 @@ def get_regions():
 	regions.append('africa')
 	regions.append('asia')
 	return regions
+	
+def get_hotspots():
+	hotspot_properties = configparsers.loadPropertyFile('hotspots')
+	hotspotSections = hotspot_properties.sections()
+	hotspotSection = choice(hotspotSections)
+	hotspot = dict()
+	for x,y in hotspot_properties.items(hotspotSection):
+			hotspot[x] = hotspot_properties.getfloat(hotspotSection, x)
+	return hotspot

@@ -23,7 +23,6 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import deferred
 from ConfigParser import ConfigParser
-from random import choice
 
 """
 Import local scripts
@@ -253,14 +252,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		Get the config properties
 		"""
 		config_properties = configparsers.loadPropertyFile('config')
-		hotspot_properties = configparsers.loadPropertyFile('hotspots')
-		hotspot = 'null'
 		
-		hotspotSections = hotspot_properties.sections()
-		hotspotSection = choice(hotspotSections)
-		hotspot = dict()
-		for x,y in hotspot_properties.items(hotspotSection):
-				hotspot[x] = hotspot_properties.getfloat(hotspotSection, x)
+		hotspot = utils.get_hotspots()
 		
 		widescreen = 'true'
 		viewType = self.request.get("viewType")
