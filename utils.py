@@ -5,7 +5,7 @@ import xml.etree.ElementTree as et
 from random import choice
 
 def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
-	config_properties = configparsers.loadConfigProperties()
+	config_properties = configparsers.loadPropertyFile('config')
 	
 	# input format is YYY-MM-DD
 	arrivalDateList = arrivalDate.split('-')
@@ -78,7 +78,7 @@ def parseXML(xmlStringContent):
 	
 def get_countries_by_region(region):
 	if region is not None:          
-		region_properties = configparsers.loadRegionProperties()
+		region_properties = configparsers.loadPropertyFile('countries-by-region')
 		countries = list()
 		# If we have a region Section in the config file...
 		if region_properties.has_section(region):          

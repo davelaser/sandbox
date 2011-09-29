@@ -196,7 +196,7 @@ def get_hotels_request_url(destination, startDate, endDate):
 	"""
 	Get the config properties
 	"""
-	config_properties = configparsers.loadConfigProperties()
+	config_properties = configparsers.loadPropertyFile('config')
 	
 	hotelsURL = config_properties.get('Hotels', 'hotels_service_v4_url')
 	hotelsArgs = dict()
@@ -247,7 +247,6 @@ class HomeHandler(webapp.RequestHandler):
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		
-		logging.info(self.request.path)
 		"""
 		Get the config properties
 		"""
@@ -337,9 +336,8 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	"""
 	Get the config properties
 	"""
-	config_properties = configparsers.loadConfigProperties()
+	config_properties = configparsers.loadPropertyFile('config')
 	
-	logging.debug(self.request.arguments())
 	destination = self.request.get("destination")
 	startDateRaw = self.request.get("startDate")
 	ratingRaw = self.request.get("rating")
@@ -348,20 +346,16 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	if ratingRaw is not None:
 		rating = True
 
-	if startDateRaw is not None:
+	if startDateRaw is not None and startDateRaw is not '':
 		startDate = startDateRaw.split('-')
-	try:
-		
-		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
-		startDate = dateTime
-
-		
-		endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
-		endDate = startDate + endDateTimeDelta
-		
-	except ValueError, e:
-		logging.error(e)
-		logging.error("AjaxAPIHandler_v3 : Invalid date values or date format")
+		try:
+			dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+			startDate = dateTime
+			endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
+			endDate = startDate + endDateTimeDelta		
+		except ValueError, e:
+			logging.error(e)
+			logging.error("AjaxAPIHandler_v3 : Invalid date values or date format")
 	
 	
 	price = float(0.0)

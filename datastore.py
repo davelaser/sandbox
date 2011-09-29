@@ -291,8 +291,6 @@ def put_ean_hotel_by_price(hotelData, arrivalDate, departureDate):
 	try:
 		hotel = json.loads(hotelData)		
 		
-		logging.debug(hotel)
-		
 		existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
 		
 		if existingHotel is not None:
