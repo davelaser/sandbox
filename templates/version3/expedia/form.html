@@ -1,6 +1,6 @@
 <form id="search" method="post" action="/experience">
 	<fieldset>					
-		<input data-required="true" id="destination" type="text" value="{{ destinationDisplayName }}" />
+		<input data-required="true" id="destination" type="text" value="{{ destinationDisplayName|default:'Destination' }}" />
 		<label for="nights">for</label>
 		<input data-required="true" id="nights" type="text" value="{{ nights|default:2 }}" />                                                        
 		<label for="arrival_date">night(s), arriving</label>

@@ -50,7 +50,7 @@ requestLastminute = "/lastminute"
 requestRazorfish = "/razorfish"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 #logging.info(memcache.get_stats())
 
 # DELETE ALL HOTELS
@@ -487,6 +487,11 @@ application = webapp.WSGIApplication([
 		(requestEANHotelList, handlers.EANHotelRequest)
     ],debug=True)
 
+
+def main():
+	logging.getLogger().setLevel(logging.DEBUG)
+	run_wsgi_app(application)
+		
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
     run_wsgi_app(application)
