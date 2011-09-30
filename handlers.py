@@ -188,7 +188,7 @@ class EANHotelRequest(webapp.RequestHandler):
 			# Memcache Key convention:
 			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
 			#memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)+":"+str(hotelBrand)
-			memcacheKey = str(city)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())
+			memcacheKey = str(city)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(hotelBrand)
 			logging.debug(memcacheKey)
 			memcachedHotels = memcache.get(key=memcacheKey, namespace='ean')
 			logging.info("Looking up MEMCACHE for : "+memcacheKey)
