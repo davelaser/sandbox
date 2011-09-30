@@ -65,7 +65,8 @@ class EANHotelPriceAndDate(db.Model):
 	hotel = db.ReferenceProperty(EANHotel)
 	deeplink = db.StringProperty(indexed=False)
 	city = db.StringProperty()
-	price = db.FloatProperty()
+	lowRate = db.FloatProperty()
+	highRate = db.FloatProperty()
 	startdate = db.DateTimeProperty()
 	enddate = db.DateTimeProperty()
 

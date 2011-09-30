@@ -262,20 +262,23 @@ def put_ean_hotel(hotelData):
 	dbEANHotel.address1 = hotel['address1']
 	dbEANHotel.city = hotel['city']
 	dbEANHotel.postalcode = str(hotel['postalCode'])
-	dbEANHotel.stateprovincecode = hotel['stateProvinceCode']
+	#stateProvinceCode is not always available
+	if hotel.has_key('stateProvinceCode'):
+		dbEANHotel.stateprovincecode = hotel['stateProvinceCode']
 	dbEANHotel.countrycode = hotel['countryCode']
 	dbEANHotel.latlng = db.GeoPt(float(hotel['latitude']), float(hotel['longitude']))
 	dbEANHotel.shortdescription = hotel['shortDescription']
 	dbEANHotel.locationdescription = hotel['locationDescription']
 	dbEANHotel.propertycategory = str(hotel['propertyCategory'])
 	dbEANHotel.supplierType = hotel['supplierType']
-	dbEANHotel.mainimageurl = hotel['mainImageUrl']
-	dbEANHotel.thumbnailurl = hotel['thumbNailUrl']
+	if hotel.has_key('mainImageUrl'):
+		dbEANHotel.mainimageurl = hotel['mainImageUrl']
+	if hotel.has_key('thumbNailUrl'):
+		dbEANHotel.thumbnailurl = hotel['thumbNailUrl']
 	dbEANHotel.hotelrating = float(hotel['hotelRating'])
 	dbEANHotel.airportcode = hotel['airportCode']
 	dbEANHotel.proximitydistance = float(hotel['proximityDistance'])
 	dbEANHotel.proximityunit = hotel['proximityUnit']
-	#dbEANHotel.deeplink = hotel['deepLink'] #- this is date specific
 
 	try:
 		dbEANHotel.put()
@@ -288,15 +291,17 @@ def put_ean_hotel_by_price(hotelData, arrivalDate, departureDate):
 	try:
 		hotel = json.loads(hotelData)		
 		
-		logging.debug(hotel)
-		
 		existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
 		
 		if existingHotel is not None:
 			dbEANPrice = datamodel.EANHotelPriceAndDate(parent=existingHotel, hotel=existingHotel)		
 			dbEANPrice.city = hotel['city']
-			dbEANPrice.price = float(hotel['lowRate'])
-			dbEANPrice.deeplink = hotel['deepLink']
+			if hotel.has_key('lowRate'):
+				dbEANPrice.lowRate = float(hotel['lowRate'])
+			if hotel.has_key('highRate'):
+				dbEANPrice.highRate = float(hotel['highRate'])
+			if hotel.has_key('deepLink'):
+				dbEANPrice.deeplink = hotel['deepLink']
 		
 			try:
 				startDate = arrivalDate.split('-')

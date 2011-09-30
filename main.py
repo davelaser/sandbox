@@ -196,7 +196,7 @@ def get_hotels_request_url(destination, startDate, endDate):
 	"""
 	Get the config properties
 	"""
-	config_properties = configparsers.loadConfigProperties()
+	config_properties = configparsers.loadPropertyFile('config')
 	
 	hotelsURL = config_properties.get('Hotels', 'hotels_service_v4_url')
 	hotelsArgs = dict()
@@ -247,11 +247,13 @@ class HomeHandler(webapp.RequestHandler):
 class ExperienceHandler(webapp.RequestHandler):
 	def get(self):
 		
-		logging.info(self.request.path)
 		"""
 		Get the config properties
 		"""
-		config_properties = configparsers.loadConfigProperties()
+		config_properties = configparsers.loadPropertyFile('config')
+		
+		hotspot = utils.get_hotspots()
+		
 		widescreen = 'true'
 		viewType = self.request.get("viewType")
 		
@@ -261,7 +263,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		priceSort = self.request.get("priceSort")
 		ratingSort = self.request.get("ratingSort")
 		nights = self.request.get("nights")
-		
+		hotelBrand = self.request.get("brand")
 		servicePath = requestEANHotelList
 		brand = "razorfish"
 		urlPath = self.request.path
@@ -305,6 +307,7 @@ class ExperienceHandler(webapp.RequestHandler):
 			price=price, 
 			nights=nights, 
 			destination=destination, 
+			hotelBrand=hotelBrand,
 			bookmarks=bookmarks, 
 			maptype=maptype, 
 			contenttype=contenttype, 
@@ -314,7 +317,8 @@ class ExperienceHandler(webapp.RequestHandler):
 			tripAdvisorDestination=tripAdvisorDestination, 
 			startDate=startDate, 
 			priceSort=priceSort, 
-			ratingSort=ratingSort)
+			ratingSort=ratingSort,
+			hotspot=hotspot)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -332,29 +336,26 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	"""
 	Get the config properties
 	"""
-	config_properties = configparsers.loadConfigProperties()
+	config_properties = configparsers.loadPropertyFile('config')
 	
 	destination = self.request.get("destination")
 	startDateRaw = self.request.get("startDate")
 	ratingRaw = self.request.get("rating")
+	numberOfNightsRaw = self.request.get("nights")
 	rating = None
 	if ratingRaw is not None:
 		rating = True
- 	logging.info(startDateRaw)
-	if startDateRaw is not None:
-		startDate = startDateRaw.split('-')
-	try:
-		
-		dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
-		startDate = dateTime
 
-		numberOfNightsRaw = self.request.POST.get("nights")
-		endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
-		endDate = startDate + endDateTimeDelta
-		
-	except ValueError, e:
-		logging.error(e)
-		logging.error("AjaxAPIHandler_v3 : Invalid date values or date format")
+	if startDateRaw is not None and startDateRaw is not '':
+		startDate = startDateRaw.split('-')
+		try:
+			dateTime = datetime.datetime(int(startDate[0]), int(startDate[1]), int(startDate[2]))
+			startDate = dateTime
+			endDateTimeDelta = datetime.timedelta(days=int(numberOfNightsRaw))
+			endDate = startDate + endDateTimeDelta		
+		except ValueError, e:
+			logging.error(e)
+			logging.error("AjaxAPIHandler_v3 : Invalid date values or date format")
 	
 	
 	price = float(0.0)
@@ -480,6 +481,11 @@ application = webapp.WSGIApplication([
 		(requestEANHotelList, handlers.EANHotelRequest)
     ],debug=True)
 
+
+def main():
+	logging.getLogger().setLevel(logging.DEBUG)
+	run_wsgi_app(application)
+		
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
     run_wsgi_app(application)

@@ -46,7 +46,7 @@ class GooglePlacesHandler(webapp.RequestHandler):
 			else:
 				logging.info("Requesting PLACES from GOOGLE")   	
 				try:
-					config_properties = configparsers.loadConfigProperties()
+					config_properties = configparsers.loadPropertyFile('config')
 					placesURL = "https://maps.googleapis.com/maps/api/place/search/json?%s"
 					urlArgs = dict()
 					urlArgs['location'] = self.request.get('location')
@@ -154,12 +154,14 @@ class EANHotelRequest(webapp.RequestHandler):
 		logging.info("EANHotelRequest")
 	def post(self):                    
 		logging.info("EANHotelRequest")
-		config_properties = configparsers.loadConfigProperties()
+		config_properties = configparsers.loadPropertyFile('config')
 		arrivalDateRaw = self.request.get('arrivalDate')
 		numberOfNights = self.request.get('nights')
 		priceSort = self.request.get("priceSort")
 		ratingSort = self.request.get("ratingSort")
 		city = self.request.get('city')
+		hotelBrand = self.request.get('brand')
+		
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
 		departureDate = None
@@ -185,20 +187,18 @@ class EANHotelRequest(webapp.RequestHandler):
 		if arrivalDate is not None and departureDate is not None:
 			# Memcache Key convention:
 			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
-			memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)
+			#memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)+":"+str(hotelBrand)
+			memcacheKey = str(city)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(hotelBrand)
 			logging.debug(memcacheKey)
 			memcachedHotels = memcache.get(key=memcacheKey, namespace='ean')
 			logging.info("Looking up MEMCACHE for : "+memcacheKey)
 			
 			if memcachedHotels is not None:
-				global_mashup['hotels'] = memcachedHotels
-	
-				path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
-				self.response.out.write(template.render(path, global_mashup))
-				logging.debug("Returned hotels from memcache")
+				result = memcachedHotels
+				logging.debug("Got hotels from memcache")
 			else:	
 				logging.debug("Memcache empty, requesting hotels")
-				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city)
+				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city, hotelBrand)
 
 				try: 
 					requestServiceURL = config_properties.get('EAN', 'xml_url_hotellist')
@@ -226,58 +226,64 @@ class EANHotelRequest(webapp.RequestHandler):
 					if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
 						if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
 							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
+							if isinstance(result, list):
+								for hotel in result:
+									if hotel.has_key('thumbNailUrl'):
+										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
+							elif isinstance(result, dict):
+								tempResult = list()
+								tempResult.append(result)
+								result = tempResult
+								for hotel in result:
+									if hotel.has_key('thumbNailUrl'):
+										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
 							
+							# Add the datastore write to the taskqueue
 							for hotel in result:
-								if hotel.has_key('thumbNailUrl'):
-									hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
-		
-				if result is not None:
-					
-					if priceSort is not None and priceSort != '':
-						if priceSort == 'high':
-							result = sorted(result, key=itemgetter('lowRate'), reverse=True)
-						elif priceSort == 'low':
-							result = sorted(result, key=itemgetter('lowRate'), reverse=False)
-							
-					if ratingSort is not None and ratingSort != '':
-						if ratingSort == 'high':
-							result = sorted(result, key=itemgetter('hotelRating'), reverse=True)
-						elif ratingSort == 'low':
-							result = sorted(result, key=itemgetter('hotelRating'), reverse=False)
-					
-					if price is not None and price > 0.0:
-						priceList = list()
-						for hotel in result:
-							if hotel['lowRate'] <= price:
-								priceList.append(hotel)
+								existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
+								if existingHotel is None:
+									logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
+									taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
+								else: 
+									logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
+								# Add the new price data for this hotel
+								taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
+				
+			if result is not None:
+				
+				if priceSort is not None and priceSort != '':
+					if priceSort == 'high':
+						result = sorted(result, key=itemgetter('lowRate'), reverse=True)
+					elif priceSort == 'low':
+						result = sorted(result, key=itemgetter('lowRate'), reverse=False)
 						
-						result = priceList
+				if ratingSort is not None and ratingSort != '':
+					if ratingSort == 'high':
+						result = sorted(result, key=itemgetter('hotelRating'), reverse=True)
+					elif ratingSort == 'low':
+						result = sorted(result, key=itemgetter('hotelRating'), reverse=False)
+				
+				if price is not None and price > 0.0:
+					priceList = list()
+					for hotel in result:
+						if hotel['lowRate'] <= price:
+							priceList.append(hotel)
 					
-					if len(result) <= 0:
-						global_mashup['price'] = price
-						path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
-						self.response.out.write(template.render(path, global_mashup))
-					else:
-						global_mashup['hotels'] = result
-						path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
-						self.response.out.write(template.render(path, global_mashup))
-						memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
-
-						# After sending the response, add the datastore write to the taskqueue
-						for hotel in result:
-							# [ST]TODO: Lookup the Hotel by key_name (locationid) before adding a taskqueue instance for it
-							existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
-							if existingHotel is None:
-								logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
-								taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
-							else: 
-								logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
-							# Add the new price data for this hotel
-							taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
-					
-				else:
+					result = priceList
+				
+				if len(result) <= 0:
+					global_mashup['price'] = price
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
-					self.response.out.write(template.render(path, global_mashup))			
+					self.response.out.write(template.render(path, global_mashup))
+				else:
+					global_mashup['hotels'] = result
+					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
+					self.response.out.write(template.render(path, global_mashup))
+					memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
+				
+			else:
+				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
+				self.response.out.write(template.render(path, global_mashup))			
 				                                                                 
 		else:
 			path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')

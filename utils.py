@@ -2,9 +2,10 @@ import configparsers
 import logging 
 import urllib
 import xml.etree.ElementTree as et
+from random import choice
 
-def ean_get_hotel_list_url(arrivalDate, departureDate, city):
-	config_properties = configparsers.loadConfigProperties()
+def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
+	config_properties = configparsers.loadPropertyFile('config')
 	
 	# input format is YYY-MM-DD
 	arrivalDateList = arrivalDate.split('-')
@@ -18,7 +19,7 @@ def ean_get_hotel_list_url(arrivalDate, departureDate, city):
 	# Set US format date MM/DD/YYYYY
 	departureDateFormatted = departureDateList[1]+"/"+departureDateList[0]+"/"+departureDateList[2]
 	
-	requestXML = "<HotelListRequest><arrivalDate>"+arrivalDateFormatted+"</arrivalDate><departureDate>"+departureDateFormatted+"</departureDate><RoomGroup><Room><numberOfAdults>2</numberOfAdults></Room></RoomGroup><city>"+city+"</city><numberOfResults>25</numberOfResults></HotelListRequest>"
+	requestXML = "<HotelListRequest><propertyName>"+hotelBrand+"</propertyName><arrivalDate>"+arrivalDateFormatted+"</arrivalDate><departureDate>"+departureDateFormatted+"</departureDate><RoomGroup><Room><numberOfAdults>2</numberOfAdults></Room></RoomGroup><city>"+city+"</city><numberOfResults>25</numberOfResults><options>"+config_properties.get('EAN','option')+"</options></HotelListRequest>"
 
 	urlArgs = dict()
 	urlArgs['cid'] = config_properties.get('EAN', 'cid')
@@ -77,7 +78,7 @@ def parseXML(xmlStringContent):
 	
 def get_countries_by_region(region):
 	if region is not None:          
-		region_properties = configparsers.loadRegionProperties()
+		region_properties = configparsers.loadPropertyFile('countries-by-region')
 		countries = list()
 		# If we have a region Section in the config file...
 		if region_properties.has_section(region):          
@@ -99,3 +100,12 @@ def get_regions():
 	regions.append('africa')
 	regions.append('asia')
 	return regions
+	
+def get_hotspots():
+	hotspot_properties = configparsers.loadPropertyFile('hotspots')
+	hotspotSections = hotspot_properties.sections()
+	hotspotSection = choice(hotspotSections)
+	hotspot = dict()
+	for x,y in hotspot_properties.items(hotspotSection):
+			hotspot[x] = hotspot_properties.getfloat(hotspotSection, x)
+	return hotspot

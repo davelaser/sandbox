@@ -915,7 +915,6 @@ RIA.MapStreetView = new Class({
 	Implements:[RIA.Gradient, RIA.GoogleAnalyticsHelper],
 	options:{
 		geocodeURL:"/geocodeworker",
-		geolocation:null, 
 		bookmarks:null,
 		maptype:"panorama",
 		spectrum:["00FF00", "FFFF00", "FF0000"],
@@ -924,7 +923,8 @@ RIA.MapStreetView = new Class({
 			enableHighAcurracy:true, 
 			timeout:5000,
 			maximumAge:300000
-		}
+		},
+		streetViewDefaultOptions:null
 	},
 	mapInitialize: function() {
 		this.requestCounter = 500;
@@ -1029,8 +1029,8 @@ RIA.MapStreetView = new Class({
 		RIA.geocoder = new google.maps.Geocoder();
 		RIA.sv = new google.maps.StreetViewService();         
 		
-		if(this.options.geolocation) {
-			this.setCurrentLocation(new google.maps.LatLng(this.options.geolocation.lat, this.options.geolocation.lng));
+		if(this.options.streetViewDefaultOptions && this.options.streetViewDefaultOptions.lat != "" && this.options.streetViewDefaultOptions.lng != "") {
+			this.setCurrentLocation(new google.maps.LatLng(this.options.streetViewDefaultOptions.lat, this.options.streetViewDefaultOptions.lng));
 		} else {
 			this.setCurrentLocation(new google.maps.LatLng(0, 0));
 		}
@@ -1052,9 +1052,9 @@ RIA.MapStreetView = new Class({
 			scrollwheel: false,
 			position: RIA.currentLocation,
 			pov: {
-				heading: 120,
-		        pitch: 20,
-		        zoom: 0
+				heading: (this.options.streetViewDefaultOptions.heading || 120),
+		        pitch: (this.options.streetViewDefaultOptions.pitch || 20),
+		        zoom: (this.options.streetViewDefaultOptions.zoom || 0)
 			}
 		};
 
@@ -1067,12 +1067,19 @@ RIA.MapStreetView = new Class({
 		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
 		//RIA.panoramioLayer.setTag("times square");
 		
-		RIA.InitAjaxSubmit._submit();
+		/*
+		*	From page load, if we have a Destination submit the form
+		*/
+		if(RIA.currentDestination != null && RIA.currentDestination != "") {
+			RIA.InitAjaxSubmit._submit();
+		}
+		
 		
         this.toggleMapFullScreen(null);
 		
 		RIA.map._events = {};
 		this.setMapEventListeners();
+		
 		
 		
 		if(this.options.ios) {
@@ -1088,12 +1095,27 @@ RIA.MapStreetView = new Class({
 		    Log.info("RIA.map Event : center_changed");
 		}.bind(this));
 		
-		RIA.map._events.click = google.maps.event.addListener(RIA.map, 'click', function() {
-		    Log.info("RIA.map Event : click");
+		RIA.map._events.heading_changed = google.maps.event.addListener(RIA.map, 'heading_changed', function() {
+		    Log.info("RIA.map Event : heading_changed");
 		}.bind(this));
 		
-		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'dblclick', function() {
+		RIA.map._events.zoom_changed = google.maps.event.addListener(RIA.map, 'zoom_changed', function() {
+		    Log.info("RIA.map Event : zoom_changed : "+RIA.map.getZoom());
+		}.bind(this));
+		
+		RIA.map._events.click = google.maps.event.addListener(RIA.map, 'click', function(e) {
+		    Log.info("RIA.map Event : click");
+			Log.info(e);
+		}.bind(this));
+		
+		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'dblclick', function(e) {
 		    Log.info("RIA.map Event : dblclick");
+			Log.info(e);
+		}.bind(this));
+		
+		RIA.map._events.rightclick = google.maps.event.addListener(RIA.map, 'rightclick', function(e) {
+		    Log.info("RIA.map Event : rightclick");
+			Log.info(e);
 		}.bind(this));
 		
 		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'idle', function() {
@@ -1102,6 +1124,35 @@ RIA.MapStreetView = new Class({
 			this.animateCurrentMarker(); 
 		}.bind(this));
 		
+		RIA.map._events.tilesloaded = google.maps.event.addListener(RIA.map, 'tilesloaded', function() {
+		    Log.info("RIA.map Event : tilesloaded");
+		}.bind(this));
+		
+		RIA.map._events.dragstart = google.maps.event.addListener(RIA.map, 'dragstart', function() {
+		    Log.info("RIA.map Event : dragstart");
+		}.bind(this));
+		
+		RIA.map._events.drag = google.maps.event.addListener(RIA.map, 'drag', function() {
+		    Log.info("RIA.map Event : drag");
+		}.bind(this));
+		
+		RIA.map._events.dragend = google.maps.event.addListener(RIA.map, 'dragend', function() {
+		    Log.info("RIA.map Event : dragend");
+		}.bind(this));
+		
+		/*
+		*	StreetView Panorama Events
+		*/
+		
+		google.maps.event.addListener(RIA.panorama, 'pov_changed', function() {
+			Log.info("RIA.panorama Event : pov_changed");
+			Log.info(RIA.panorama.getPov());
+		});
+		
+		google.maps.event.addListener(RIA.panorama, 'position_changed', function() {
+		    Log.info("RIA.panorama Event : position_changed");
+			Log.info(RIA.panorama.getPosition());
+		});
 	},
 	toggleMapFullScreen: function(e){
 		/*
@@ -1153,6 +1204,7 @@ RIA.MapStreetView = new Class({
 				
 				document.id("toggle-streetview").removeClass("active");
 				document.id("toggle-map").addClass("active");
+				
 			}
 			
 		}
@@ -1231,7 +1283,7 @@ RIA.MapStreetView = new Class({
 		}						
 	},
 	animateCurrentMarker: function(delayStart) {
-   		if(!this.hotelCollection[this.hotelIndex]) return;
+   		if(!this.hotelCollection || !this.hotelCollection[this.hotelIndex]) return;
 
 		if(this.hotelCollection[this.hotelIndex].bookmark) {
 			(function() {
@@ -1278,10 +1330,17 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		latLng[Object(LatLng)]
 		*/ 
+		Log.info("Setting map center to...")
+		Log.info(latLng);
+		
 		RIA.map.setCenter(latLng); 
 	},
 	setMapZoom: function(zoomLevel) {
-		if(RIA.map) RIA.map.setZoom(zoomLevel);
+		if(RIA.map) {
+			Log.info("Setting map zoom to level "+zoomLevel);
+			RIA.map.setZoom(zoomLevel);
+			Log.info("Map zoom set to "+RIA.map.getZoom());
+		}		
 	},
 	setPanoramaPosition: function(latLng) {
 		/*
@@ -1392,10 +1451,10 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	createInfoWindow: function(hotel, marker) {
-		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), infowindow;
+		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), locationDescription = hotel.get("data-location-description"), infowindow;
 		// Create a new InfoWindow, for the Marker
 		         
-		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" height=\"75\" width\"100\" /><p>"+price+"</p>";
+		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" height=\"75\" width\"100\" /><p>"+price+"</p><p>"+locationDescription+"</p>";
 		
 		infowindow = new google.maps.InfoWindow({
 		    content: hotelContent,
@@ -1464,7 +1523,8 @@ RIA.MapStreetView = new Class({
 			
 		},this);
 		    
-		
+		this.setMapBounds();
+		this.setMapZoom(10);
 	},
 	addHotelMarker: function(hotel, latLng) {
 		/*
@@ -1748,6 +1808,32 @@ RIA.MapStreetView = new Class({
 		if(navigator.geolocation) {
 			navigator.geolocation.clearWatch(this.watchPos);
 		}
+	},
+	setMapBounds: function() {
+		var hotelLatLngList = new Array(), bounds;
+		
+		if(this.hotelCollection) {
+			this.hotelCollection.each(function(hotel) {
+				var latlng = hotel.get("data-latlng").split(",");
+				hotelLatLngList.push(new google.maps.LatLng(latlng[0], latlng[1]));
+			},this);
+
+			Log.info(hotelLatLngList);
+			
+			//  Create a new viewpoint bound
+			bounds = new google.maps.LatLngBounds();
+			//  Go through each...
+			for (var i = 0, LtLgLen = hotelLatLngList.length; i < LtLgLen; i++) {
+			  	//  And increase the bounds to take this point
+				bounds.extend(hotelLatLngList[i]);
+			}
+			//  Fit these bounds to the map
+			RIA.map.fitBounds(bounds);
+			
+			this.setMapPositionCenter(bounds.getCenter());
+			
+		}
+
 	}
 });
 RIA.Experience = new Class({
@@ -2319,7 +2405,8 @@ RIA.Experience = new Class({
 RIA.AjaxSubmit = new Class({
 	Implements:[Options, RIA.GoogleAnalyticsHelper],
 	options:{
-        servicePath:null
+        servicePath:null,
+		hotelBrand:null
 	},
 	initialize: function(options) {
 		this.setOptions(options);
@@ -2481,7 +2568,7 @@ RIA.AjaxSubmit = new Class({
 				url:this.options.servicePath,
 				evalScripts:false,
 				update:this.hotels.getElement(".results"),
-				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&priceMax="+this.price.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&priceMax="+this.price.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value")+(this.options.hotelBrand != null ? "&brand="+this.options.hotelBrand : ""),
 				onRequest: this.requestStart.pass([this.hotels],this),
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
