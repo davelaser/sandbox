@@ -337,6 +337,7 @@ RIA.Experience = new Class({
 		}
 		if(document.id("price-guide")) document.id("price-guide").addClass("hide");
 		this.removeAllMarkers(); 
+		this.removeAllPlacesMarkers();
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").empty();
 		this.hotels.getElement(".results").setStyles({"width":"100%", "margin-left":"0px"});

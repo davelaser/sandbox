@@ -807,13 +807,15 @@ RIA.GooglePlaces = new Class({
 
 	},
 	removeAllPlacesMarkers: function() {
-		this.hotelCollection.each(function(hotel) {
-			Object.each(hotel.places, function(type) {
-				Object.each(type.results, function(place) {
-					this.removePlacesMarker(place);
-				},this);			
+		if(this.hotelCollection) {
+			this.hotelCollection.each(function(hotel) {
+				Object.each(hotel.places, function(type) {
+					Object.each(type.results, function(place) {
+						this.removePlacesMarker(place);
+					},this);			
+				},this);
 			},this);
-		},this);
+		}
 	},
 	removePlacesMarkers: function(type) {
 
@@ -825,7 +827,7 @@ RIA.GooglePlaces = new Class({
 		
 	}, 
 	removePlacesMarker: function(place) {
-		if(place && place.placesMarker) { 
+		if(place && place.placesMarker && place.placesMarkerSV) { 
 			place.placesMarker.setMap(null);
 			place.placesMarkerSV.setMap(null);
 		}
@@ -1814,12 +1816,12 @@ RIA.MapStreetView = new Class({
 		
 		if(this.hotelCollection) {
 			this.hotelCollection.each(function(hotel) {
-				var latlng = hotel.get("data-latlng").split(",");
-				hotelLatLngList.push(new google.maps.LatLng(latlng[0], latlng[1]));
+				if(hotel.get("data-latlng")) {
+					var latlng = hotel.get("data-latlng").split(",");
+					hotelLatLngList.push(new google.maps.LatLng(latlng[0], latlng[1]));					
+				}
 			},this);
 
-			Log.info(hotelLatLngList);
-			
 			//  Create a new viewpoint bound
 			bounds = new google.maps.LatLngBounds();
 			//  Go through each...
@@ -2175,6 +2177,7 @@ RIA.Experience = new Class({
 		}
 		if(document.id("price-guide")) document.id("price-guide").addClass("hide");
 		this.removeAllMarkers(); 
+		this.removeAllPlacesMarkers();
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").empty();
 		this.hotels.getElement(".results").setStyles({"width":"100%", "margin-left":"0px"});
@@ -2444,8 +2447,21 @@ RIA.AjaxSubmit = new Class({
 			"submit": this.validateSearch.bind(this)
 		});
 		
+		this.destination.addEvents({
+			"focus":function(e) {
+				if(this.get("value") == this.get("data-default")) {
+					this.set("value", "");
+				}
+			},
+			"blur": function(e) {
+				if(this.get("value") == "") {
+					this.set("value", this.get("data-default"));
+				}
+			}
+		});
+		
 		this.arrivalDate.addEvents({
-			"focus":function() {
+			"focus":function(e) {
 				if(this.get("value") == this.get("data-default")) {
 					this.set("value", "");
 				}

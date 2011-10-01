@@ -165,11 +165,13 @@ class EANHotelRequest(webapp.RequestHandler):
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
 		departureDate = None
-		price = float(0.0)
+		price = None
 		priceRaw = self.request.get("priceMax")
 		if priceRaw is not None and priceRaw != '':
 			price = float(priceRaw)
 			
+		logging.debug(price)
+		
 		global_mashup = {}
 		
 		destination = re.sub(r'(<|>|\s)', '', city)
@@ -186,7 +188,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		
 		if arrivalDate is not None and departureDate is not None:
 			# Memcache Key convention:
-			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
+			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:BRAND
 			#memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)+":"+str(hotelBrand)
 			memcacheKey = str(city)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(hotelBrand)
 			logging.debug(memcacheKey)
@@ -249,6 +251,9 @@ class EANHotelRequest(webapp.RequestHandler):
 								# Add the new price data for this hotel
 								taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
 				
+				
+							memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
+							
 			if result is not None:
 				
 				if priceSort is not None and priceSort != '':
@@ -278,8 +283,7 @@ class EANHotelRequest(webapp.RequestHandler):
 				else:
 					global_mashup['hotels'] = result
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
-					self.response.out.write(template.render(path, global_mashup))
-					memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
+					self.response.out.write(template.render(path, global_mashup))					
 				
 			else:
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')

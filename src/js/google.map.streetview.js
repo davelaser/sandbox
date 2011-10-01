@@ -901,12 +901,12 @@ RIA.MapStreetView = new Class({
 		
 		if(this.hotelCollection) {
 			this.hotelCollection.each(function(hotel) {
-				var latlng = hotel.get("data-latlng").split(",");
-				hotelLatLngList.push(new google.maps.LatLng(latlng[0], latlng[1]));
+				if(hotel.get("data-latlng")) {
+					var latlng = hotel.get("data-latlng").split(",");
+					hotelLatLngList.push(new google.maps.LatLng(latlng[0], latlng[1]));					
+				}
 			},this);
 
-			Log.info(hotelLatLngList);
-			
 			//  Create a new viewpoint bound
 			bounds = new google.maps.LatLngBounds();
 			//  Go through each...
