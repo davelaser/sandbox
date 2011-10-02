@@ -24,7 +24,7 @@ RIA.MapStreetView = new Class({
 			star:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|FFFF00',
 			bankDollar:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bank-dollar|FF0000',
 			hotel:'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=@LETTER@|@COLOR@|000000',
-			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|EC008C|FFFFFF|FFFF00', 
+			bookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_letter&chld=pin_star|@LETTER@|000000|FFFFFF|FFFF00', 
 			poc:'http://chart.apis.google.com/chart?chst=d_map_spin&chld=1|0|EC008C|10|b|@LETTER@',
 			shadowHotel:'http://chart.apis.google.com/chart?chst=d_map_pin_shadow',
 			shadowBookmark:'http://chart.apis.google.com/chart?chst=d_map_xpin_shadow&chld=pin_star',
@@ -205,9 +205,8 @@ RIA.MapStreetView = new Class({
 			Log.info(e);
 		}.bind(this));
 		
-		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'idle', function() {
-		    //Log.info("RIA.map Event : idle");
-		
+		RIA.map._events.idle = google.maps.event.addListener(RIA.map, 'idle', function() {
+		    Log.info("RIA.map Event : idle");
 			this.animateCurrentMarker(); 
 		}.bind(this));
 		

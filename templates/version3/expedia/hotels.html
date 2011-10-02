@@ -41,7 +41,10 @@
 			{% endfor %}
 		</ul>
 	</div>
-	<a href="{{ hotel.deepLink }}" target="_blank" rel="external" class="button">book now</a>	
+	<a href="{{ hotel.deepLink }}" target="_blank" rel="external" class="button">book now</a>
+	<div class="extra hide">	
+		{{ hotel.extra }}
+	</div>
 	<div class="info-window hide">
 		<div class="info-window-inner">
 			<h4>{{hotel.name|safe}}</h4>

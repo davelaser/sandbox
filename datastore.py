@@ -227,32 +227,6 @@ def get_places_by_hotellocationid_types_radius(locationid, types, radius):
 	resultset = datamodel.DBPlace.gql("WHERE locationid = '"+locationid+"' AND types = '"+types+"' AND radius = "+radius+"")
 	return resultset
 
-def put_ean_hotel(hotel):
-	dbHotel = datamodel.EANHotel()
-	
-	for attributes in hotel:
-		timestamp = db.DateTimeProperty(auto_now_add=True)
-		name = hotel['name']
-		address1 = hotel['address1']
-		postalcode = hotel['postalCode']
-		stateprovincecode = hotel['stateProvinceCode']
-		countrycode = hotel['countryCode']
-		propertycategory = hotel['propertyCategory']
-		shortdescription = hotel['shortDescription']
-		locationdescription = hotel['locationDescription']
-		suppliertype = hotel['supplierType']
-		mainimageurl = hotel['mainImageUrl']
-		thumbnailurl = hotel['thumbnailUrl']
-		hotelrating = float(hotel['hotelrating'])
-		hotelid = hotel['hotelId']
-		airportcode = hotel['airportCode']
-		proximitydistance = hotel['proximityDistance']
-		proximityunit = hotel['proximityUnit']
-		latlng = db.GeoPt(float(hotel['latitude']), float(hotel['longitude']))
-		deeplink = hotel['deepLink']
-
-
-
 def put_ean_hotel(hotelData):
 	hotel = json.loads(hotelData)
 	dbEANHotel = datamodel.EANHotel(key_name=str(hotel['hotelId']))
@@ -286,6 +260,20 @@ def put_ean_hotel(hotelData):
 		logging.error("put_ean_hotel : CapabilityDisabledError")
 		logging.error(e)
 
+def put_ean_hotel_details(hotelId, details):
+	existingHotel = datamodel.EANHotel.get_by_key_name(hotelId)
+	existingHotel.details = details
+	try:
+		existingHotel.put()
+		logging.debug("Successfully stored hotel data for hotelid "+hotelId)
+	except CapabilityDisabledError, e:
+		logging.error("put_ean_hotel_details : CapabilityDisabledError")
+		logging.error(e)
+	
+def get_ean_hotel(hotelId):
+	query = datamodel.EANHotelPriceAndDate.gql("WHERE hotelid = :1", hotelId)
+	
+	return query
 
 def put_ean_hotel_by_price(hotelData, arrivalDate, departureDate):
 	try:

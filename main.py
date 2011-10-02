@@ -44,6 +44,7 @@ requestHotelsWorker = "/hotelsworker"
 requestHotelsPriceWorker = "/hotelspriceworker"
 requestEANHotelsWorker = "/eanhotelsworker"
 requestEANHotelsPriceWorker = "/eanhotelspriceworker"
+requestEANHotelDetailsWorker = "/eanhoteldetailsworker"
 requestEANHotelList = "/ean-get-hotels"
 requestExpedia = "/expedia"
 requestLastminute = "/lastminute"
@@ -472,6 +473,7 @@ application = webapp.WSGIApplication([
 		(requestHotelsPriceWorker, handlers.HotelPriceStoreTaskWorker),
 		(requestEANHotelsWorker, handlers.EANHotelStoreTaskWorker),
 		(requestEANHotelsPriceWorker, handlers.EANHotelPriceStoreTaskWorker),
+		(requestEANHotelDetailsWorker, handlers.EANHotelDetailsStoreTaskWorker),
 		(requestLastminute, ExperienceHandler),
 		(requestExpedia, ExperienceHandler),
 		(requestRazorfish, ExperienceHandler),
