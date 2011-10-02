@@ -1309,7 +1309,6 @@ RIA.MapStreetView = new Class({
 			this.hotelCollection[this.hotelIndex].bookmarkSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmarkSV, null]);			
 		}
 		
-
 		if(this.hotelCollection[this.hotelIndex].hotelMarker) {
 			this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarker, google.maps.Animation.BOUNCE);
 			this.hotelCollection[this.hotelIndex].hotelMarker.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarker, null]);			
