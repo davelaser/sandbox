@@ -264,7 +264,25 @@ class EANHotelRequest(webapp.RequestHandler):
 								for hotel in result:
 									if hotel.has_key('thumbNailUrl'):
 										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
-							
+			
+				if result is not None:
+					# Add the datastore write to the taskqueue
+					for hotel in result:
+						existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
+						if existingHotel is None:
+							logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
+							taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
+						else: 
+							logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
+						# Add the new price data for this hotel
+						taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
+	
+						# Add Hotel details
+						#taskqueue.add(queue_name='eanhoteldetailsqueue', url='/eanhoteldetailsworker', params={'hotelid':str(hotel['hotelId'])})
+	
+					memcache.set(key=memcacheKey, value=result, time=memcacheExpires, namespace='ean')
+								
+			# Regardless of memcache or datastore results, apply any filters
 			if result is not None:
 				
 				if priceSort is not None and priceSort != '':
@@ -295,23 +313,7 @@ class EANHotelRequest(webapp.RequestHandler):
 					global_mashup['hotels'] = result
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
 					self.response.out.write(template.render(path, global_mashup))					
-				
-				
-					# Add the datastore write to the taskqueue
-					for hotel in result:
-						existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
-						if existingHotel is None:
-							logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
-							taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
-						else: 
-							logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
-						# Add the new price data for this hotel
-						taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
-		
-						# Add Hotel details
-						#taskqueue.add(queue_name='eanhoteldetailsqueue', url='/eanhoteldetailsworker', params={'hotelid':str(hotel['hotelId'])})
-		
-					memcache.set(key=memcacheKey, value=result, time=memcacheExpires, namespace='ean')
+
 					
 					
 			else:
