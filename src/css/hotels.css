@@ -106,6 +106,7 @@ nav#hotel-list a.active {
 	-webkit-box-shadow: 0px 3px 8px white inset;
 }   
 .hotel h3 {
+	width:800px;
 	font-size:2em;
 }                    
 
@@ -140,7 +141,7 @@ nav#hotel-list a.active {
 .hotel h3 .count {
 	display:block;
 	float:right;
-	margin:10px 115px 0 0;
+	margin:10px 0 0 0;
 	font-size:0.7em;	
 }
 

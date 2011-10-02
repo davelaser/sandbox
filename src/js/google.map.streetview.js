@@ -371,33 +371,37 @@ RIA.MapStreetView = new Class({
 	animateCurrentMarker: function(delayStart) {
    		if(!this.hotelCollection || !this.hotelCollection[this.hotelIndex]) return;
 
+		/*
+		*	Clear all existing animations
+		*/
+		this.hotelCollection.each(function(hotel) {
+			if(hotel.bookmark) this.animateMarker(hotel.bookmark, null);
+						
+			if(hotel.bookmarkSV) this.animateMarker(hotel.bookmarkSV, null);
+
+			if(hotel.hotelMarker) this.animateMarker(hotel.hotelMarker, null);
+
+			if(hotel.hotelMarkerSV) this.animateMarker(hotel.hotelMarkerSV, null);
+		},this);
+
 		if(this.hotelCollection[this.hotelIndex].bookmark) {
-			(function() {
-				this.animateMarker(this.hotelCollection[this.hotelIndex].bookmark, google.maps.Animation.BOUNCE);
-				this.hotelCollection[this.hotelIndex].bookmark.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmark, null]);			
-			}.bind(this)).delay(delayStart||0);
+			this.animateMarker(this.hotelCollection[this.hotelIndex].bookmark, google.maps.Animation.BOUNCE);
+			this.hotelCollection[this.hotelIndex].bookmark.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmark, null]);			
 		}	
 
 		if(this.hotelCollection[this.hotelIndex].bookmarkSV) {
-			(function() {
-				this.animateMarker(this.hotelCollection[this.hotelIndex].bookmarkSV, google.maps.Animation.BOUNCE);
-				this.hotelCollection[this.hotelIndex].bookmarkSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmarkSV, null]);			
-			}.bind(this)).delay(delayStart||0);
+			this.animateMarker(this.hotelCollection[this.hotelIndex].bookmarkSV, google.maps.Animation.BOUNCE);
+			this.hotelCollection[this.hotelIndex].bookmarkSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].bookmarkSV, null]);			
 		}
 		
-
 		if(this.hotelCollection[this.hotelIndex].hotelMarker) {
-			(function() {
-				this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarker, google.maps.Animation.BOUNCE);
-				this.hotelCollection[this.hotelIndex].hotelMarker.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarker, null]);			
-			}.bind(this)).delay(delayStart||0);
+			this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarker, google.maps.Animation.BOUNCE);
+			this.hotelCollection[this.hotelIndex].hotelMarker.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarker, null]);			
 		}	
 
 		if(this.hotelCollection[this.hotelIndex].hotelMarkerSV) {
-			(function() {
-				this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarkerSV, google.maps.Animation.BOUNCE);
-				this.hotelCollection[this.hotelIndex].hotelMarkerSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarkerSV, null]);			
-			}.bind(this)).delay(delayStart||0);
+			this.animateMarker(this.hotelCollection[this.hotelIndex].hotelMarkerSV, google.maps.Animation.BOUNCE);
+			this.hotelCollection[this.hotelIndex].hotelMarkerSV.timeout = this.animateMarker.delay(2100, this, [this.hotelCollection[this.hotelIndex].hotelMarkerSV, null]);			
 		}
 	},                      
 	setMapPositionPan: function(latLng) {
@@ -564,7 +568,6 @@ RIA.MapStreetView = new Class({
 			this.setPanoramaPosition(event.latLng);
 			this.jumpToHotel(hotel);  
 			this.openInfoWindow(marker, infowindow);   
-			this.animateCurrentMarker();			
 			this.resetPlacesMarkers();
             
 			this.trackEvent('Hotel', 'NavigateByMap', hotel.get("data-locationid")+" : "+hotel.get("data-name"), 1);
