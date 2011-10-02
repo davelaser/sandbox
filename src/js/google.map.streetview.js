@@ -538,13 +538,9 @@ RIA.MapStreetView = new Class({
 		}
 	},
 	createInfoWindow: function(hotel, marker) {
-		var title = hotel.get("data-name"), price = hotel.get("data-price"), thumbnail = (hotel.getElement(".photos").get("data-thumbnail")||"#"), counter = hotel.get("data-counter"), locationDescription = hotel.get("data-location-description"), infowindow;
-		// Create a new InfoWindow, for the Marker
-		         
-		var hotelContent = "<h4>#"+counter+": "+title+"</h4><p><img src=\""+thumbnail+"\" height=\"75\" width\"100\" /><p>"+price+"</p><p>"+locationDescription+"</p>";
 		
-		infowindow = new google.maps.InfoWindow({
-		    content: hotelContent,
+		var infowindow = new google.maps.InfoWindow({
+		    content: hotel.getElement(".info-window").get("html"),
 			maxWidth:50,
 			disableAutoPan:true
 		});
