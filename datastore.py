@@ -229,13 +229,18 @@ def get_places_by_hotellocationid_types_radius(locationid, types, radius):
 
 def put_ean_hotel(hotelData):
 	hotel = json.loads(hotelData)
+	
+	logging.debug(hotel)
+	
+	
 	dbEANHotel = datamodel.EANHotel(key_name=str(hotel['hotelId']))
 
 	dbEANHotel.hotelid = str(hotel['hotelId'])
 	dbEANHotel.name = hotel['name']
 	dbEANHotel.address1 = hotel['address1']
 	dbEANHotel.city = hotel['city']
-	dbEANHotel.postalcode = str(hotel['postalCode'])
+	if hotel.has_key('postalCode'):
+		dbEANHotel.postalcode = str(hotel['postalCode'])
 	#stateProvinceCode is not always available
 	if hotel.has_key('stateProvinceCode'):
 		dbEANHotel.stateprovincecode = hotel['stateProvinceCode']

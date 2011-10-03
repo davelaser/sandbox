@@ -1064,6 +1064,7 @@ RIA.MapStreetView = new Class({
         RIA.map.setCenter(RIA.currentLocation);
                                                                                               		
 		RIA.panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"), this.panoramaOptions);
+		RIA.panorama._events = {};
 		RIA.map.setStreetView(RIA.panorama);
 		
 		RIA.panoramioLayer = new google.maps.panoramio.PanoramioLayer();
@@ -1144,6 +1145,9 @@ RIA.MapStreetView = new Class({
 		/*
 		*	StreetView Panorama Events
 		*/
+		RIA.panorama._events.drag = google.maps.event.addListener(RIA.panorama, 'drag', function() {
+		    Log.info("RIA.panorama Event : drag");
+		}.bind(this));
 		
 		google.maps.event.addListener(RIA.panorama, 'pov_changed', function() {
 			Log.info("RIA.panorama Event : pov_changed");
