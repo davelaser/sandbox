@@ -71,7 +71,9 @@ destination_display_names = {
 	'tokyo':'Tokyo',
 	'rome':'Rome',
 	'milan':'Milan',
-	'sorrento':'Sorrento'
+	'sorrento':'Sorrento',
+	'florence':'Florence',
+	'positano':'Positano'
 }
 
 

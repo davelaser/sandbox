@@ -1,7 +1,7 @@
-#¢application: rf-lm-poc
-application: razorfish-prototype-1
-#version: 1-12
-version: 1-5
+application: rf-lm-poc
+#application: razorfish-prototype-1
+version: 1-12
+#version: 1-5
 runtime: python
 api_version: 1  
 

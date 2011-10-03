@@ -1523,8 +1523,8 @@ RIA.MapStreetView = new Class({
 			
 		},this);
 		    
-		this.setMapBounds();
-		this.setMapZoom(10);
+		//this.setMapBounds();
+		//this.setMapZoom(10);
 	},
 	addHotelMarker: function(hotel, latLng) {
 		/*

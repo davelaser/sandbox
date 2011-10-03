@@ -90,7 +90,8 @@ tripadvisor_image_paths = {
 	'rome':'rome',
 	'losangeles':'los_angeles',
 	'amalfi':'amalfi',
-	'positano':'positano'
+	'positano':'positano',
+	'florence':'florence'
 }
 
 	
