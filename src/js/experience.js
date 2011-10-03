@@ -77,7 +77,6 @@ RIA.Experience = new Class({
 		this.addEventListeners();  
 		
 		this.toggleInformation(null);
-		
 	},                          
 	addEventListeners: function() {
 		
