@@ -386,3 +386,18 @@ article section {
 	right:20px;	
 	width:20px;
 }
+
+.info-window-inner {
+	text-align:center;
+}
+
+.info-window-inner h4 {
+	text-align:left;
+	font-size:1.4em;
+	margin:0 0 15px 0;
+}
+
+.info-window-inner p {
+	text-align:left;
+	margin:5px 0;
+}

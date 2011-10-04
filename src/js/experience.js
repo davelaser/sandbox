@@ -18,7 +18,7 @@ RIA.Experience = new Class({
 		
 		this.content = document.id("content");
 		this.destination = document.id("destination");
-
+		this.numberOfNights = document.id("nights");
 		this.arrivalDate = document.id("arrival_date");
 		
 		this.weather = document.id("weather");
@@ -77,7 +77,6 @@ RIA.Experience = new Class({
 		this.addEventListeners();  
 		
 		this.toggleInformation(null);
-		
 	},                          
 	addEventListeners: function() {
 		
@@ -337,6 +336,7 @@ RIA.Experience = new Class({
 		}
 		if(document.id("price-guide")) document.id("price-guide").addClass("hide");
 		this.removeAllMarkers(); 
+		this.removeAllPlacesMarkers();
 		this.removeHotelNavEventListeners();
 		this.hotels.getElement(".results").empty();
 		this.hotels.getElement(".results").setStyles({"width":"100%", "margin-left":"0px"});
@@ -470,7 +470,7 @@ RIA.Experience = new Class({
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
 		//priceMax="+RIA.currentPriceMax+"&
-		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&bookmarks=", keys = [];
+		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&brand="+RIA.hotelBrand+"&bookmarks=", keys = [];
 		Object.each(RIA.bookmarks, function(value, key) {                
 			keys.push(key);
 		});    

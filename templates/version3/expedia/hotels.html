@@ -42,5 +42,16 @@
 		</ul>
 	</div>
 	<a href="{{ hotel.deepLink }}" target="_blank" rel="external" class="button">book now</a>
+	<div class="extra hide">	
+		{{ hotel.extra }}
+	</div>
+	<div class="info-window hide">
+		<div class="info-window-inner">
+			<h4>{{hotel.name|safe}}</h4>
+			<img src="http://images.travelnow.com{{ hotel.thumbNailUrl }}" width="100" height="75" alt="{{hotel.name|safe}}" />
+			<p>From &#163;{{hotel.lowRate|floatformat:2}} per night.</p>
+			<p>{{ hotel.locationDescription|safe }}.</p>
+		</div>
+	</div>
 </div>      
 {% endfor %}

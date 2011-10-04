@@ -241,13 +241,15 @@ RIA.GooglePlaces = new Class({
 
 	},
 	removeAllPlacesMarkers: function() {
-		this.hotelCollection.each(function(hotel) {
-			Object.each(hotel.places, function(type) {
-				Object.each(type.results, function(place) {
-					this.removePlacesMarker(place);
-				},this);			
+		if(this.hotelCollection) {
+			this.hotelCollection.each(function(hotel) {
+				Object.each(hotel.places, function(type) {
+					Object.each(type.results, function(place) {
+						this.removePlacesMarker(place);
+					},this);			
+				},this);
 			},this);
-		},this);
+		}
 	},
 	removePlacesMarkers: function(type) {
 
@@ -259,7 +261,7 @@ RIA.GooglePlaces = new Class({
 		
 	}, 
 	removePlacesMarker: function(place) {
-		if(place && place.placesMarker) { 
+		if(place && place.placesMarker && place.placesMarkerSV) { 
 			place.placesMarker.setMap(null);
 			place.placesMarkerSV.setMap(null);
 		}

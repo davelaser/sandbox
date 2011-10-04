@@ -59,6 +59,7 @@ class EANHotel(db.Model):
 	airportcode = db.StringProperty(indexed=False)
 	proximitydistance = db.FloatProperty(indexed=False)
 	proximityunit = db.StringProperty(indexed=False)
+	details = db.TextProperty(indexed=False)
 	
 class EANHotelPriceAndDate(db.Model):
 	created = db.DateTimeProperty(auto_now_add=True)

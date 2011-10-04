@@ -44,13 +44,14 @@ requestHotelsWorker = "/hotelsworker"
 requestHotelsPriceWorker = "/hotelspriceworker"
 requestEANHotelsWorker = "/eanhotelsworker"
 requestEANHotelsPriceWorker = "/eanhotelspriceworker"
+requestEANHotelDetailsWorker = "/eanhoteldetailsworker"
 requestEANHotelList = "/ean-get-hotels"
 requestExpedia = "/expedia"
 requestLastminute = "/lastminute"
 requestRazorfish = "/razorfish"
 
 # TODO: remove the memcache flush
-#memcache.flush_all()
+memcache.flush_all()
 #logging.info(memcache.get_stats())
 
 # DELETE ALL HOTELS
@@ -89,7 +90,8 @@ tripadvisor_image_paths = {
 	'rome':'rome',
 	'losangeles':'los_angeles',
 	'amalfi':'amalfi',
-	'positano':'positano'
+	'positano':'positano',
+	'florence':'florence'
 }
 
 	
@@ -472,6 +474,7 @@ application = webapp.WSGIApplication([
 		(requestHotelsPriceWorker, handlers.HotelPriceStoreTaskWorker),
 		(requestEANHotelsWorker, handlers.EANHotelStoreTaskWorker),
 		(requestEANHotelsPriceWorker, handlers.EANHotelPriceStoreTaskWorker),
+		(requestEANHotelDetailsWorker, handlers.EANHotelDetailsStoreTaskWorker),
 		(requestLastminute, ExperienceHandler),
 		(requestExpedia, ExperienceHandler),
 		(requestRazorfish, ExperienceHandler),

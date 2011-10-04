@@ -31,7 +31,23 @@ def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
 	urlAgrsEncoded = urllib.urlencode(urlArgs)
 
 	return urlAgrsEncoded
+
+
+def ean_get_hotel_details(hotelId):
+	config_properties = configparsers.loadPropertyFile('config')
+	requestXML = "<HotelInformationRequest><hotelId>@TOKEN@</hotelId><options>DEFAULT</options></HotelInformationRequest>"
+	requestXML = requestXML.replace('@TOKEN@', hotelId)
 	
+	urlArgs = dict()
+	urlArgs['cid'] = config_properties.get('EAN', 'cid')
+	urlArgs['apiKey'] = config_properties.get('EAN', 'api_key')
+	urlArgs['locale'] = config_properties.get('EAN', 'locale')
+	urlArgs['_type'] = config_properties.get('EAN', 'type')
+	urlArgs['xml'] = requestXML
+	urlAgrsEncoded = urllib.urlencode(urlArgs)
+
+	return urlAgrsEncoded
+		
 
 def all(element, nodename):
     path = './/%s' % nodename
@@ -55,7 +71,9 @@ destination_display_names = {
 	'tokyo':'Tokyo',
 	'rome':'Rome',
 	'milan':'Milan',
-	'sorrento':'Sorrento'
+	'sorrento':'Sorrento',
+	'florence':'Florence',
+	'positano':'Positano'
 }
 
 

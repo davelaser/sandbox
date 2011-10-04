@@ -148,6 +148,27 @@ class EANHotelPriceStoreTaskWorker(webapp.RequestHandler):
 		else:
 			logging.debug("HotelPriceStoreTaskWorker() : successfully added EANHotelPriceAndDate with hotelId")
 
+class EANHotelDetailsStoreTaskWorker(webapp.RequestHandler):
+    def post(self):    
+		hotelid = self.request.get("hotelid")
+		hotelDetailsRequestArgs = utils.ean_get_hotel_details(hotelid)
+		config_properties = configparsers.loadPropertyFile('config')
+		try: 
+			requestDetailsURL = config_properties.get('EAN', 'xml_url_hotelinfo')
+			u = urllib.urlopen(""+requestDetailsURL+"%s" % hotelDetailsRequestArgs)
+			r = u.read()
+			logging.debug(r)
+		except (apiproxy_errors.ApplicationError, DeadlineExceededError), e:
+			logging.error(e)
+	
+		result = datastore.put_ean_hotel_details(hotelid, json.dumps(r))
+
+		if result is False:
+			logging.error("EANHotelDetailsStoreTaskWorker() : Error 500 for hotel with hotelid "+str(hotelid))
+			self.error(500)
+		else:
+			logging.debug("EANHotelDetailsStoreTaskWorker() : successfully added Hotel Details with hotelid "+str(hotelid))
+
 
 class EANHotelRequest(webapp.RequestHandler):
 	def get(self):
@@ -155,6 +176,9 @@ class EANHotelRequest(webapp.RequestHandler):
 	def post(self):                    
 		logging.info("EANHotelRequest")
 		config_properties = configparsers.loadPropertyFile('config')
+		
+		memcacheExpires = config_properties.getfloat('Env', 'memcache_expires')
+		
 		arrivalDateRaw = self.request.get('arrivalDate')
 		numberOfNights = self.request.get('nights')
 		priceSort = self.request.get("priceSort")
@@ -165,7 +189,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		arrivalDateList = arrivalDateRaw.split('-')
 		arrivalDate = None
 		departureDate = None
-		price = float(0.0)
+		price = None
 		priceRaw = self.request.get("priceMax")
 		if priceRaw is not None and priceRaw != '':
 			price = float(priceRaw)
@@ -186,7 +210,7 @@ class EANHotelRequest(webapp.RequestHandler):
 		
 		if arrivalDate is not None and departureDate is not None:
 			# Memcache Key convention:
-			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:PRICE_SORT_HIGH_LOW:RATING_SORT_HIGH_LOW
+			# CITY:MAX_PRICE:ARRIVAL_DATE:DEPARTURE_DATE:BRAND
 			#memcacheKey = str(city)+":"+str(price)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(priceSort)+":"+str(ratingSort)+":"+str(hotelBrand)
 			memcacheKey = str(city)+":"+str(arrivalDate.date().isoformat())+":"+str(departureDate.date().isoformat())+":"+str(hotelBrand)
 			logging.debug(memcacheKey)
@@ -215,8 +239,11 @@ class EANHotelRequest(webapp.RequestHandler):
 					self.response.out.write(template.render(path, global_mashup))
 					return
 		
-				jsonLoadResponse = json.loads(response)	
-
+				try:
+					jsonLoadResponse = json.loads(response)	
+				except Exception, e:
+					raise e
+					
 				result = None
 				global_mashup['name'] = city
 				if utils.destination_display_names.has_key(city):
@@ -237,18 +264,25 @@ class EANHotelRequest(webapp.RequestHandler):
 								for hotel in result:
 									if hotel.has_key('thumbNailUrl'):
 										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
-							
-							# Add the datastore write to the taskqueue
-							for hotel in result:
-								existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
-								if existingHotel is None:
-									logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
-									taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
-								else: 
-									logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
-								# Add the new price data for this hotel
-								taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
-				
+			
+				if result is not None:
+					# Add the datastore write to the taskqueue
+					for hotel in result:
+						existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
+						if existingHotel is None:
+							logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
+							taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
+						else: 
+							logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
+						# Add the new price data for this hotel
+						taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
+	
+						# Add Hotel details
+						#taskqueue.add(queue_name='eanhoteldetailsqueue', url='/eanhoteldetailsworker', params={'hotelid':str(hotel['hotelId'])})
+	
+					memcache.set(key=memcacheKey, value=result, time=memcacheExpires, namespace='ean')
+								
+			# Regardless of memcache or datastore results, apply any filters
 			if result is not None:
 				
 				if priceSort is not None and priceSort != '':
@@ -278,10 +312,12 @@ class EANHotelRequest(webapp.RequestHandler):
 				else:
 					global_mashup['hotels'] = result
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/expedia/hotels.html')
-					self.response.out.write(template.render(path, global_mashup))
-					memcache.set(key=memcacheKey, value=result, time=6000, namespace='ean')
-				
+					self.response.out.write(template.render(path, global_mashup))					
+
+					
+					
 			else:
+				global_mashup['price'] = price
 				path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
 				self.response.out.write(template.render(path, global_mashup))			
 				                                                                 
