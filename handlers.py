@@ -285,6 +285,32 @@ class EANHotelRequest(webapp.RequestHandler):
 			# Regardless of memcache or datastore results, apply any filters
 			if result is not None:
 				
+					
+				# [ST]TODO: Nasty hack for client meeting	
+				# Re-sort the Hotels to get the best ones in New York at the front of the list
+				for hotel in result:
+					if hotel.has_key('name') and hotel['name'] == "Hilton Club New York":
+						index = result.index(hotel)
+						item = result.pop(index)
+						result.insert(0,hotel)
+					if hotel.has_key('name') and hotel['name'] == "Hilton New York":
+						index = result.index(hotel)
+						item = result.pop(index)
+					if hotel.has_key('name') and hotel['name'] == "DoubleTree Suites by Hilton New York City - Times Square":
+						hotel['latitude'] = 40.75906
+						hotel['longitude'] = -73.98427600000002
+					if hotel.has_key('name') and hotel['name'] == "Hilton Garden Inn New York/West 35th Street":
+						hotel['latitude'] = 40.750322
+						hotel['longitude'] = -73.98697400000003
+					if hotel.has_key('name') and hotel['name'] == "Hilton Garden Inn Times Square":
+						hotel['latitude'] = 40.761348
+						hotel['longitude'] = -73.98678999999998
+					if hotel.has_key('name') and hotel['name'] == "Hilton London Green Park":
+						hotel['latitude'] = 51.506449
+						hotel['longitude'] = -0.1453920000000153
+
+				
+				
 				if priceSort is not None and priceSort != '':
 					if priceSort == 'high':
 						result = sorted(result, key=itemgetter('lowRate'), reverse=True)
@@ -305,6 +331,8 @@ class EANHotelRequest(webapp.RequestHandler):
 					
 					result = priceList
 				
+						
+						
 				if len(result) <= 0:
 					global_mashup['price'] = price
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')

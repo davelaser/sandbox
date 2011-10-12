@@ -1,3 +1,23 @@
+function TripAdvisorOverlay(latLng, data, map) {
+	// Now initialize all properties.
+	this.latLng_ = latLng;
+	this.data_ = data;
+	this.map_ = map;
+
+	// Create the DIV and set some basic attributes.
+	var div = document.createElement('DIV');
+	div.style.border = "none";
+	div.style.borderWidth = "0px";
+	div.style.position = "absolute";
+	div.style.visibility = "hidden";
+	
+  	// Set the overlay's div_ property to this DIV
+  	this.div_ = div;
+	// Explicitly call setMap() on this overlay
+	this.setMap(map);
+
+}
+
 RIA.MapStreetView = new Class({
 	Implements:[RIA.Gradient, RIA.GoogleAnalyticsHelper],
 	options:{
@@ -14,6 +34,7 @@ RIA.MapStreetView = new Class({
 		streetViewDefaultOptions:null
 	},
 	mapInitialize: function() {
+		TripAdvisorOverlay.prototype = new google.maps.OverlayView();
 		this.requestCounter = 500;
 		
 		RIA.bookmarks = new Object();
@@ -172,76 +193,150 @@ RIA.MapStreetView = new Class({
 		
 		if(this.options.ios) {
 			this.watchUserPosition();
-		}	
+		}
+		
+		
+		TripAdvisorOverlay.prototype.onAdd = function() {
+
+			// Note: an overlay's receipt of onAdd() indicates that
+			// the map's panes are now available for attaching
+			// the overlay to the map via the DOM.
+
+			
+			this.div_.innerHTML = this.data_;
+			
+		  	// We add an overlay to a map via one of the map's panes.
+		  	// We'll add this overlay to the overlayImage pane.
+		  	var panes = this.getPanes();
+		  	panes.overlayLayer.appendChild(this.div_);
+		}
+
+		TripAdvisorOverlay.prototype.draw = function() {
+
+			// Size and position the overlay. We use a southwest and northeast
+			// position of the overlay to peg it to the correct position and size.
+			// We need to retrieve the projection from this overlay to do this.
+			var overlayProjection = this.getProjection();
+
+			// Retrieve the southwest and northeast coordinates of this overlay
+			// in latlngs and convert them to pixels coordinates.
+			// We'll use these coordinates to resize the DIV.
+			var coords = overlayProjection.fromLatLngToDivPixel(this.latLng_);
+			Log.info(coords);
+			var y = coords.y;
+			var x = coords.x;
+			var yThreshold = (y-this.div_.getStyle("height").toInt());
+			
+			Log.info("coords.y : "+y+", div height : "+this.div_.getStyle("height").toInt()+", this.viewport : "+RIA.InitExperience.viewport.y);
+			if(y >= (RIA.InitExperience.viewport.y - this.div_.getStyle("height").toInt())) {
+				Log.info("TripAdvisor is hidden");
+				y = (RIA.InitExperience.viewport.y - this.div_.getStyle("height").toInt() - 80);
+			}
+			// Resize the image's DIV to fit the indicated dimensions.
+			this.div_.style.left = (x + 20) + 'px';
+			this.div_.style.top = y+'px';
+
+		}
+
+		TripAdvisorOverlay.prototype.hide = function() {
+			if (this.div_) {
+				this.div_.style.visibility = "hidden";
+			}
+		}
+
+		TripAdvisorOverlay.prototype.show = function() {
+			if (this.div_) {
+				this.div_.style.visibility = "visible";
+			}
+		}
+
+		TripAdvisorOverlay.prototype.toggle = function() {
+		  if (this.div_) {
+		    if (this.div_.style.visibility == "hidden") {
+		      this.show();
+		    } else {
+		      this.hide();
+		    }
+		  }
+		}
+
+		TripAdvisorOverlay.prototype.toggleDOM = function() {
+		  if (this.getMap()) {
+		    this.setMap(null);
+		  } else {
+		    this.setMap(this.map_);
+		  }
+		}
+			
 	},
 	setMapEventListeners: function() {
 		RIA.map._events.bounds_changed = google.maps.event.addListener(RIA.map, 'bounds_changed', function() {
-		    Log.info("RIA.map Event : bounds_changed");
+		    //Log.info("RIA.map Event : bounds_changed");
 		}.bind(this));
 		
 		RIA.map._events.center_changed = google.maps.event.addListener(RIA.map, 'center_changed', function() {
-		    Log.info("RIA.map Event : center_changed");
+		    //Log.info("RIA.map Event : center_changed");
 		}.bind(this));
 		
 		RIA.map._events.heading_changed = google.maps.event.addListener(RIA.map, 'heading_changed', function() {
-		    Log.info("RIA.map Event : heading_changed");
+		    //Log.info("RIA.map Event : heading_changed");
 		}.bind(this));
 		
 		RIA.map._events.zoom_changed = google.maps.event.addListener(RIA.map, 'zoom_changed', function() {
-		    Log.info("RIA.map Event : zoom_changed : "+RIA.map.getZoom());
+		    //Log.info("RIA.map Event : zoom_changed : "+RIA.map.getZoom());
 		}.bind(this));
 		
 		RIA.map._events.click = google.maps.event.addListener(RIA.map, 'click', function(e) {
-		    Log.info("RIA.map Event : click");
-			Log.info(e);
+		    //Log.info("RIA.map Event : click");
+			//Log.info(e);
 		}.bind(this));
 		
 		RIA.map._events.dblclick = google.maps.event.addListener(RIA.map, 'dblclick', function(e) {
-		    Log.info("RIA.map Event : dblclick");
-			Log.info(e);
+		    //Log.info("RIA.map Event : dblclick");
+			//Log.info(e);
 		}.bind(this));
 		
 		RIA.map._events.rightclick = google.maps.event.addListener(RIA.map, 'rightclick', function(e) {
-		    Log.info("RIA.map Event : rightclick");
-			Log.info(e);
+		    //Log.info("RIA.map Event : rightclick");
+			//Log.info(e);
 		}.bind(this));
 		
 		RIA.map._events.idle = google.maps.event.addListener(RIA.map, 'idle', function() {
-		    Log.info("RIA.map Event : idle");
+		    //Log.info("RIA.map Event : idle");
 			this.animateCurrentMarker(); 
 		}.bind(this));
 		
 		RIA.map._events.tilesloaded = google.maps.event.addListener(RIA.map, 'tilesloaded', function() {
-		    Log.info("RIA.map Event : tilesloaded");
+		    //Log.info("RIA.map Event : tilesloaded");
 		}.bind(this));
 		
 		RIA.map._events.dragstart = google.maps.event.addListener(RIA.map, 'dragstart', function() {
-		    Log.info("RIA.map Event : dragstart");
+		    //Log.info("RIA.map Event : dragstart");
 		}.bind(this));
 		
 		RIA.map._events.drag = google.maps.event.addListener(RIA.map, 'drag', function() {
-		    Log.info("RIA.map Event : drag");
+		    //Log.info("RIA.map Event : drag");
 		}.bind(this));
 		
 		RIA.map._events.dragend = google.maps.event.addListener(RIA.map, 'dragend', function() {
-		    Log.info("RIA.map Event : dragend");
+		    //Log.info("RIA.map Event : dragend");
 		}.bind(this));
 		
 		/*
 		*	StreetView Panorama Events
 		*/
 		RIA.panorama._events.drag = google.maps.event.addListener(RIA.panorama, 'drag', function() {
-		    Log.info("RIA.panorama Event : drag");
+		    //Log.info("RIA.panorama Event : drag");
 		}.bind(this));
 		
 		google.maps.event.addListener(RIA.panorama, 'pov_changed', function() {
-			Log.info("RIA.panorama Event : pov_changed");
-			Log.info(RIA.panorama.getPov());
+			//Log.info("RIA.panorama Event : pov_changed");
+			//Log.info(RIA.panorama.getPov());
 		});
 		
 		google.maps.event.addListener(RIA.panorama, 'position_changed', function() {
-		    Log.info("RIA.panorama Event : position_changed");
-			Log.info(RIA.panorama.getPosition());
+		    //Log.info("RIA.panorama Event : position_changed");
+			//Log.info(RIA.panorama.getPosition());
 		});
 	},
 	toggleMapFullScreen: function(e){
@@ -279,7 +374,11 @@ RIA.MapStreetView = new Class({
 				this.options.maptype = "panorama";
 				this.mapCanvas.store("view:state", this.options.maptype);
 				this.mapCanvas.setStyles({"zIndex":3, "width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
-			   
+			   	
+				this.mapCanvas.removeClass("maximized");
+				this.mapCanvas.addClass("minimized");
+				this.mapStreetview.removeClass("minimized");
+				this.mapStreetview.addClass("maximized");
 			 	document.id("toggle-streetview").addClass("active");
 				document.id("toggle-map").removeClass("active");
 				
@@ -291,6 +390,11 @@ RIA.MapStreetView = new Class({
 				this.options.maptype = "map";
 				this.mapCanvas.store("view:state", this.options.maptype);
 				this.mapCanvas.setStyles({"zIndex":1, "width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height});
+				
+				this.mapCanvas.removeClass("minimized");
+				this.mapCanvas.addClass("maximized");
+				this.mapStreetview.removeClass("maximized");
+				this.mapStreetview.addClass("minimized");
 				
 				document.id("toggle-streetview").removeClass("active");
 				document.id("toggle-map").addClass("active");
@@ -328,6 +432,10 @@ RIA.MapStreetView = new Class({
 		// If we have successfully stored the LatLng against the hotel
 		if(savedLatLng) {
 			this.gotGeolocation(hotel, hotel.retrieve("geolocation"));
+			
+			Log.info("setStreetview() : savedLatLng")
+			this.hotelCollection[this.hotelIndex].TripAdvisor.show();
+			
 		} 
 		// Else request the LatLng data from Google, using the Hotel's address
 		else { 
@@ -424,9 +532,6 @@ RIA.MapStreetView = new Class({
 		*	@arguments:
 		*		latLng[Object(LatLng)]
 		*/ 
-		Log.info("Setting map center to...")
-		Log.info(latLng);
-		
 		RIA.map.setCenter(latLng); 
 	},
 	setMapZoom: function(zoomLevel) {
@@ -577,6 +682,41 @@ RIA.MapStreetView = new Class({
 			this.trackEvent('Hotel', 'NavigateByMap', hotel.get("data-locationid")+" : "+hotel.get("data-name"), 1);
 		}.bind(this));
 	},
+	createInfoWindowPanorama: function(hotel, marker) {
+		
+		hotel.infowindowSV = new google.maps.InfoWindow({
+		    content: hotel.getElement(".info-window").get("html")+'<div id="TA_excellent746" class="TA_excellent"><ul id="BQ2hYOj3Wtck" class="TA_links o4wXV4224E9g"><li id="9DlPxQiCeG" class="E0awXdUUFgW"><a target="_blank" href=http://www.tripadvisor.com/Hotel_Review-g60763-d1379306-Reviews-Hilton_Club_New_York-New_York_City_New_York.html>Hilton Club New York</a> rated "excellent" by travelers</li></ul></div>',
+			maxWidth:50,
+			disableAutoPan:true
+		});
+        
+		hotel.infowindowSV.closeEvent = google.maps.event.addListener(hotel.infowindowSV, 'closeclick', function(event) {
+		    hotel.infowindowSV.opened = false;
+		}.bind(this));
+
+		// Add mouse event listeners for the Marker
+		hotel.mouseoutEventSV = null;
+		hotel.mouseoverEventSV = google.maps.event.addListener(marker, 'mouseover', function(event) {
+			Log.info("mouseover panorama");
+		    this.openInfoWindowSV(marker, hotel.infowindowSV);  
+			hotel.mouseoutEventSV = google.maps.event.addListener(marker, 'mouseout', function(event) {
+			    if(!hotel.infowindowSV.opened) hotel.infowindowSV.close(); 
+				//google.maps.event.removeListener(hotel.mouseoutEventSV); 
+			}.bind(this));
+		}.bind(this)); 
+		hotel.clickEventSV = google.maps.event.addListener(marker, 'click', function(event) {
+			hotel.infowindowSV.opened = true;
+			this.setCurrentLocation(event.latLng);
+			google.maps.event.removeListener(hotel.mouseoutEvent);
+			this.setPanoramaPosition(event.latLng);
+			this.jumpToHotel(hotel);  
+			this.openInfoWindowSV(marker, hotel.infowindowSV);   
+			this.resetPlacesMarkers();
+            
+			this.trackEvent('Hotel', 'NavigateByStreetview', hotel.get("data-locationid")+" : "+hotel.get("data-name"), 1);
+		}.bind(this));
+
+	},
 	setHotelMarkers: function(hotels) { 
 		/*
 		* 	@description:
@@ -608,6 +748,13 @@ RIA.MapStreetView = new Class({
 				if(hotel.bookmark == null) {
 					this.addHotelMarker(hotel, geo);
 				}
+				
+				/*
+				*	[ST]: Add a custom overlay for Trip Advisor badges
+				*/
+				this.createTripAdvisorOverlay(hotel);
+				
+				
 			}
 			
 		},this);
@@ -662,7 +809,7 @@ RIA.MapStreetView = new Class({
 			
 
 			this.createInfoWindow(hotel, hotel.hotelMarker);
-			this.createInfoWindow(hotel, hotel.hotelMarkerSV);
+			this.createInfoWindowPanorama(hotel, hotel.hotelMarkerSV);
 		} else {
 			Log.info("Do we already have a hotelMarker or a bookmark for "+hotel.get("data-name")+" ?");
 		}	
@@ -774,6 +921,13 @@ RIA.MapStreetView = new Class({
 		if(this.mapCanvas.retrieve("view:state") == "map") {
 			infowindow.open(RIA.map,marker);
 		}
+	},
+	openInfoWindowSV: function(marker,infowindow) {
+		/*
+		* 	@description:
+		*		Open an InfoWindow instance
+		*/  
+		infowindow.open(RIA.panorama,marker);
 	},
 	setCurrentLocation: function(latLng) {
 		RIA.currentLocation = latLng;
@@ -923,5 +1077,11 @@ RIA.MapStreetView = new Class({
 			
 		}
 
+	},
+	createTripAdvisorOverlay: function(hotel) {
+		var data = '<div class="trip-advisor">';
+		data += hotel.getElement(".info-window").innerHTML;
+		data += '<div id="TA_excellent746" class="TA_excellent"><div id="CDSWIDEXC" class="widEXC"> <a target="_blank" href="http://www.tripadvisor.com/Hotel_Review-g60763-d1379306-Reviews-Hilton_Club_New_York-New_York_City_New_York.html"><img class="widEXCIMG" id="CDSWIDEXCIMG" src="http://www.tripadvisor.com/img/cdsi/img2/badges/excellent_en-11863-1.gif" alt="Hilton Club New York, New York City, New York"></a><br> <div id="CDSWIDEXCLINK" class="widEXCLINK"> <a target="_blank" href="http://www.tripadvisor.com/Hotel_Review-g60763-d1379306-Reviews-Hilton_Club_New_York-New_York_City_New_York.html">'+hotel.get("data-name")+'</a> rated "excellent" by 243 travelers<br> </div> <div> <img class="widEXCIMG" id="CDSWIDEXCLOGO" src="http://c1.tacdn.com/img2/widget/tripadvisor_logo_100x25.gif"> </div> </div></div>'
+		hotel.TripAdvisor = new TripAdvisorOverlay(hotel.retrieve("geolocation"), data, RIA.panorama);
 	}
 });

@@ -51,7 +51,7 @@ requestLastminute = "/lastminute"
 requestRazorfish = "/razorfish"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 #logging.info(memcache.get_stats())
 
 # DELETE ALL HOTELS
@@ -256,6 +256,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		
 		hotspot = utils.get_hotspots()
 		
+		app_version = os.environ['CURRENT_VERSION_ID']
+		
 		widescreen = 'true'
 		viewType = self.request.get("viewType")
 		
@@ -320,7 +322,8 @@ class ExperienceHandler(webapp.RequestHandler):
 			startDate=startDate, 
 			priceSort=priceSort, 
 			ratingSort=ratingSort,
-			hotspot=hotspot)
+			hotspot=hotspot,
+			appVersion=app_version)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')
 		self.response.out.write(template.render(path, args))
 	def post(self):

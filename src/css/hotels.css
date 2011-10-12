@@ -79,6 +79,7 @@ nav#hotel-list a.active {
 	display:block;
 	float:left; 
 	padding:20px 20px 20px 40px; 
+	overflow:hidden;
 }
                         
 .hotel header {
@@ -122,6 +123,11 @@ nav#hotel-list a.active {
 	margin:20px 0 20px 0;
 }                     
 
+.hotel .room-and-rates ul {
+	display:inline-block; 
+	margin:20px 0 0 20px; 
+	list-style-type:disc;
+}
 .hotel .value-adds {
 	margin:0 0 20px 0;
 }                     
@@ -203,4 +209,64 @@ h3.no-results {
 	position:absolute;
 	bottom:9px;
 	right:14px;
+}
+
+
+/*
+*	TripAdvisor
+*/
+.trip-advisor {
+	max-width:170px;
+	color:#fff;
+	background:rgba(0,0,0,0.3);
+	border-radius:10px;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-o-border-radius:10px;
+	-ms-border-radius:10px;
+	padding:10px;
+}
+
+.widEXC {
+	background-color: white;
+	border: 1px solid #589442;
+	border-width: initial;
+	color: black;
+	font: normal normal normal 11px/normal Verdana, 'Bitstream Vera Sans', Arial, Helvetica, sans-serif;
+	margin: 10px;
+	overflow: hidden;
+	padding: 0px 0px 9px;
+	text-align: center;
+	width: 150px;
+}
+
+.widEXCLINK {
+	border: none;
+	color: black;
+	font-family: Arial, Verdana, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-size: 107.5%;
+	font-style: normal;
+	font-weight: normal;
+	margin: 0px;
+	outline: none;
+	text-decoration: none;
+	padding: 0px 9px;
+}
+
+.widEXCLINK a {
+	border: none;
+	color: black;
+	font-family: Arial, Verdana, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-style: normal;
+	font-weight: normal;
+	margin: 0px;
+	outline: none;
+	padding: 0px;
+	text-decoration: none;
+}
+
+.widEXCIMG {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;	
 }

@@ -18,7 +18,7 @@ RIA.Experience = new Class({
 		
 		this.content = document.id("content");
 		this.destination = document.id("destination");
-
+		this.numberOfNights = document.id("nights");
 		this.arrivalDate = document.id("arrival_date");
 		
 		this.weather = document.id("weather");
@@ -280,6 +280,9 @@ RIA.Experience = new Class({
 					resultMarginLeft = 0;
 					ready = false;						
 				} else {
+					
+					this.hotelCollection[this.hotelIndex].TripAdvisor.hide();
+					
 					this.hotelIndex--;
 					resultMarginLeft = resultMarginLeft.toInt()+this.hotelWidth;
 				} 
@@ -291,6 +294,8 @@ RIA.Experience = new Class({
 					resultMarginLeft = totalMarginLeft;
 					ready = false;
 				} else {
+					this.hotelCollection[this.hotelIndex].TripAdvisor.hide();
+					
 					this.hotelIndex++;
 					resultMarginLeft = resultMarginLeft.toInt()-hotelWidth;                                                           						
 				}
@@ -370,13 +375,15 @@ RIA.Experience = new Class({
 				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px"});
 			}
 			
-			this.setStreetview(this.hotelCollection[this.hotelIndex]);
+			
 			
 			if(this.options.bookmarks != null && this.options.bookmarks.length) {
 				this.setBookmarkMarkers(this.hotelCollection);
 			}
             
 			this.setHotelMarkers(this.hotelCollection);   
+			
+			this.setStreetview(this.hotelCollection[this.hotelIndex]);
 			
 			if(this.hotelsNav) this.createHotelNav();                                                                               
 			
@@ -403,6 +410,7 @@ RIA.Experience = new Class({
 				"events":{
 					"click": function(e) {
 						e.preventDefault();
+						this.hotelCollection[this.hotelIndex].TripAdvisor.hide();
 						this.jumpToHotel(hotel);
 						this.setStreetview(this.hotelCollection[this.hotelIndex]);
 						this.trackEvent('Hotel', 'NavigateByNumberList', this.hotelCollection[this.hotelIndex].get("data-locationid")+" : "+this.hotelCollection[this.hotelIndex].get("data-name"), 1);
@@ -470,7 +478,7 @@ RIA.Experience = new Class({
 		RIA.currentPriceMax = RIA.InitAjaxSubmit.price.get("value");
 		                                                                       
 		//priceMax="+RIA.currentPriceMax+"&
-		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&bookmarks=", keys = [];
+		RIA.shareURL = window.location.protocol+"//"+window.location.host+window.location.pathname+"?destination="+(RIA.currentDestination||"")+"&startDate="+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&brand="+RIA.hotelBrand+"&bookmarks=", keys = [];
 		Object.each(RIA.bookmarks, function(value, key) {                
 			keys.push(key);
 		});    
