@@ -336,6 +336,7 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
+		this.removeAllTripAdvisorOverlays();
 		if(this.hotelsNav) {
 			this.hotelsNav.getElement(".results").empty();
 		}

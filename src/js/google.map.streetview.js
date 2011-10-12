@@ -267,6 +267,10 @@ RIA.MapStreetView = new Class({
 		    this.setMap(this.map_);
 		  }
 		}
+		
+		TripAdvisorOverlay.prototype.removeFromDOM = function() {
+			this.setMap(this.map_);
+		}
 			
 	},
 	setMapEventListeners: function() {
@@ -1083,5 +1087,12 @@ RIA.MapStreetView = new Class({
 		data += hotel.getElement(".info-window").innerHTML;
 		data += '<div id="TA_excellent746" class="TA_excellent"><div id="CDSWIDEXC" class="widEXC"> <a target="_blank" href="http://www.tripadvisor.com/Hotel_Review-g60763-d1379306-Reviews-Hilton_Club_New_York-New_York_City_New_York.html"><img class="widEXCIMG" id="CDSWIDEXCIMG" src="http://www.tripadvisor.com/img/cdsi/img2/badges/excellent_en-11863-1.gif" alt="Hilton Club New York, New York City, New York"></a><br> <div id="CDSWIDEXCLINK" class="widEXCLINK"> <a target="_blank" href="http://www.tripadvisor.com/Hotel_Review-g60763-d1379306-Reviews-Hilton_Club_New_York-New_York_City_New_York.html">'+hotel.get("data-name")+'</a> rated "excellent" by 243 travelers<br> </div> <div> <img class="widEXCIMG" id="CDSWIDEXCLOGO" src="http://c1.tacdn.com/img2/widget/tripadvisor_logo_100x25.gif"> </div> </div></div>'
 		hotel.TripAdvisor = new TripAdvisorOverlay(hotel.retrieve("geolocation"), data, RIA.panorama);
+	},
+	removeAllTripAdvisorOverlays: function() {
+		if(this.hotelCollection) {
+			this.hotelCollection.each(function(hotel) {
+				if(hotel.TripAdvisor) hotel.TripAdvisor.removeFromDOM;
+			},this);
+		}
 	}
 });
