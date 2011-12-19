@@ -31,3 +31,19 @@ There are 2 request handlers, Mashup and RestAPI.
 	- ROOT_APP/newyork/xml [valid]
 	- ROOT_APP/newyork/json [valid]
 	- ROOT_APP/newyork/blah [invalid, will default to Mashup request handler]
+	
+	
+### Geonames Account
+
+http://www.geonames.org
+Username: stuartthorne
+Password: Okt0b3rf3st
+Email: stuart.thorne@razorfish.com
+
+
+Here some links you could find useful:
+GeoNames User Manual : http://www.geonames.org/manual.html
+GeoNames Blog : http://geonames.wordpress.com
+GeoNames Forum : http://forum.geonames.org
+GeoNames Mailinglist : http://groups.google.com/group/geonames
+

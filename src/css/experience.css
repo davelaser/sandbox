@@ -57,6 +57,11 @@ footer  {
 	padding:0 10px; 
 	z-index:5;
 	position:relative;
+	/*
+	-webkit-perspective: 800;
+	-webkit-perspective-origin: 50% 300px;
+	-webkit-transform-style: preserve-3d;
+	*/
 }
                        
 body.widescreen #shell {
@@ -285,6 +290,7 @@ article section {
 	right:0px;
 	top:0px;
 	z-index:1;
+	
 }
 
 /*
@@ -400,4 +406,10 @@ article section {
 .info-window-inner p {
 	text-align:left;
 	margin:5px 0;
+}
+
+.trip-advisor { 
+	/*
+	-webkit-transform: rotateY(30deg);
+	*/
 }

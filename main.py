@@ -51,7 +51,7 @@ requestLastminute = "/lastminute"
 requestRazorfish = "/razorfish"
 
 # TODO: remove the memcache flush
-memcache.flush_all()
+#memcache.flush_all()
 #logging.info(memcache.get_stats())
 
 # DELETE ALL HOTELS
@@ -256,6 +256,8 @@ class ExperienceHandler(webapp.RequestHandler):
 		
 		hotspot = utils.get_hotspots()
 		
+		app_version = os.environ['CURRENT_VERSION_ID']
+		
 		widescreen = 'true'
 		viewType = self.request.get("viewType")
 		
@@ -267,14 +269,15 @@ class ExperienceHandler(webapp.RequestHandler):
 		nights = self.request.get("nights")
 		hotelBrand = self.request.get("brand")
 		servicePath = requestEANHotelList
-		brand = "razorfish"
+		brand = "lastminute"
 		urlPath = self.request.path
 		
 		if urlPath is not None and len(urlPath) > 1:
 			brand = urlPath.replace('/','')
 			
 			if brand == "lastminute":
-				servicePath = requestAjaxAPI
+				#requestAjaxAPI
+				servicePath = requestEANHotelList
 			elif brand == "expedia":
 				servicePath = requestEANHotelList
 			elif brand == "razorfish":
@@ -320,7 +323,8 @@ class ExperienceHandler(webapp.RequestHandler):
 			startDate=startDate, 
 			priceSort=priceSort, 
 			ratingSort=ratingSort,
-			hotspot=hotspot)
+			hotspot=hotspot,
+			appVersion=app_version)
 		path = os.path.join(os.path.dirname(__file__),'templates/version3/experience.html')
 		self.response.out.write(template.render(path, args))
 	def post(self):
@@ -345,6 +349,9 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	ratingRaw = self.request.get("rating")
 	numberOfNightsRaw = self.request.get("nights")
 	rating = None
+	startDate = None
+	
+	logging.debug(startDateRaw)
 	if ratingRaw is not None:
 		rating = True
 
@@ -372,7 +379,8 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 	destination = destination.lower()
 	global_mashup['destination'] = destination
 	info_type = self.request.POST.get("info_type")
-	info_type = info_type.replace(' ', '').lower()
+	if info_type is not None:
+		info_type = info_type.replace(' ', '').lower()
 	
 	"""
 	If the Destination provided matches a nice display name we have stored locally, then use this.

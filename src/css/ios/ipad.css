@@ -2,12 +2,15 @@
 *	Apple iOS iPad 1/2
 */
 #map-wrapper {
-	/*
 	display:none;
-	*/
 }    
 
 #map_canvas {	
 	width:140px;
 	height:140px;
+}
+
+
+#map-visualization .minimized {
+	display:none !important;
 }

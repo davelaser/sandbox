@@ -1,3 +1,4 @@
+<!--
 <form id="search" method="post" action="/experience">
 	<fieldset>					
 		<input data-required="true" id="destination" type="text" value="{{ destinationDisplayName }}" />
@@ -12,5 +13,45 @@
 	</fieldset>
 	<fieldset id="search-options">
 		<a href="#">OPTIONS</a>
+	</fieldset>
+</form>
+-->
+<form id="search" method="post" action="/experience">
+	<fieldset>					
+		<input data-required="true" data-default="Destination" id="destination" type="text" value="{{ destinationDisplayName|default:'Destination' }}" />
+		<label for="nights">for</label>
+		<input data-required="true" id="nights" type="text" value="{{ nights|default:2 }}" />                                                        
+		<label for="arrival_date">night(s), arriving</label>
+		<input data-required="true" data-default="dd-mm-yyyy" id="arrival_date" type="text" value="{{ startDate|default:'dd-mm-yyyy' }}" />
+		{% comment %}<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />{% endcomment %}
+		<label for="priceMax">for less than &#163;</label>
+		<input id="priceMax" type="text" value="{{ price|floatformat:0 }}" />
+		<button id="submit-search" type="submit" class="button">SEARCH</button>   		
+	</fieldset>
+	<fieldset id="search-options">
+		<a href="#">OPTIONS</a>
+		<!--//
+		<div class="amenities">
+			I need...
+			<label for="amenities-2">a fitness center</label>
+			<input type="checkbox" id="amenities-2" name="amenities-2" value="" />
+			<label for="amenities-1">a swimming pool</label>
+			<input type="checkbox" id="amenities-1" name="amenities-1" value="" />
+			<label for="amenities-5">complimentary breakfast</label>
+			<input type="checkbox" id="amenities-5" name="amenities-5" value="" />
+			<label for="amenities-9">a kitchen</label>
+			<input type="checkbox" id="amenities-9" name="amenities-9" value="" />
+			<label for="amenities-6">a meeting room</label>
+			<input type="checkbox" id="amenities-6" name="amenities-6" value="" />
+			<label for="amenities-7">to bring my pet</label>
+			<input type="checkbox" id="amenities-7" name="amenities-7" value="" />
+			<label for="amenities-3">a restaurant</label>
+			<input type="checkbox" id="amenities-3" name="amenities-3" value="" />
+			<label for="amenities-4">children's activities'</label>
+			<input type="checkbox" id="amenities-4" name="amenities-4" value="" />
+			<label for="amenities-8">wheelchair access</label>
+			<input type="checkbox" id="amenities-8" name="amenities-8" value="" />
+		</div>
+		//-->
 	</fieldset>
 </form>

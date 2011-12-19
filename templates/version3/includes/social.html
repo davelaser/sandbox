@@ -1,15 +1,17 @@
 <section id="social" class="rc">
+	{% comment %}
 	<header>
 		<h3>Share {% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels</h3>
 	</header>
+	{% endcomment %}
 	<div>
-		<p>
+		<p class="tw">
 			<a href="http://twitter.com/share" class="twitter-share-button" data-url="http://razorfish-prototype-1.appspot.com/{% ifequal brand "razorfish" %}{% endifequal %}{% ifequal brand "lastminute" %}lastminute{% endifequal %}{% ifequal brand "expedia" %}expedia{% endifequal %}" data-count="horizontal" data-text="Find your ideal hotel with {% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels">Tweet</a>		
 		</p>
-		<p>
+		<p class="gp">
 			<g:plusone size="medium" width="120" href="http://razorfish-prototype-1.appspot.com/{% ifequal brand "razorfish" %}{% endifequal %}{% ifequal brand "lastminute" %}lastminute{% endifequal %}{% ifequal brand "expedia" %}expedia{% endifequal %}"></g:plusone>
 		</p>
-		<p>			
+		<p class="fb">			
 			<fb:like href="http://razorfish-prototype-1.appspot.com/{% ifequal brand "razorfish" %}{% endifequal %}{% ifequal brand "lastminute" %}lastminute{% endifequal %}{% ifequal brand "expedia" %}expedia{% endifequal %}" send="true" layout="button_count" width="100" show_faces="false" font=""></fb:like>
 		</p>
 	</div>

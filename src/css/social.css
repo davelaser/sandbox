@@ -1,23 +1,39 @@
 #social { 
+	/*
 	position:fixed;
 	bottom:0;
 	margin:0 auto;
-	text-align:left;
-	display:block;   
 	width:auto;
-	z-index:0;
 	padding:10px 10px 0 10px;
 	background:rgba(0,0,0,0.2);
 	border-radius:10px;
-	-moz-border-radius:10px;
-	-webkit-border-radius:10px 10px 0 0;
-	-o-border-radius:10px;
-	-ms-border-radius:10px;
+	-moz-border-radius:0 0 10px 10px;
+	-webkit-border-radius:0 0 10px 10px;
+	-o-border-radius:0 0 10px 10px;
+	-ms-border-radius:0 0 10px 10px;
+	text-align:left;
+	display:block;   
+	z-index:0;
+	*/
+	
+	background:transparent;
+	position:absolute;
+	right:200px;
+	top:0px;
+	text-align:left;
+	display:block;   
+	width:350px;
+	z-index:3;
+	margin:0;
+	padding:14px 0 0 0;
 }
 
 #social h3 {
 	font-size:1.2em;
+	/*
 	color:#fff;
+	*/
+	color:#000;
 	margin:0 0 10px 0;
 }
 #social div {
@@ -29,6 +45,19 @@
 	margin:0 20px 0 0;
 	*/
 }
+
+#social p.tw {
+	
+}
+
+#social p.gp {
+	width:72px;
+}
+
+#social p.fb {
+	
+}
+
 #social p:last-child {
 	margin:0 !important;
 }

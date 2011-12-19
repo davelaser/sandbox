@@ -280,6 +280,9 @@ RIA.Experience = new Class({
 					resultMarginLeft = 0;
 					ready = false;						
 				} else {
+					
+					this.hotelCollection[this.hotelIndex].TripAdvisor.hide();
+					
 					this.hotelIndex--;
 					resultMarginLeft = resultMarginLeft.toInt()+this.hotelWidth;
 				} 
@@ -291,6 +294,8 @@ RIA.Experience = new Class({
 					resultMarginLeft = totalMarginLeft;
 					ready = false;
 				} else {
+					this.hotelCollection[this.hotelIndex].TripAdvisor.hide();
+					
 					this.hotelIndex++;
 					resultMarginLeft = resultMarginLeft.toInt()-hotelWidth;                                                           						
 				}
@@ -331,6 +336,7 @@ RIA.Experience = new Class({
 		this.hotels.getElement(".results").setStyles({"marginLeft":hotelResults.marginLeft+"px"});
 	},
 	getHotels: function() {
+		this.removeAllTripAdvisorOverlays();
 		if(this.hotelsNav) {
 			this.hotelsNav.getElement(".results").empty();
 		}
@@ -370,13 +376,15 @@ RIA.Experience = new Class({
 				this.hotels.getElement(".results").setStyles({"width":this.totalLength+"px"});
 			}
 			
-			this.setStreetview(this.hotelCollection[this.hotelIndex]);
+			
 			
 			if(this.options.bookmarks != null && this.options.bookmarks.length) {
 				this.setBookmarkMarkers(this.hotelCollection);
 			}
             
 			this.setHotelMarkers(this.hotelCollection);   
+			
+			this.setStreetview(this.hotelCollection[this.hotelIndex]);
 			
 			if(this.hotelsNav) this.createHotelNav();                                                                               
 			
@@ -403,6 +411,7 @@ RIA.Experience = new Class({
 				"events":{
 					"click": function(e) {
 						e.preventDefault();
+						this.hotelCollection[this.hotelIndex].TripAdvisor.hide();
 						this.jumpToHotel(hotel);
 						this.setStreetview(this.hotelCollection[this.hotelIndex]);
 						this.trackEvent('Hotel', 'NavigateByNumberList', this.hotelCollection[this.hotelIndex].get("data-locationid")+" : "+this.hotelCollection[this.hotelIndex].get("data-name"), 1);

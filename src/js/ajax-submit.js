@@ -146,6 +146,7 @@ RIA.AjaxSubmit = new Class({
 		
 		
 		if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "lastminute") {
+			/*
 			this.requestHotels = new Request.HTML({
 				method:"POST",
 				url:this.options.servicePath,
@@ -156,7 +157,20 @@ RIA.AjaxSubmit = new Class({
 				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
 				onFailure: this.requestFailure.bind(this)
 			});
-			this.requests.include(this.requestHotels); 
+			this.requests.include(this.requestHotels); 			
+			*/
+			
+			this.requestHotels = new Request.HTML({
+				method:"POST",
+				url:this.options.servicePath,
+				evalScripts:false,
+				update:this.hotels.getElement(".results"),
+				data:'city='+destination+'&arrivalDate='+this.arrivalDate.get("value")+"&nights="+this.numberOfNights.get("value")+"&priceMax="+this.price.get("value")+"&priceSort="+this.priceSort.get("value")+"&ratingSort="+this.ratingSort.get("value")+(this.options.hotelBrand != null ? "&brand="+this.options.hotelBrand : ""),
+				onRequest: this.requestStart.pass([this.hotels],this),
+				onSuccess: this.requestSuccess.pass([this.hotels, destination],this),
+				onFailure: this.requestFailure.bind(this)
+			});
+			this.requests.include(this.requestHotels);
 		}
 		else if(RIA.InitExperience.options.brand != "" && RIA.InitExperience.options.brand == "expedia") {
 			this.requestHotels = new Request.HTML({

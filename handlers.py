@@ -23,6 +23,7 @@ import datastore
 import datamodel
 import configparsers
 import utils
+import geonames
 		
 class GooglePlacesHandler(webapp.RequestHandler):
 	def post(self):
@@ -200,6 +201,8 @@ class EANHotelRequest(webapp.RequestHandler):
 		destination = destination.lower()
 		global_mashup['destination'] = destination
 		
+		logging.debug(self.request.arguments())
+		
 		try:
 			arrivalDate = datetime.datetime(int(arrivalDateList[2]), int(arrivalDateList[1]), int(arrivalDateList[0]))
 			departureDateTimeDelta = datetime.timedelta(days=int(numberOfNights))
@@ -220,6 +223,7 @@ class EANHotelRequest(webapp.RequestHandler):
 			if memcachedHotels is not None:
 				result = memcachedHotels
 				logging.debug("Got hotels from memcache")
+				
 			else:	
 				logging.debug("Memcache empty, requesting hotels")
 				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city, hotelBrand)
@@ -279,11 +283,49 @@ class EANHotelRequest(webapp.RequestHandler):
 	
 						# Add Hotel details
 						#taskqueue.add(queue_name='eanhoteldetailsqueue', url='/eanhoteldetailsworker', params={'hotelid':str(hotel['hotelId'])})
-	
+					
+						# Get Geonames Wikipedia Data
+						
+						#wikipediaData = geonames.geonames_find_nearby_wikipedia('en', hotel['latitude'], hotel['longitude'], 10, 5, 'us')
+						#hotel['geonames'] = wikipediaData
+					# Add the hotel results to Memcache
 					memcache.set(key=memcacheKey, value=result, time=memcacheExpires, namespace='ean')
 								
 			# Regardless of memcache or datastore results, apply any filters
 			if result is not None:
+				
+					
+				# [ST]TODO: Nasty hack for client meeting	
+				# Re-sort the Hotels to get the best ones in New York at the front of the list
+				for hotel in result:
+					if hotel.has_key('name') and hotel['name'] == "Hilton Club New York":
+						index = result.index(hotel)
+						item = result.pop(index)
+						#result.insert(0,hotel)
+					if hotel.has_key('name') and hotel['name'] == "Hilton New York":
+						index = result.index(hotel)
+						item = result.pop(index)
+						result.insert(0,hotel)
+						hotel['latitude'] = 40.762265
+						#hotel['latitude'] = 40.762286
+						#hotel['longitude'] = -73.978789
+						hotel['heading'] = -72.01216845105218
+					if hotel.has_key('name') and hotel['name'] == "DoubleTree by Hilton Metropolitan - New York City":
+						hotel['heading'] = -217.78839294402061
+					if hotel.has_key('name') and hotel['name'] == "DoubleTree Suites by Hilton New York City - Times Square":
+						hotel['latitude'] = 40.75906
+						hotel['longitude'] = -73.98427600000002
+					if hotel.has_key('name') and hotel['name'] == "Hilton Garden Inn New York/West 35th Street":
+						hotel['latitude'] = 40.750322
+						hotel['longitude'] = -73.98697400000003
+					if hotel.has_key('name') and hotel['name'] == "Hilton Garden Inn Times Square":
+						hotel['latitude'] = 40.761348
+						hotel['longitude'] = -73.98678999999998
+					if hotel.has_key('name') and hotel['name'] == "Hilton London Green Park":
+						hotel['latitude'] = 51.506449
+						hotel['longitude'] = -0.1453920000000153
+
+				
 				
 				if priceSort is not None and priceSort != '':
 					if priceSort == 'high':
@@ -305,6 +347,8 @@ class EANHotelRequest(webapp.RequestHandler):
 					
 					result = priceList
 				
+						
+						
 				if len(result) <= 0:
 					global_mashup['price'] = price
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')

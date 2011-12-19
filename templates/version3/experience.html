@@ -3,6 +3,9 @@
 <head>
 	<meta charset="utf-8">
 	<title>{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %} Hotels</title>
+	<meta name"viewport" content="width=device-width, initial-scale=0.5, maximum-scale = 0.5, user-scalable=no"/>
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 	<meta name="robots" content="noindex, nofollow"/>
 	<meta name="googlebot" content="noindex, nofollow, noarchive"/>
 	<meta property="fb:app_id" content="{{facebookAppId}}"/>
@@ -15,9 +18,9 @@
 	<!--[if lt IE 9]>
 	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
-	<link rel="stylesheet" href="/static/css/styles.css"/>
-	<link rel="stylesheet" href="/static/css/{{ brand }}.css" type="text/css" />
-	<link rel="stylesheet" media="only screen and (min-device-width: 768px) and (max-device-width: 1024px)" href="/static/css/ipad.css" type="text/css" />
+	<link rel="stylesheet" href="/static/css/styles.css?v={{appVersion}}"/>
+	<link rel="stylesheet" href="/static/css/{{ brand }}.css?v={{appVersion}}" type="text/css" />
+	<link rel="stylesheet" media="only screen and (min-device-width: 600px) and (max-device-width: 1024px)" href="/static/css/ipad.css?v={{appVersion}}" type="text/css" />
 	{% ifequal brand "razorfish" %}
 	<link rel="shortcut icon" href="http://www.razorfish.com/img/favicon.ico" />
 	<link rel="icon" href="http://www.razorfish.com/img/favicon.ico"/>
@@ -39,14 +42,16 @@
 	<!-- ClickTale end of Top part -->
 	{% endcomment %}
 	<div id="map-visualization">
-		<div id="pano"></div>
+		<div id="pano" class="{% if maptype == 'map' %}minimized{% else %}maximized{% endif %}"></div>
 		<div id="map-wrapper"></div>
-		<div id="map_canvas"></div>
+		<div id="map_canvas" class="{% if maptype == 'map' %}maximized{% else %}minimized{% endif %}"></div>
 	</div>
 	<article id="shell">
-		<header id="main">                     
-   			<h1><img src="/static/img/{{brand}}/site_master_top_logo.gif" alt="{% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %}" /></h1> 
+		<header id="main">   
+			<h1><img src="/static/img/{{brand}}/site_master_top_logo.gif" alt="{% ifequal brand "razorfish" %}Razorfish{% endifequal %}{% ifequal brand "lastminute" %}lastminute.com{% endifequal %}{% ifequal brand "expedia" %}Expedia Affiliate Network{% endifequal %}" /></h1> 
 			{% comment %}<button id="fb-dialog-send" type="submit" class="button" value="">Talk to your Travel buddies</button>{% endcomment %} 
+			
+			{% include "includes/social.html" %}
 			
 			<nav id="map-controls" class="">
 				<button id="toggle-streetview" class="map-control {% if maptype == "panorama" or maptype == "" %}active{% endif %}">Streetview</button>
@@ -96,7 +101,9 @@
 						<button id="nearby" class="button">What's nearby?</button>
 						<button id="news" class="button">Guardian News</button>
 					</nav>
+					{% comment %}
 					{% ifequal brand "razorfish" %}
+					{% endcomment %}
 					<nav id="filters">
 						<label for="ratingSort">Sort by rating</label>
 						<select id="ratingSort">                
@@ -112,7 +119,7 @@
 						</select>
 						
 					</nav> 
-					{% endifequal %} 
+					{% comment %}{% endifequal %}{% endcomment %}
 				</div>
 				
 				<nav id="horizontal">
@@ -184,8 +191,10 @@
 				
 			</section>
 		    {% endcomment %}
+		
+			
          </div>
-		 {% include "includes/social.html" %} 
+		 
 	</article>
 	
 	<div id="loading">
@@ -194,9 +203,14 @@
 			<img src="static/img/{{brand}}/logo.png" alt="" />
 		</div>
 	</div>
+	<!--//
+	<script src="http://www.jscache.com/wejs?wtype=excellent&amp;uniq=746&amp;locationId=1379306&amp;lang=en_US"></script>
+	
+	<script src="http://www.jscache.com/wejs?wtype=excellent&amp;uniq=473&amp;locationId=208453&amp;lang=en_US"></script>
+	//-->
 	<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 	<div id="fb-root"></div>
-	<script src="/static/js/scripts.js"></script> 
+	<script src="/static/js/scripts.js?v={{appVersion}}"></script> 
 	<script type="text/javascript">
 	//<![CDATA[ 
 		
@@ -223,6 +237,8 @@
 			servicePath:'{{ servicePath }}',
 			hotelBrand:'{{hotelBrand}}'
 		});
+		
+		RIA.hotelBrand = '{{hotelBrand}}';
 		
 		(function() {
 			var e = document.createElement('script');

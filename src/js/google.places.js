@@ -319,8 +319,8 @@ RIA.GooglePlaces = new Class({
 			},
 			onSuccess: function(a, b) {
 				Log.info("storePlacesSearch : onSuccess");
-				Log.info(a);
-				Log.info(b)
+				//Log.info(a);
+				//Log.info(b)
 			},
 			onFailure: function(e) {
 				Log.info("storePlacesSearch : onFailure");
