@@ -4,7 +4,9 @@
 		<h3>
 			<span class="name">{{hotel.name|safe}} {% if destination == "europe" %}({{ hotel.countryname }}){% endif %}</span> 
 			<span class="stars">{{ hotel.hotelRating|floatformat:1 }} star,</span>
+			{% comment %}
 			<span class="from">from</span>
+			{% endcomment %}
 			<span class="price">&#163;{{ hotel.lowRate|floatformat:2 }}<sup>*</sup></span>
 			<span class="count">{{ forloop.counter }} of {{hotels|length}}</span>
 		</h3>

@@ -129,7 +129,7 @@ def put_latlng_by_hotel_locationid_and_destination(locationid, destination, lat,
 			if(requiredtoput is True):
 				existingHotel.put()
 		except CapabilityDisabledError:
-			log.error("put_latlng_by_hotel_locationid_and_destination() : CapabilityDisabledError")
+			logging.error("put_latlng_by_hotel_locationid_and_destination() : CapabilityDisabledError")
 			# fail gracefully here
 			raise e
 			
@@ -328,7 +328,7 @@ def put_ean_hotel_by_price(hotelData, arrivalDate, departureDate):
 	
 def delete_all_hotels():
 	resultset = datamodel.EANHotel.gql("ORDER BY index")
-	db.delete(resultset);
+	db.delete(resultset)
 	resultsetPrices = datamodel.EANHotelPriceAndDate.gql("ORDER BY price")
-	db.delete(resultsetPrices);
+	db.delete(resultsetPrices)
 	logging.info("delete_all_hotels : Deleted all hotels")

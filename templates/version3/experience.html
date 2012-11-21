@@ -33,7 +33,7 @@
 	{% endifequal %}
 	<script src="http://platform.twitter.com/anywhere.js?id={{ twitterAppKey }}&amp;v=1" type="text/javascript"></script>
 </head>
-<body class="state-default {{ viewType }}">
+<body class="state-default {{ viewType }} leftaligned">
 	{% comment %}
 	<!-- ClickTale Top part -->
 	<script type="text/javascript">
@@ -100,6 +100,7 @@
 						<button id="share" class="button">Share</button>
 						<button id="nearby" class="button">What's nearby?</button>
 						<button id="news" class="button">Guardian News</button>
+						<button id="toggle-trip-advisor" class="button">TripAdvisor</button>
 					</nav>
 					{% comment %}
 					{% ifequal brand "razorfish" %}
@@ -219,12 +220,13 @@
 	    RIA.sv = null;
 		RIA.currentDestination = "{{ destination }}"; 
 		RIA.fbAppId = '{{facebookAppId}}';
+		{% comment %}
 		RIA.fbAccessToken = '{{ facebookAccessToken }}';
+		{% endcomment %}
 		RIA.sensor = (Browser.Platform.ios ? true : false);
 
 		// Go to Times Square
-
-	   	RIA.InitExperience = new RIA.Experience({
+		RIA.InitExperience = new RIA.Experience({
 			streetViewDefaultOptions:{{ hotspot|safe }},
 			bookmarks:{% for bookmark in bookmarks %}{% if forloop.first %}[{% endif %}'{{ bookmark }}'{% if forloop.last %}]{% else %},{% endif %}{% endfor %},
 			maptype:"{{ maptype|default:'panorama' }}",
@@ -233,6 +235,7 @@
 			brand:'{{brand}}',
 			ios:(Browser.Platform.ios ? true : false)
 		});
+
 		RIA.InitAjaxSubmit = new RIA.AjaxSubmit({
 			servicePath:'{{ servicePath }}',
 			hotelBrand:'{{hotelBrand}}'
@@ -257,11 +260,11 @@
 			});	
 		};	
         
-
+		
 		function loadScript() {
 		  var script = document.createElement("script");
 		  script.type = "text/javascript";
-		  script.src = "http://maps.google.com/maps/api/js?sensor="+RIA.sensor+"&libraries=geometry,panoramio&callback=RIA.InitExperience.mapInitialize";
+		  script.src = "http://maps.google.com/maps/api/js?v=3.0&sensor="+RIA.sensor+"&libraries=geometry,panoramio&callback=RIA.InitExperience.mapInitialize";
 		  document.body.appendChild(script);
 		}
         window.addEvent("domready", function() {

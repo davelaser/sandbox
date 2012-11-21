@@ -40,6 +40,7 @@ RIA.AjaxSubmit = new Class({
 			"submit": this.validateSearch.bind(this)
 		});
 		
+		/*
 		this.destination.addEvents({
 			"focus":function(e) {
 				if(this.get("value") == this.get("data-default")) {
@@ -65,6 +66,7 @@ RIA.AjaxSubmit = new Class({
 				}
 			}
 		});
+		*/
 	},
 	validateSearch: function(e) {
 		if(e) e.preventDefault();

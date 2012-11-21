@@ -232,6 +232,7 @@ class EANHotelRequest(webapp.RequestHandler):
 					requestServiceURL = config_properties.get('EAN', 'xml_url_hotellist')
 					f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
 					response = f.read()
+					
 					response = response.replace('&gt;','>')
 					response = response.replace('&lt;','<')
 					

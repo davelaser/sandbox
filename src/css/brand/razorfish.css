@@ -20,7 +20,10 @@ form#search {
     background:#fff;
 }
 header#main {
+    /*
     height:158px;
+	*/
+	height:auto;
 }
 #horizontal a {
 	background:#000 url(../img/expedia/arrows.png) no-repeat 0 0;
@@ -49,7 +52,10 @@ header#main {
 }
 
 #hotels {
+	/*
 	top:170px;
+	*/
+	top:90px;
 }
 nav#hotel-list a.active {
 	
@@ -76,12 +82,3 @@ nav#hotel-list a.active {
 .hotel-name {
 	color:#000;
 }
-
-
-#map-wrapper {
-	height:300px;
-}    
-
-#map_canvas {	
-	height:300px;
-}                    

@@ -260,7 +260,6 @@ class ExperienceHandler(webapp.RequestHandler):
 		
 		widescreen = 'true'
 		viewType = self.request.get("viewType")
-		
 		destination = self.request.get("destination")
 		price = self.request.get("priceMax")
 		startDate = self.request.get("startDate")
@@ -290,6 +289,7 @@ class ExperienceHandler(webapp.RequestHandler):
 		bookmarks = self.request.get("bookmarks").split(',')
 		maptype = self.request.get("maptype")
 		contenttype = self.request.get("contenttype")
+		contenttype = 'minimized'
 		if utils.destination_display_names.has_key(destination):
 			destinationDisplayName = utils.destination_display_names[destination]
 		
@@ -499,4 +499,5 @@ def main():
 		
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
+    # This should be running main!!
     run_wsgi_app(application)

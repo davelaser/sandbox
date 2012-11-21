@@ -12,6 +12,8 @@ RIA.Experience = new Class({
 		                 
 		this._form = document.id("search");
 		
+		this.header = document.id("main");
+
 		this.toggleContent = document.id("toggle-content"); 
 		this.togglePlaces = document.id("toggle-places");
 		this.toggleGuardian = document.id("toggle-guardian");
@@ -32,18 +34,21 @@ RIA.Experience = new Class({
 		this.shareDialog = document.id("share-dialog");
 		this.shareDialog.store("viewstate", "closed");
 		this.toggleShareDialog = document.id("toggle-share-dialog");
-		
+		this.toggleTripAdvisor = document.id("toggle-trip-advisor");
 		/*
 		*	Create default dialog
 		*/
-		twttr.anywhere(function (T) {
-	    	this.tweetBox = T("#share-dialog-content").tweetBox({
-				label:"Share saved Hotels with friends",
-	      		height: 100,
-	      		width: 400,
-	      		defaultContent: "My hotels @RazorfishHotels"
-	    	});
-	  	}.bind(this));
+		if(twttr != "undefined") {
+			twttr.anywhere(function (T) {
+		    	this.tweetBox = T("#share-dialog-content").tweetBox({
+					label:"Share saved Hotels with friends",
+		      		height: 100,
+		      		width: 400,
+		      		defaultContent: "My hotels @RazorfishHotels"
+		    	});
+		  	}.bind(this));
+		}
+		
 	
 		this.places = document.id("places");
 		this.places.store("viewstate", "closed");
@@ -80,7 +85,32 @@ RIA.Experience = new Class({
 	},                          
 	addEventListeners: function() {
 		
-		
+		/*
+		if(this.header) {
+			this.header.addEvents({
+				"mouseenter": function(e) {
+					this.header.setStyles({
+						height:'162px'
+					});
+					this._form.setStyle('display','block');
+					var social = document.getElementById("social");
+					if(social) {
+						social.setStyle("display", "block");
+					}
+				}.bind(this),
+				"mouseleave": function(e) {
+					this.header.setStyles({
+						height:'73px'
+					});
+					this._form.setStyle('display','none');
+					var social = document.getElementById("social");
+					if(social) {
+						social.setStyle("display", "none");
+					}
+				}.bind(this)
+			});
+		}
+		*/
 		if(document.id("ratingSort")) {
 			document.id("ratingSort").addEvents({
 				"change":this.sortEvent.bind(this)
@@ -124,6 +154,12 @@ RIA.Experience = new Class({
 		if(this.toggleShareDialog) {
 			this.toggleShareDialog.addEvents({
 				"click":this.showShareDialog.bind(this) 
+			});
+		}
+
+		if(this.toggleTripAdvisor) {
+			this.toggleTripAdvisor.addEvents({
+				"click":this.toggleTripAdvisorOverlay.bind(this) 
 			});
 		}
 		
@@ -241,6 +277,12 @@ RIA.Experience = new Class({
 				"click":this.hotelNavigationBind 
 			});
 		},this);
+
+		
+		document.body.addEvents({
+			"keyup":this.hotelNavigationBind 
+		});
+		
 
 	},
 	removeHotelNavEventListeners: function() {
@@ -450,7 +492,7 @@ RIA.Experience = new Class({
 	toggleInformation: function(e) {
 		
 		if(e) e.preventDefault();
-		
+
 		if(!e) {
 			if(this.options.contenttype == "maximized") {
 				if(this.toggleContent) this.toggleContent.set("text", "-");
@@ -512,6 +554,11 @@ RIA.Experience = new Class({
 			this.shareDialog.store("viewstate", "open"); 
 			
 			
+		}
+	},
+	toggleTripAdvisorOverlay: function(e) {
+		if(this.hotelCollection && this.hotelCollection[this.hotelIndex] && this.hotelCollection[this.hotelIndex].TripAdvisor) {
+			this.hotelCollection[this.hotelIndex].TripAdvisor.toggle();
 		}
 	},
 	showPlaces: function(e) {

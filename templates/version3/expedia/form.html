@@ -1,13 +1,13 @@
 <form id="search" method="post" action="/experience">
 	<fieldset>					
-		<input data-required="true" data-default="Destination" id="destination" type="text" value="{{ destinationDisplayName|default:'Destination' }}" />
+		<input data-required="true" data-default="Destination" id="destination" type="text" value="{{ destinationDisplayName }}" placeholder="City" />
 		<label for="nights">for</label>
-		<input data-required="true" id="nights" type="text" value="{{ nights|default:2 }}" />                                                        
+		<input data-required="true" id="nights" type="text" value="{{ nights }}" placeholder="2" />                                                        
 		<label for="arrival_date">night(s), arriving</label>
-		<input data-required="true" data-default="dd-mm-yyyy" id="arrival_date" type="text" value="{{ startDate|default:'dd-mm-yyyy' }}" />
+		<input data-required="true" data-default="dd-mm-yyyy" id="arrival_date" type="text" value="{{ startDate }}" placeholder="dd-mm-yyyy" />
 		{% comment %}<img alt="" src="http://cdn.lastminute.com/site/ico_calendar.gif?skin=engb.lastminute.com" />{% endcomment %}
 		<label for="priceMax">for less than &#163;</label>
-		<input id="priceMax" type="text" value="{{ price|floatformat:0 }}" />
+		<input id="priceMax" type="text" value="{{ price|floatformat:0 }}" placeholder="250" />
 		<button id="submit-search" type="submit" class="button">SEARCH</button>   		
 	</fieldset>
 	<fieldset id="search-options">

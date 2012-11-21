@@ -702,7 +702,7 @@ RIA.GooglePlaces = new Class({
 	},
 	requestPlaces: function(locationLatLng, radiusInMeters, types, name) { 
 		if(!this.hotelCollection[this.hotelIndex].places || !this.hotelCollection[this.hotelIndex].places[types]) {  
-			           
+			Log.info("requestPlaces");
 			this.requestPlacesSearch = new Request.JSON({
 				method:"POST",
 				url:this.options.places.serviceURL,
@@ -712,6 +712,7 @@ RIA.GooglePlaces = new Class({
 				}.bind(this),
 				onError: this.jsonRequestFailure.bind(this)
 			}).send("locationid="+this.hotelCollection[this.hotelIndex].get("data-locationid")+"&hotelname="+this.hotelCollection[this.hotelIndex].get("data-name")+"&location="+locationLatLng.lat()+","+locationLatLng.lng()+"&radius="+radiusInMeters+"&types="+types);
+			Log.info(this.requestPlacesSearch);
         } else {
 	        this.setPlacesMarkers(types);
 		}
@@ -1147,7 +1148,10 @@ RIA.MapStreetView = new Class({
 				}
 				// Resize the image's DIV to fit the indicated dimensions.
 				this.div_.style.left = (x + 20) + 'px';
-				this.div_.style.top = y+'px';
+				/*
+				[ST]TODO: Fix the custom overlay Y position, for small screens
+				*/
+				this.div_.style.top = (y+50)+'px';
 			}
 		}
 
@@ -1280,7 +1284,8 @@ RIA.MapStreetView = new Class({
 		if(!e) {
 			if(this.mapCanvas.retrieve("view:state") == "map") {
 				this.mapCanvas.setStyles({"zIndex":1, "width":this.mapCanvas.retrieve("styles:maximized").width, "height":this.mapCanvas.retrieve("styles:maximized").height});
-				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});  
+				//this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});  
+				this.mapStreetview.setStyles({"zIndex":3,"width":"210px", "height":"200px"});  
 			} else if(this.mapCanvas.retrieve("view:state") == "panorama") {
 				this.mapCanvas.setStyles({"zIndex":3, "width":this.mapCanvas.retrieve("styles:orig").width, "height":this.mapCanvas.retrieve("styles:orig").height});
 				this.mapStreetview.setStyles({"zIndex":0,"width":this.mapStreetview.retrieve("styles:maximized").width, "height":this.mapStreetview.retrieve("styles:maximized").height}); 
@@ -1308,7 +1313,8 @@ RIA.MapStreetView = new Class({
 				
 			}
 			else if(e.target.get("id") == "toggle-map" && !e.target.hasClass("active")){
-				this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});
+				//this.mapStreetview.setStyles({"zIndex":3,"width":"310px", "height":"300px"});
+				this.mapStreetview.setStyles({"zIndex":3,"width":"210px", "height":"180px"});
 				google.maps.event.trigger(RIA.panorama, "resize"); 
 				
 				this.options.maptype = "map";
@@ -2044,6 +2050,8 @@ RIA.Experience = new Class({
 		                 
 		this._form = document.id("search");
 		
+		this.header = document.id("main");
+
 		this.toggleContent = document.id("toggle-content"); 
 		this.togglePlaces = document.id("toggle-places");
 		this.toggleGuardian = document.id("toggle-guardian");
@@ -2064,18 +2072,21 @@ RIA.Experience = new Class({
 		this.shareDialog = document.id("share-dialog");
 		this.shareDialog.store("viewstate", "closed");
 		this.toggleShareDialog = document.id("toggle-share-dialog");
-		
+		this.toggleTripAdvisor = document.id("toggle-trip-advisor");
 		/*
 		*	Create default dialog
 		*/
-		twttr.anywhere(function (T) {
-	    	this.tweetBox = T("#share-dialog-content").tweetBox({
-				label:"Share saved Hotels with friends",
-	      		height: 100,
-	      		width: 400,
-	      		defaultContent: "My hotels @RazorfishHotels"
-	    	});
-	  	}.bind(this));
+		if(twttr != "undefined") {
+			twttr.anywhere(function (T) {
+		    	this.tweetBox = T("#share-dialog-content").tweetBox({
+					label:"Share saved Hotels with friends",
+		      		height: 100,
+		      		width: 400,
+		      		defaultContent: "My hotels @RazorfishHotels"
+		    	});
+		  	}.bind(this));
+		}
+		
 	
 		this.places = document.id("places");
 		this.places.store("viewstate", "closed");
@@ -2112,7 +2123,32 @@ RIA.Experience = new Class({
 	},                          
 	addEventListeners: function() {
 		
-		
+		/*
+		if(this.header) {
+			this.header.addEvents({
+				"mouseenter": function(e) {
+					this.header.setStyles({
+						height:'162px'
+					});
+					this._form.setStyle('display','block');
+					var social = document.getElementById("social");
+					if(social) {
+						social.setStyle("display", "block");
+					}
+				}.bind(this),
+				"mouseleave": function(e) {
+					this.header.setStyles({
+						height:'73px'
+					});
+					this._form.setStyle('display','none');
+					var social = document.getElementById("social");
+					if(social) {
+						social.setStyle("display", "none");
+					}
+				}.bind(this)
+			});
+		}
+		*/
 		if(document.id("ratingSort")) {
 			document.id("ratingSort").addEvents({
 				"change":this.sortEvent.bind(this)
@@ -2156,6 +2192,12 @@ RIA.Experience = new Class({
 		if(this.toggleShareDialog) {
 			this.toggleShareDialog.addEvents({
 				"click":this.showShareDialog.bind(this) 
+			});
+		}
+
+		if(this.toggleTripAdvisor) {
+			this.toggleTripAdvisor.addEvents({
+				"click":this.toggleTripAdvisorOverlay.bind(this) 
 			});
 		}
 		
@@ -2273,6 +2315,12 @@ RIA.Experience = new Class({
 				"click":this.hotelNavigationBind 
 			});
 		},this);
+
+		
+		document.body.addEvents({
+			"keyup":this.hotelNavigationBind 
+		});
+		
 
 	},
 	removeHotelNavEventListeners: function() {
@@ -2482,7 +2530,7 @@ RIA.Experience = new Class({
 	toggleInformation: function(e) {
 		
 		if(e) e.preventDefault();
-		
+
 		if(!e) {
 			if(this.options.contenttype == "maximized") {
 				if(this.toggleContent) this.toggleContent.set("text", "-");
@@ -2544,6 +2592,11 @@ RIA.Experience = new Class({
 			this.shareDialog.store("viewstate", "open"); 
 			
 			
+		}
+	},
+	toggleTripAdvisorOverlay: function(e) {
+		if(this.hotelCollection && this.hotelCollection[this.hotelIndex] && this.hotelCollection[this.hotelIndex].TripAdvisor) {
+			this.hotelCollection[this.hotelIndex].TripAdvisor.toggle();
 		}
 	},
 	showPlaces: function(e) {
@@ -2647,6 +2700,7 @@ RIA.AjaxSubmit = new Class({
 			"submit": this.validateSearch.bind(this)
 		});
 		
+		/*
 		this.destination.addEvents({
 			"focus":function(e) {
 				if(this.get("value") == this.get("data-default")) {
@@ -2672,6 +2726,7 @@ RIA.AjaxSubmit = new Class({
 				}
 			}
 		});
+		*/
 	},
 	validateSearch: function(e) {
 		if(e) e.preventDefault();

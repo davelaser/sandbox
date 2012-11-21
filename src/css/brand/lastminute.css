@@ -45,7 +45,10 @@ form#search {
 }
 
 #hotels {
+	/*
 	top:172px;
+	*/
+	top:85px;
 }
 nav#hotel-list a.active {
 	background:#EC008C;
