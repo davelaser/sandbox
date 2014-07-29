@@ -1,10 +1,14 @@
 import configparsers
-import logging 
+import logging
+import hashlib
 import urllib
+import datetime
+import calendar
+import uuid
 import xml.etree.ElementTree as et
 from random import choice
 
-def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
+def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand, requestObject):
 	config_properties = configparsers.loadPropertyFile('config')
 	
 	# input format is YYY-MM-DD
@@ -23,8 +27,23 @@ def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
 
 	urlArgs = dict()
 	urlArgs['cid'] = config_properties.get('EAN', 'cid')
-	urlArgs['apiKey'] = config_properties.get('EAN', 'api_key')
+	apiKey = config_properties.get('EAN', 'api_key')
+	apiSecret = config_properties.get('EAN', 'shared_secret')
+	sig = generate_ean_signature(apiKey, apiSecret)
+	logging.info('EAN sig')
+	logging.info(sig)
+	urlArgs['sig'] = sig
+	urlArgs['apiKey'] = apiKey
+
+	# Extract IP address and User Agent from the Request Headers
+	customerIpAddress = requestObject.remote_addr
+	customerUserAgent = requestObject.headers.get('User-Agent')
+	urlArgs['customerIpAddress'] = customerIpAddress
+	urlArgs['customerUserAgent'] = customerUserAgent
+	urlArgs['customerSessionId'] = str(uuid.uuid4())
+
 	urlArgs['locale'] = config_properties.get('EAN', 'locale')
+	urlArgs['minorRev'] = config_properties.get('EAN', 'minor_rev')
 	urlArgs['currencyCode'] = config_properties.get('EAN', 'currency_code')
 	urlArgs['_type'] = config_properties.get('EAN', 'type')
 	urlArgs['xml'] = requestXML
@@ -33,14 +52,25 @@ def ean_get_hotel_list_url(arrivalDate, departureDate, city, hotelBrand):
 	return urlAgrsEncoded
 
 
-def ean_get_hotel_details(hotelId):
+def ean_get_hotel_details(hotelId, requestObject):
 	config_properties = configparsers.loadPropertyFile('config')
 	requestXML = "<HotelInformationRequest><hotelId>@TOKEN@</hotelId><options>DEFAULT</options></HotelInformationRequest>"
 	requestXML = requestXML.replace('@TOKEN@', hotelId)
 	
 	urlArgs = dict()
+	apiKey = config_properties.get('EAN', 'api_key')
+	apiSecret = config_properties.get('EAN', 'shared_secret')
+	sig = generate_ean_signature(apiKey, apiSecret)
+	logging.info('EAN sig')
+	logging.info(sig)
+	urlArgs['sig'] = sig
 	urlArgs['cid'] = config_properties.get('EAN', 'cid')
-	urlArgs['apiKey'] = config_properties.get('EAN', 'api_key')
+	urlArgs['apiKey'] = apiKey
+	customerIpAddress = requestObject.remote_addr
+	customerUserAgent = requestObject.headers.get('User-Agent')
+	urlArgs['customerIpAddress'] = customerIpAddress
+	urlArgs['customerUserAgent'] = customerUserAgent
+	urlArgs['customerSessionId'] = str(uuid.uuid4())
 	urlArgs['locale'] = config_properties.get('EAN', 'locale')
 	urlArgs['_type'] = config_properties.get('EAN', 'type')
 	urlArgs['xml'] = requestXML
@@ -54,6 +84,16 @@ def all(element, nodename):
     result = element.findall(path)
     return result
 
+def generate_ean_signature(apiKey, apiSecret):
+	now = datetime.datetime.now()# + datetime.timedelta(hours=1)
+	timestamp = str(calendar.timegm(now.timetuple()))
+	logging.info('timestamp')
+	logging.info(timestamp)
+	m = hashlib.md5()
+	m.update(apiKey + apiSecret + timestamp)
+	sig = m.hexdigest()
+	return sig
+	
  
 """
 This data object will be used by the Mashup Handler and Ajax Handler
