@@ -39,6 +39,13 @@ RIA.AjaxSubmit = new Class({
 		this.ajaxForm.addEvents({
 			"submit": this.validateSearch.bind(this)
 		});
+
+		this.ajaxForm.addEvents({
+			"keydown": function(event) {
+				Log.info(event);
+				
+			}
+		});
 		
 		/*
 		this.destination.addEvents({

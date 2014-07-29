@@ -174,7 +174,8 @@ class EANHotelDetailsStoreTaskWorker(webapp.RequestHandler):
 class EANHotelRequest(webapp.RequestHandler):
 	def get(self):
 		logging.info("EANHotelRequest")
-	def post(self):                    
+	def post(self):
+		result = None               
 		logging.info("EANHotelRequest")
 		config_properties = configparsers.loadPropertyFile('config')
 		
@@ -226,72 +227,78 @@ class EANHotelRequest(webapp.RequestHandler):
 				
 			else:	
 				logging.debug("Memcache empty, requesting hotels")
-				requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city, hotelBrand)
+				destination = city.lower()
+				if destination == 'europe':
+					hotelsData = datastore.get_hotels_by_region(destination, None)
+					logging.info(hotelsData)
+				else:
 
-				try: 
-					requestServiceURL = config_properties.get('EAN', 'xml_url_hotellist')
-					f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
-					response = f.read()
-					
-					response = response.replace('&gt;','>')
-					response = response.replace('&lt;','<')
-					
-				except (apiproxy_errors.ApplicationError, DeadlineExceededError), e:
-					logging.error("EANHotelRequest : DeadlineExceededError error")
-					logging.error(e) 
-					global_mashup['name'] = city
-					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/service-error.html')
-					self.response.out.write(template.render(path, global_mashup))
-					return
-		
-				try:
-					jsonLoadResponse = json.loads(response)	
-				except Exception, e:
-					raise e
-					
-				result = None
-				global_mashup['name'] = city
-				if utils.destination_display_names.has_key(city):
-					global_mashup['name'] = utils.destination_display_names[city]
+					requestArgs = utils.ean_get_hotel_list_url(arrivalDate.date().isoformat(), departureDate.date().isoformat(), city, hotelBrand)
 
-				if jsonLoadResponse['HotelListResponse'] is not None:
-					if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
-						if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
-							result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
-							if isinstance(result, list):
-								for hotel in result:
-									if hotel.has_key('thumbNailUrl'):
-										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
-							elif isinstance(result, dict):
-								tempResult = list()
-								tempResult.append(result)
-								result = tempResult
-								for hotel in result:
-									if hotel.has_key('thumbNailUrl'):
-										hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
-			
-				if result is not None:
-					# Add the datastore write to the taskqueue
-					for hotel in result:
-						existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
-						if existingHotel is None:
-							logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
-							taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
-						else: 
-							logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
-						# Add the new price data for this hotel
-						taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
-	
-						# Add Hotel details
-						#taskqueue.add(queue_name='eanhoteldetailsqueue', url='/eanhoteldetailsworker', params={'hotelid':str(hotel['hotelId'])})
-					
-						# Get Geonames Wikipedia Data
+					try: 
+						requestServiceURL = config_properties.get('EAN', 'xml_url_hotellist')
+						f = urllib.urlopen(""+requestServiceURL+"%s" % requestArgs)
+						response = f.read()
 						
-						#wikipediaData = geonames.geonames_find_nearby_wikipedia('en', hotel['latitude'], hotel['longitude'], 10, 5, 'us')
-						#hotel['geonames'] = wikipediaData
-					# Add the hotel results to Memcache
-					memcache.set(key=memcacheKey, value=result, time=memcacheExpires, namespace='ean')
-								
+						response = response.replace('&gt;','>')
+						response = response.replace('&lt;','<')
+						
+					except (apiproxy_errors.ApplicationError, DeadlineExceededError), e:
+						logging.error("EANHotelRequest : DeadlineExceededError error")
+						logging.error(e) 
+						global_mashup['name'] = city
+						path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/service-error.html')
+						self.response.out.write(template.render(path, global_mashup))
+						return
+			
+					try:
+						jsonLoadResponse = json.loads(response)	
+					except Exception, e:
+						raise e
+						
+					
+					global_mashup['name'] = city
+					if utils.destination_display_names.has_key(city):
+						global_mashup['name'] = utils.destination_display_names[city]
+
+					if jsonLoadResponse['HotelListResponse'] is not None:
+						if jsonLoadResponse['HotelListResponse'].has_key('HotelList'):
+							if jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary'] is not None:
+								result = jsonLoadResponse['HotelListResponse']['HotelList']['HotelSummary']
+								if isinstance(result, list):
+									for hotel in result:
+										if hotel.has_key('thumbNailUrl'):
+											hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
+								elif isinstance(result, dict):
+									tempResult = list()
+									tempResult.append(result)
+									result = tempResult
+									for hotel in result:
+										if hotel.has_key('thumbNailUrl'):
+											hotel['mainImageUrl'] = hotel['thumbNailUrl'].replace('_t', '_b')
+				
+					if result is not None:
+						# Add the datastore write to the taskqueue
+						for hotel in result:
+							existingHotel = datamodel.EANHotel.get_by_key_name(str(hotel['hotelId']))
+							if existingHotel is None:
+								logging.info("EANHotelRequest() : Hotel with hotelid "+str(hotel['hotelId'])+" DOES NOT exist. Assigning task to queue")
+								taskqueue.add(queue_name='eanhotelsqueue', url='/eanhotelsworker', params={'hotel':json.dumps(hotel)})
+							else: 
+								logging.info("EANHotelRequest() : Hotel with location id "+str(hotel['hotelId'])+" DOES exist. No task queue necessary")
+							# Add the new price data for this hotel
+							taskqueue.add(queue_name='eanhotelspricequeue', url='/eanhotelspriceworker', params={'hotel':json.dumps(hotel), 'arrivalDate':str(arrivalDate.date().isoformat()), 'departureDate':str(departureDate.date().isoformat())})
+		
+							# Add Hotel details
+							#taskqueue.add(queue_name='eanhoteldetailsqueue', url='/eanhoteldetailsworker', params={'hotelid':str(hotel['hotelId'])})
+						
+							# Get Geonames Wikipedia Data
+							
+							#wikipediaData = geonames.geonames_find_nearby_wikipedia('en', hotel['latitude'], hotel['longitude'], 10, 5, 'us')
+							#hotel['geonames'] = wikipediaData
+						# Add the hotel results to Memcache
+						memcache.set(key=memcacheKey, value=result, time=memcacheExpires, namespace='ean')
+									
 			# Regardless of memcache or datastore results, apply any filters
 			if result is not None:
 				

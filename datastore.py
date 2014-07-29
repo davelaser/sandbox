@@ -168,8 +168,10 @@ def get_hotels_by_price(destination, price, startDate, endDate, rating):
 	return resultset
 
 def get_hotels_by_region(region, price):
-	# [ST]TODO: The LMHotel Model has now price attribute. We'll to fetch LMHotelPriceAndDate instead...
+	# [ST]TODO: The LMHotel Model has no price attribute. We'll need to fetch LMHotelPriceAndDate instead...
 	countries = utils.get_countries_by_region(region)
+	logging.info('countries')
+	logging.info(countries)
 	if len(countries) > 0:
 		queryString = "WHERE countrycode IN :1"
 		if price is not None and float(price) > 0.0:

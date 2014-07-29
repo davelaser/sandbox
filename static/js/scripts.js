@@ -1077,7 +1077,8 @@ RIA.MapStreetView = new Class({
 			position: RIA.currentLocation,
 			pov: {
 				heading: (this.options.streetViewDefaultOptions.heading || 120),
-		        pitch: (this.options.streetViewDefaultOptions.pitch || 20),
+		        //pitch: (this.options.streetViewDefaultOptions.pitch || 20),
+		        pitch: (this.options.streetViewDefaultOptions.pitch || 4),
 		        zoom: (this.options.streetViewDefaultOptions.zoom || 0)
 			}
 		};
@@ -1139,19 +1140,21 @@ RIA.MapStreetView = new Class({
 				// in latlngs and convert them to pixels coordinates.
 				// We'll use these coordinates to resize the DIV.
 				var coords = overlayProjection.fromLatLngToDivPixel(this.latLng_);
-				var y = coords.y;
-				var x = coords.x;
-				var yThreshold = (y-this.div_.getStyle("height").toInt());
-			
-				if(y >= (RIA.InitExperience.viewport.y - this.div_.getStyle("height").toInt())) {
-					y = (RIA.InitExperience.viewport.y - this.div_.getStyle("height").toInt() - 80);
-				}
-				// Resize the image's DIV to fit the indicated dimensions.
-				this.div_.style.left = (x + 20) + 'px';
-				/*
-				[ST]TODO: Fix the custom overlay Y position, for small screens
-				*/
-				this.div_.style.top = (y+50)+'px';
+				if(coords) {
+					var y = coords.y;
+					var x = coords.x;
+					var yThreshold = (y-this.div_.getStyle("height").toInt());
+				
+					if(y >= (RIA.InitExperience.viewport.y - this.div_.getStyle("height").toInt())) {
+						y = (RIA.InitExperience.viewport.y - this.div_.getStyle("height").toInt() - 80);
+					}
+					// Resize the image's DIV to fit the indicated dimensions.
+					this.div_.style.left = (x + 20) + 'px';
+					/*
+					[ST]TODO: Fix the custom overlay Y position, for small screens
+					*/
+					this.div_.style.top = (y+50)+'px';	
+				}				
 			}
 		}
 
@@ -1501,7 +1504,8 @@ RIA.MapStreetView = new Class({
 				// Set the Panorama heading, pitch and zoom 
 				RIA.panorama.setPov({
 					heading: heading,
-					pitch:20,
+					//pitch:20,
+					pitch:4,
 					zoom:0
 				});
 			}
@@ -2698,6 +2702,12 @@ RIA.AjaxSubmit = new Class({
 	addEventListeners: function() {
 		this.ajaxForm.addEvents({
 			"submit": this.validateSearch.bind(this)
+		});
+
+		this.ajaxForm.addEvents({
+			"keydown": function(event) {
+				Log.info(event);
+			}
 		});
 		
 		/*

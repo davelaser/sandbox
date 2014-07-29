@@ -74,6 +74,7 @@ form#search label {
 * 	Search Form submit button
 */
 #submit-search {
+	visibility: hidden;
 	width:100px;
 	height:43px; 
 	position:absolute;

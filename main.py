@@ -444,6 +444,7 @@ class AjaxAPIHandler_v3(webapp.RequestHandler):
 			regions = utils.get_regions()
 			if destination in regions:
 				hotelsData = datastore.get_hotels_by_region(destination, price)
+				logging.info(hotelsData)
 				if hotelsData is None:
 					logging.info("No results for "+str(destination))
 					path = os.path.join(os.path.dirname(__file__),'templates/version3/includes/no-results.html')
